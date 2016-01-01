@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="559.0" prefWidth="822.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <MenuBar>
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#importImage" text="Import" />
+	              <MenuItem mnemonicParsing="false" onAction="#exportImage" text="Export" />
+                  <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="Advanced">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#showInformations" text="Show Informations" />
+               </items>
+            </Menu>
+        </menus>
+      </MenuBar>
+      <ImageView fx:id="imageView" fitHeight="381.0" fitWidth="655.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true" VBox.vgrow="ALWAYS" />
+   </children>
+</VBox>

@@ -1,0 +1,82 @@
+The new ebx format differs in several ways from the previous format.
+First of all, note that the fb2 magic still remains even though it's supposedly Frostbite 3.
+ 
+The previous header had 11 ints (excluding the magic) and two 16 byte guids,
+one being the file guid and one the guid of the primary instance.
+ 
+The new header has a mixture of shorts and ints and the primary instance guid is removed.
+The very first instance to appear in the payload is the primary instance (in bf3 this was not
+the case; the instances were sorted alphabetically).
+ 
+Header:
+        aaaaaaaa  bbbbbbbb  cccccccc  dddddddd
+        eeee ffff gggg hhhh iiii jjjj kkkkkkkk
+        llllllll  mmmmmmmm  nnnnnnnnnnnnnnnn
+        nnnnnnnnnnnnnnnn    oooooooooooooooo
+       
+        a: fb2 magic (0fb2d1ce or ced1b20f depending on endianness)
+        b: Absolute offset of string section start (same as previous format)
+        c: Length from string section start to EOF (same as previous format)
+        d: Number of external GUIDs (same as previous format)
+        e: Number of instance repeaters
+        f: Number of instance repeaters with GUIDs
+        g: Unknown (value between 1 and the number of instance repeaters)
+        h: Number of complexes
+        i: Number of fields
+        j: Size of keyword section
+        k: Size of string section
+        l: Number of array repeaters
+        m: Size of payload section (excluding array and string section)
+        n: File guid, 16 bytes
+        o: Padding, 8 nulls
+       
+        As for the instance repeaters with GUIDs:
+                While going through the instance repeaters to read the instances,
+                the first few instance repeaters in the payload have GUIDs.
+                Once the number of instance repeaters with GUIDs is exhausted, all
+                subsequent instance repeaters simply have no GUID. The payload is not affected
+                by this. I use an index to tell the instances without GUID apart.
+ 
+Field descriptors:
+        Have not necessarily changed. Previously I read the offset and secondaryOffset as unsigned ints.
+        However, occasionally numbers like -2 or -1 appear. These are used for the enum field type only.
+        The crucial part is to read this the same way as the enum field type. I've changed both to signed ints,
+        but keeping both as unsigned ints (i.e. changing nothing at all) works just as well.
+       
+        A major change is that $ fields have their offset set to 8 while it should be 0.
+        I adjust this directly while reading the descriptor but I suppose one could do it later too:
+                if self.name=="$": self.offset-=8
+       
+        For some sizes of the complexes within $ fields, one must subtract 8 too. I don't know
+        the exact system, but as I do not require these sizes to parse the files, this is not essential.
+ 
+Instance repeaters:
+        Used to have three ints, now they are two shorts:
+                2bytes complexIndex
+                2bytes repetitions
+ 
+Instance alignment:
+        When reading instances, obey the alignment. Before reading the GUID of an instance (or going
+        straight into the payload for non-GUID instances), peek at the alignment of the complex
+        and move the cursor to the closest multiple of the alignment.
+       
+        It is not necessary to align complexes within instances as the field offsets always
+        give the correct position already. However, doing so is not harmful either.
+       
+        Instances with alignment=4 require additional handling:
+                Subtract 8 from the offsets of all fields contained directly in such instances.
+                Also subtract 8 from the size of the instance.
+                Note, this subtraction is only required for the instance level; do not subtract
+                8 from complexes/fields deep in the instance.
+ 
+Field types:
+        The string type (0x407d and 0x409d) can have a negative value:
+                Read the 4bytes payload as a signed integer. If the integer is -1, return empty string.
+                Apart from that, it's the same as before.
+       
+        Type 0x417d has its payload size reduced from 24 bytes to 8 bytes.
+ 
+File names:
+        In bf3 there was a field called Name located in the primary instance of every ebx file.
+        In particular, this name had proper capitalization whereas the sbtoc archives contain names in lowercase only.
+        In bf4, most fx files do not have a Name field anymore, so it is necessary to use the sbtoc names.

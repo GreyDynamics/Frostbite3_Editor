@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<BorderPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tk.greydynamics.JavaFX.Controller.ModLoaderController">
+   <top>
+      <VBox alignment="CENTER" style="-fx-background-color: #DDDDDD;" BorderPane.alignment="CENTER">
+         <children>
+            <HBox alignment="CENTER">
+               <children>
+                  <Pane prefWidth="224.0" visible="false" />
+                  <Label text="FrostBite 3 ModLoader">
+                     <font>
+                        <Font size="32.0" />
+                     </font>
+                  </Label>
+                  <Pane layoutX="134.0" layoutY="10.0" prefWidth="182.0" visible="false" />
+                  <Button fx:id="runEditor" disable="true" mnemonicParsing="false" onAction="#runEditor" text="Editor" />
+               </children>
+            </HBox>
+            <Separator prefWidth="200.0" />
+         </children>
+      </VBox>
+   </top>
+   <left>
+      <VBox prefHeight="182.0" prefWidth="194.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label onMouseClicked="#openModFolder" prefHeight="17.0" prefWidth="195.0" text="Mods:    (Click here to open folder)">
+               <padding>
+                  <Insets left="7.0" />
+               </padding>
+            </Label>
+            <ListView fx:id="list" prefHeight="489.0" prefWidth="194.0" />
+            <Label alignment="CENTER" onMouseClicked="#createNew" prefHeight="17.0" prefWidth="184.0" text="(Click here to create a new mod)">
+               <VBox.margin>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </VBox.margin>
+            </Label>
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <BorderPane prefHeight="502.0" prefWidth="606.0" BorderPane.alignment="CENTER">
+         <top>
+            <HBox alignment="CENTER" BorderPane.alignment="CENTER">
+               <children>
+                  <VBox prefHeight="128.0" prefWidth="321.0">
+                     <children>
+                        <Label fx:id="modName" text="No mod currently selected!">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                           <font>
+                              <Font size="22.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="authorName" alignment="CENTER">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </Label>
+                        <Label fx:id="gameName" alignment="CENTER" layoutX="15.0" layoutY="57.0" textFill="#5b5b5b">
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                           <font>
+                              <Font size="10.0" />
+                           </font>
+                        </Label>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="340.0">
+                           <children>
+                              <CheckBox fx:id="checkBox" disable="true" mnemonicParsing="false" prefHeight="17.0" prefWidth="132.0" text="recompile" visible="false">
+                                 <HBox.margin>
+                                    <Insets top="2.0" />
+                                 </HBox.margin>
+                              </CheckBox>
+                              <Button fx:id="playButton" disable="true" mnemonicParsing="false" onAction="#playMod" prefHeight="32.0" prefWidth="128.0" text="Play">
+                                 <HBox.margin>
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="7.0" />
+                                 </HBox.margin>
+                              </Button>
+                           </children></HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </padding>
+                  </VBox>
+                  <ImageView fx:id="logo" fitHeight="128.0" fitWidth="258.0" pickOnBounds="true" smooth="false" />
+               </children>
+            </HBox>
+         </top>
+         <center>
+            <TextArea fx:id="desc" editable="false" prefHeight="346.0" prefWidth="582.0" BorderPane.alignment="CENTER">
+               <cursor>
+                  <Cursor fx:constant="DISAPPEAR" />
+               </cursor>
+            </TextArea>
+         </center>
+         <left>
+            <Pane prefWidth="12.0" BorderPane.alignment="CENTER" />
+         </left>
+         <right>
+            <Pane prefWidth="12.0" BorderPane.alignment="CENTER" />
+         </right>
+         <bottom>
+            <Pane prefHeight="27.0" prefWidth="606.0" BorderPane.alignment="CENTER" />
+         </bottom>
+      </BorderPane>
+   </center>
+   <bottom>
+      <BorderPane prefHeight="20.0" prefWidth="800.0" style="-fx-background-color: #CCCCCC;" BorderPane.alignment="CENTER">
+         <right>
+            <Label text="\@GreyDynamics" BorderPane.alignment="CENTER">
+               <padding>
+                  <Insets left="5.0" right="5.0" />
+               </padding>
+            </Label>
+         </right>
+         <left>
+            <Label fx:id="gamepath" prefHeight="17.0" prefWidth="668.0" text="gamepath" BorderPane.alignment="CENTER">
+               <BorderPane.margin>
+                  <Insets left="5.0" right="5.0" />
+               </BorderPane.margin>
+            </Label>
+         </left>
+      </BorderPane>
+   </bottom>
+</BorderPane>

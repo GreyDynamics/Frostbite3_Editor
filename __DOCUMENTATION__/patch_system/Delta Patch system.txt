@@ -1,0 +1,76 @@
+If the Resource Entry has a patchtype of 2,
+it means it will get delta patched.
+
+For patching, two files are required:
+	Base -> block logic, defined by _baseSHA1
+	Delta -> --NO-- block logic, defined by _deltaSHA1
+
+	
+The Delta file just has a 2 byte header:
+	2 bytes (short, big_endian) -> Type
+	
+There a currently two known types:
+	0x2000 -> It's using the following bytes with
+			  a really nice algorithm, to patch the base
+			  by adding bytes from delta or keeping bytes from base.
+			  If bytes from base will be used, some bytes needs to be skipped.
+			  
+			  With this type, the delta header got extended by four more bytes:
+				2 bytes (short, big_endian) -> proc Size
+				2 bytes (short, big_endian) -> patched Size
+			  
+			  A replacement block contains:
+			   - 2 bytes (short, big_endian) -> Offset
+				 this value represents the offset inside the base,
+				 if the return list is smaller as the offset, the
+				 return list will be filled up to the offset.
+			   - 1 byte -> Skip num bytes
+			     If the return list got extended by some bytes from the delta file,
+				 data from the base got "overridden", so we need to skip them.
+			   - 1 byte -> Add num bytes
+			     after filling up to the offset, bytes from the delta will get
+				 added to the return list, this value is the number of following bytes
+				 that get added. All bytes are located behind this value.
+				 
+				--->>This means the replacement header has a size of 4 bytes<<---
+			  
+			  After the delta file is done, all remaining bytes from base needs to be added
+			  to the return list, to obtain the patched file.
+			  
+			  
+	0x1000 -> This type is mostly used, if a lot of bytes that follow needs to be replaced
+			  It's using multiple deltablocks, based on a header and the default block logic,
+			  to add bytes from delta or keeping bytes from base.
+			  If bytes from base will be used, some bytes needs to be skipped.
+			  	  
+			  With this type, the delta header got extended by two more bytes:
+				2 bytes (short, big_endian) -> number of deltablocks
+			
+			  Each deltablock has a 4 byte header, followed by the logic block:
+				- 2 bytes (short, big_endian) -> Offset
+				 this value represents the offset inside the base,
+				 if the return list is smaller as the offset, the
+				 return list will be filled up to the offset.
+				- 2 bytes (short, big_endian) -> Skip num bytes
+			     If the return list got extended by some bytes from the delta file,
+				 data from the base got "overridden", so we need to skip them.
+				- The logic block.
+				
+				
+			  To obtain the total length of the logic block to find out where it ends
+			  and the next deltablock starts, we need the compressed length from the
+			  compressed logic block, so we have to seek 6 bytes forward to read the value
+			  and go 8 bytes back to get the starting point of the block.
+			  
+			  The logic block, need to be decompressed from the current offset,
+			  with a total length of the obtained compressed size + adding the length
+			  the block logic's header (8 bytes). See "../compression/lz4.txt" for more detail!
+			  
+			  --->>Conclusion: this type is using compressed blocks, instead of 0x1000's following bytes<<---
+			  
+				 
+			  
+
+	
+			  
+			  

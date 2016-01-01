@@ -1,0 +1,7 @@
+.git/
+bin_class/
+temp/
+lib/jar/slick-util-src.zip
+tools/
+games/
+build_binary.bat

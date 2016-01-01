@@ -1,0 +1,7 @@
+test-scaling-4x.png -> shows first attempts to test, if the original scaling fits to the editor. Models are 4x bigger as original,
+					   so i had to multiply the transformation by 4x.
+					   
+					   The image is taken from top in the editor and the void got replaced with the minimap of test-range.
+					   
+mp_playground terrain4k.decals -> 0000A71C seems to start a big_endian int array, with a size of 128x128 + 0x128 bytes left over?
+https://msdn.microsoft.com/en-us/library/windows/desktop/bb173059(v=vs.85).aspx#DXGI_FORMAT_R8G8B8A8_UNORM

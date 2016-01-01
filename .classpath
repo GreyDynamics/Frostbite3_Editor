@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="lib/jar/jinput.jar"/>
+	<classpathentry kind="lib" path="lib/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="lib/jar/lwjgl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="FrostBite3Editor/lib/native/windows"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="lib/jar/slick-util.jar" sourcepath="lib/jar/slick-util-src.zip"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="FrostBite3_Editor/lib/native/windows"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="output" path="bin_class"/>
+</classpath>
