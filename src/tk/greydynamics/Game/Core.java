@@ -118,7 +118,7 @@ public class Core {
 		if (buildVersion.contains("NEW VERSION")){
 			jfxHandler.getDialogBuilder().showInfo("Info",
 					"Make sure to run the latest version!\n"+
-						"http://captainsplexx.tk/");
+						"http://greydynamics.github.io/Frostbite3_Editor/");
 		}
 		modTools = new ModTools();
 		
@@ -237,7 +237,7 @@ public class Core {
 				game.getShaderHandler().cleanUpAll();
 			}
 		}
-		System.out.println("Thanks for using this Editor/ModLoader.\n"
+		System.out.println("Thanks for using!\n"
 				 + "If u have noticed any Bugs, make sure to report them\n"
 				 + "directly on Github to @GreyDynamics."
 				 + "\n\n"
@@ -283,7 +283,7 @@ public class Core {
 		/*VERSION CHECK*/
 		String newVersion = "";
 		try{
-			URL url = new URL("https://raw.githubusercontent.com/GreyDynamics/FrostBite3_Editor/master/version");
+			URL url = new URL("https://raw.githubusercontent.com/GreyDynamics/FrostBite3_Editor/develop/version");
 			URLConnection ec = url.openConnection();
 	        BufferedReader in = new BufferedReader(new InputStreamReader(
 	                ec.getInputStream(), "UTF-8"));
