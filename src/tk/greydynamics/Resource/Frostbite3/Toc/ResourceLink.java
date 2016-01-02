@@ -88,6 +88,7 @@ public class ResourceLink {
 			File temp = new File(Core.EDITOR_PATH_TEMP+UUID.randomUUID());
 			if (FileHandler.writeLine(list, temp)){
 				String hash = FileHandler.checkSumSHA1(temp);
+				temp.delete();
 				if (hash!=null){
 					File target = new File(resLinkRootPath+"/"+FileHandler.normalizePath(resLink.getName())+"/"+hash+"_"+origin+fileType);
 					if (target.exists()){
