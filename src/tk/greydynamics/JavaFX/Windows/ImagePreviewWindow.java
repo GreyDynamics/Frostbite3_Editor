@@ -16,7 +16,6 @@ import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.JavaFX.Controller.ImagePreviewWindowController;
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 
 public class ImagePreviewWindow {
 	private Stage stage;

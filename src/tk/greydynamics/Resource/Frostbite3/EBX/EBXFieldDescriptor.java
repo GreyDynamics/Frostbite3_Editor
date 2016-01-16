@@ -6,6 +6,9 @@ public class EBXFieldDescriptor{
 	short ref;
 	int offset;
 	int secondaryOffset;
+	
+	//additional
+	int size;
 	public EBXFieldDescriptor(String name, short type, short ref, int offset,
 			int secondaryOffset) {
 		this.name = name;
@@ -13,10 +16,27 @@ public class EBXFieldDescriptor{
 		this.ref = ref;
 		this.offset = offset;
 		this.secondaryOffset = secondaryOffset;
-		if (this.name.equals("$")){
-			this.offset -= 0x08;
-		}
+//		if (this.name.equals("$")){
+//		THIS IS NOW HANDLED IN READFIELD!!!
+//			this.offset -= 0x08;
+//		}
+		this.size = 0;
 	}
+	
+	/**
+	 * Size is just to keep track in the creator.
+	 */
+	public int getSize() {
+		return size;
+	}
+	
+	/**
+	 * Size is just to keep track in the creator.
+	 */
+	public void setSize(int size) {
+		this.size = size;
+	}
+
 	public String getName() {
 		return name;
 	}

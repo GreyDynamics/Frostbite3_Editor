@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.sun.beans.finder.FieldFinder;
-
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
@@ -22,7 +20,6 @@ import tk.greydynamics.Render.Gui.GuiTexture;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle;
-import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.ResourceFinder;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITextureHandler;
 import tk.greydynamics.Resource.Frostbite3.Layout.LayoutFile;

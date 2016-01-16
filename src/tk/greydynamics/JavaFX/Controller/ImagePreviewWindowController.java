@@ -11,13 +11,13 @@ import tk.greydynamics.Game.Core;
 import tk.greydynamics.Mod.ModTools;
 import tk.greydynamics.Mod.Package;
 import tk.greydynamics.Resource.FileHandler;
+import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
+import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle.BundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITexture;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
-import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
-import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 
 public class ImagePreviewWindowController {
 	@FXML

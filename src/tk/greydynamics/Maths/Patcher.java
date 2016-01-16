@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
-import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
 
 public class Patcher {

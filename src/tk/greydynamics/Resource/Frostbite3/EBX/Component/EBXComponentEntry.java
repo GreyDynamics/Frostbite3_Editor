@@ -5,22 +5,22 @@ public class EBXComponentEntry {
 	private String type;
 	private int totalSize;
 	private int alignment;
-	//private Object value;
+	private Object value;
 	
-	public EBXComponentEntry(String name, String type, int totalSize, int alignment/*, Object value*/) {
+	public EBXComponentEntry(String name, String type, int totalSize, int alignment, Object value) {
 		this.name = name;
 		this.type = type;
 		this.totalSize = totalSize;
 		this.alignment = alignment;
-		//this.value = value;
+		this.value = null;
 	}
 	
-	/*public Object getValue() {
+	public Object getValue() {
 		return value;
 	}
 	public void setValue(Object value) {
 		this.value = value;
-	}*/
+	}
 	public String getName() {
 		return name;
 	}

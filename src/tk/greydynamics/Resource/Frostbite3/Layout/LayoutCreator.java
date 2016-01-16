@@ -6,13 +6,13 @@ import java.util.ArrayList;
 
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
+import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Toc.ConvertedTocFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocEntry;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager.LayoutEntryType;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager.LayoutFieldType;
-import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 
 public class LayoutCreator {
 	public static byte[] createTocFile(ConvertedTocFile cToc){

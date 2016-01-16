@@ -5,16 +5,15 @@ import java.util.ArrayList;
 
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.FileHandler;
+import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
+import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXLoader;
 import tk.greydynamics.Resource.Frostbite3.Layout.LayoutEntry;
 import tk.greydynamics.Resource.Frostbite3.Layout.LayoutField;
 import tk.greydynamics.Resource.Frostbite3.Layout.LayoutFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager.LayoutFieldType;
-import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
-import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 
 public class TocConverter {
 	public static enum ResourceBundleType{EBX, DBX, RES, CHUNKS, CHUNKMETA};

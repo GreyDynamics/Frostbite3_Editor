@@ -7,7 +7,6 @@ import org.lwjgl.opengl.Display;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -50,7 +49,7 @@ public class ToolsWindow {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		scene = new Scene(parent, 275, 700);
+		scene = new Scene(parent, 300, 700);
 		stage.setX(Display.getDesktopDisplayMode().getWidth()*0.01f);
 		stage.setY(Display.getDesktopDisplayMode().getHeight()/2-(scene.getHeight()/2));
 		stage.setTitle("Tools / Explorer");

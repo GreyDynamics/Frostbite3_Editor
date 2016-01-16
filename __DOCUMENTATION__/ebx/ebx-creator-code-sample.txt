@@ -1,0 +1,40 @@
+proccInstance{
+  align(repitition.complex.alignment)
+  int index = proccComplex(repetition.complex)
+  proccInstanceDescriptor(this.guid, index, 1)
+}
+proccComplex{
+  int complexIndex = allComplexDescriptor.size
+  List fieldDescriptors
+  for(field){
+     fieldDesc.add(proccField(field))
+  }
+  
+  proccComplexDescriptor(this, allFieldDescritors.size)
+  for (fieldDescriptor){
+    proccFieldDescriptor(fieldDescriptor)
+  }
+  return complexIndex
+}
+proccField{
+   if (type==0x0){
+	blah
+   }else if(type==0xASDF){
+	blash
+   }else....
+   return fieldDescriptor
+}
+
+proccInstanceDescriptor{
+  this.repitions = repititions
+  this.startIndex = startIndex
+  allInstanceDescritors(this)
+}
+proccComplexDescriptor{
+  allComplexDescriptor.add(this)
+  names.add(name)
+}
+proccFieldDescriptor{
+  allFielddescritors.add(this)
+  names.add(name)
+}

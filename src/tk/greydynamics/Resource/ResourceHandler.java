@@ -52,6 +52,7 @@ public class ResourceHandler {
 		ebxHandler.reset();
 		mvdH.reset();
 		Core.getJavaFXHandler().getMainWindow().destroyEBXWindows();
+		Core.getJavaFXHandler().getMainWindow().destroyEBXComponentWindows();
 	}
 	
 	public ResourceLink getResourceLinkByEBXGUID(String ebxGUID){

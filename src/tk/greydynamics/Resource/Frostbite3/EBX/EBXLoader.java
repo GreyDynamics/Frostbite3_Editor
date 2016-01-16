@@ -170,11 +170,9 @@ public class EBXLoader {
 				return false;
 			}
 		}
-		
-		//arrayRepeaters
-		
 		while (seeker.getOffset()%16!=0){ seeker.seek(1);} // #padding
 		
+		//arrayRepeaters	
 		arrayRepeaters = new EBXArrayRepeater[header.getNumArrayRepeater()];
 		for (int i=0; i<arrayRepeaters.length;i++){
 			arrayRepeaters[i] = new EBXArrayRepeater(
@@ -199,7 +197,7 @@ public class EBXLoader {
 		for (int repeater=0; repeater<instanceRepeaters.length;repeater++){
 			EBXInstanceRepeater ir = instanceRepeaters[repeater];
 			for (int repetition=0; repetition<ir.getRepetitions();repetition++){
-				while (seeker.getOffset()%complexDescriptors[ir.complexIndex].alignment!=0){ seeker.seek(1); } //#obey alignment of the instance; peek into the complex for that
+				while (seeker.getOffset()%complexDescriptors[ir.complexIndex].alignment!=0){ seeker.seek(1); } //#obey alignment of the instance; peek into the complex for that		
 				if (repeater<header.getNumGUIDRepeater()){
 					tempGUID = FileHandler.bytesToHex(FileHandler.readByte(ebxFileBytes, seeker, 16));
 				}else{
@@ -239,14 +237,22 @@ public class EBXLoader {
 		EBXComplex cmplx = new EBXComplex(complexDesc);
 		cmplx.setOffset(seeker.getOffset());
 		
+		
 		EBXField[] fields = new EBXField[complexDesc.getNumField()];
 		//#alignment 4 instances require subtracting 8 for all field offsets and the complex size 
 		int obfuscationShift=0;
 		if (isInstance && cmplx.getComplexDescriptor().getAlignment()==4){
 			obfuscationShift = 8;
 		}
+//		if (cmplx.getComplexDescriptor().getAlignment()!=4){
+//			System.out.println(cmplx.getComplexDescriptor().getName()+" "+cmplx.getComplexDescriptor().getAlignment()+" "+cmplx.getComplexDescriptor().getSize());
+//		}
 		for (int fieldIndex=0; fieldIndex<complexDesc.getNumField(); fieldIndex++){
-			seeker.setOffset(cmplx.getOffset()+fieldDescriptors[complexDesc.getFieldStartIndex()+fieldIndex].getOffset()-obfuscationShift);
+			int noNameShift = 0;
+			if (fieldDescriptors[complexDesc.getFieldStartIndex()+fieldIndex].getName().equals("$")){
+				noNameShift = -8;
+			}
+			seeker.setOffset(cmplx.getOffset()+fieldDescriptors[complexDesc.getFieldStartIndex()+fieldIndex].getOffset()+noNameShift-obfuscationShift);
 	    	fields[fieldIndex] = readField(complexDesc.getFieldStartIndex()+fieldIndex, hasEmtyPayload);
 	    	if (seeker.hasError()){
 				return null;
@@ -260,6 +266,7 @@ public class EBXLoader {
 	public EBXField readField(int fieldIndex, boolean hasEmtyPayload){
 		EBXFieldDescriptor fieldDesc = fieldDescriptors[fieldIndex];
 		EBXField field = new EBXField(fieldDesc, seeker.getOffset());
+		field.indexDEBUG = fieldIndex;
 		fields.add(field);
 				
 		/*<DECODE>*/
@@ -271,17 +278,18 @@ public class EBXLoader {
 				System.err.println("Out of bounds!");
 			}
 			EBXArrayRepeater arrayRepeater = arrayRepeaters[repeaterIndex];
-			EBXComplexDescriptor arrayComplexDesc = complexDescriptors[fieldDesc.getRef()];
+			EBXComplexDescriptor arrayComplexDesc = complexDescriptors[fieldDesc.getRef()];//fields.getRef is the same as arrayRepeater.getIndex
 			seeker.setOffset(arraySectionstart+arrayRepeater.offset);
 			EBXComplex arrayComplex = new EBXComplex(arrayComplexDesc);
 			EBXField[] fields = null;
+			EBXComplexDescriptor test = complexDescriptors[arrayRepeater.getComplexIndex()];
 			if (arrayRepeater.getRepetitions()>0){//Guids,Strings,Integer... =) ?
 				fields = new EBXField[arrayRepeater.getRepetitions()];
 				for (int i=0; i<fields.length;i++){
 					fields[i] = readField(arrayComplexDesc.getFieldStartIndex(), false);
 				}
 			}else if (arrayComplexDesc.getNumField()>0){//Field is prob, Complex|||  ------------>The complexDescr does exist but without any payload ??
-				int index = FileHandler.readInt(ebxFileBytes, new FileSeeker(seeker.getOffset()));//array section contains a integer for it ?
+//TODO is this needed, removed 16-jan-2016	int index = FileHandler.readInt(ebxFileBytes, new FileSeeker(seeker.getOffset()));//array section contains a integer for it ?
 				//System.out.println("ArrayComplex-Integer-Debug: "+index);
 				fields = new EBXField[arrayComplexDesc.getNumField()];
 				for (int i=0; i<fields.length;i++){
@@ -292,7 +300,7 @@ public class EBXLoader {
 				arrayComplex.setFields(fields);
 				field.setValue(arrayComplex, FieldValueType.ArrayComplex);
 			}else{
-				field.setValue("*nullArray*", FieldValueType.ArrayComplex);
+				field.setValue(arrayRepeater, FieldValueType.ArrayComplex);
 			}
 		}else if (fieldDesc.getType() == (short) 0x407D || fieldDesc.getType() == (short) 0x409D){//STRING
 			if (hasEmtyPayload){

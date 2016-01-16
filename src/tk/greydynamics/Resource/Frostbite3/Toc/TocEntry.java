@@ -3,8 +3,8 @@ package tk.greydynamics.Resource.Frostbite3.Toc;
 import java.io.File;
 
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.Frostbite3.Layout.LayoutFile;
 import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
+import tk.greydynamics.Resource.Frostbite3.Layout.LayoutFile;
 
 public class TocEntry {
 	private String id;

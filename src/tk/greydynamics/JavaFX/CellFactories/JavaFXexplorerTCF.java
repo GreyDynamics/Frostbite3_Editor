@@ -1,7 +1,6 @@
 package tk.greydynamics.JavaFX.CellFactories;
 
 import java.io.File;
-import java.util.List;
 
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -21,6 +20,7 @@ import tk.greydynamics.JavaFX.TreeViewEntry;
 import tk.greydynamics.JavaFX.Windows.MainWindow.EntryType;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
+import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.ResourceFinder;
@@ -30,7 +30,6 @@ import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocEntry;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager;
-import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 
 public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 	public static String backString = "GO BACK";

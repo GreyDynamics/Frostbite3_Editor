@@ -20,12 +20,12 @@ import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXBlueprintTrans
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXBreakableModelEntityData;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXDynamicModelEntityData;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXObjArray;
+import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXObjArray.ArrayType;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXObjInstanceGUID;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXObjectBlueprint;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXReferencedObjectData;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXSpatialPrefabBlueprint;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXStaticModelEntityData;
-import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXObjArray.ArrayType;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 
 public class EntityLayerConverter {

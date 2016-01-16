@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle;
-import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 
 public class MeshConverter {
 		

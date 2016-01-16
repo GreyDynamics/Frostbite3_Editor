@@ -2,7 +2,7 @@ package tk.greydynamics.Resource.Frostbite3.EBX.Component;
 
 import java.util.ArrayList;
 
-public class EBXComponent {
+public class EBXComponentComplex {
 	private String name;
 	private int totalSize;
 	private int alignment;	
@@ -10,7 +10,7 @@ public class EBXComponent {
 	private ArrayList<EBXComponentEntry> entries;
 	private boolean isNew;
 	
-	public EBXComponent(boolean occurredAsInstance, String name, int totalSize, int alignment, boolean isNew, ArrayList<EBXComponentEntry> entries) {
+	public EBXComponentComplex(boolean occurredAsInstance, String name, int totalSize, int alignment, boolean isNew, ArrayList<EBXComponentEntry> entries) {
 		if (!this.occurredAsInstance){
 			this.occurredAsInstance = occurredAsInstance;
 		}

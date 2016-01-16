@@ -9,7 +9,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="600.0" prefWidth="279.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tk.greydynamics.JavaFX.Controller.ToolsWindowController">
+<VBox prefHeight="600.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="tk.greydynamics.JavaFX.Controller.ToolsWindowController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -65,7 +65,7 @@
                                        <children>
                                           <HBox>
                                              <children>
-                                                <TextField fx:id="filter" prefHeight="25.0" prefWidth="190.0" promptText="Filter String">
+                                                <TextField fx:id="filter" prefHeight="25.0" prefWidth="161.0" promptText="Filter String">
                                                    <HBox.margin>
                                                       <Insets bottom="5.0" left="5.0" top="5.0" />
                                                    </HBox.margin>
@@ -73,6 +73,11 @@
                                                 <Button fx:id="search" mnemonicParsing="false" onAction="#search" text="Search">
                                                    <HBox.margin>
                                                       <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                   </HBox.margin>
+                                                </Button>
+                                                <Button fx:id="importButton" disable="true" layoutX="181.0" layoutY="15.0" mnemonicParsing="false" onAction="#importRes" text="Import">
+                                                   <HBox.margin>
+                                                      <Insets bottom="5.0" left="15.0" right="5.0" top="5.0" />
                                                    </HBox.margin>
                                                 </Button>
                                              </children>
@@ -227,7 +232,7 @@
       </AnchorPane>
       <BorderPane>
          <right>
-            <Label alignment="TOP_RIGHT" contentDisplay="TOP" text="Twitter &amp; Reddit: @CaptainSpleXx" BorderPane.alignment="CENTER">
+            <Label alignment="TOP_RIGHT" contentDisplay="TOP" text="Twitter &amp; Reddit: @GreyDynamics" BorderPane.alignment="CENTER">
                <opaqueInsets>
                   <Insets />
                </opaqueInsets>

@@ -9,6 +9,8 @@ public class EBXField{
 	Object value;
 	FieldValueType type;
 	
+	public int indexDEBUG = 0;
+	
 	public EBXField(EBXFieldDescriptor fieldDescritor, int offset) {
 		this.fieldDescritor = fieldDescritor;
 		this.offset = offset;

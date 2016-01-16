@@ -45,6 +45,9 @@ public class JavaFXHandler {
 	public static final Image ICON_ENUM = new Image(FileHandler.getStream(imageFolder+"enum.png"));
 	public static final Image ICON_UPDATE = new Image(FileHandler.getStream(imageFolder+"update-icon.png"));
 	public static final Image ICON_PLUS = new Image(FileHandler.getStream(imageFolder+"plus.png"));
+	public static final Image ICON_AMP = new Image(FileHandler.getStream(imageFolder+"amp.png"));
+	public static final Image ICON_EDIT_LIST = new Image(FileHandler.getStream(imageFolder+"edit-list.png"));
+	public static final Image ICON_DISK = new Image(FileHandler.getStream(imageFolder+"disk.png"));
 	 
 	public static final Image ICON_PENCIL = new Image(FileHandler.getStream(imageFolder+"pencil.png"));
 	public static final Image ICON_REMOVE = new Image(FileHandler.getStream(imageFolder+"cross.png"));

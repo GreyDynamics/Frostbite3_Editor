@@ -38,7 +38,13 @@ public class ToolsWindowController {
 	@FXML
 	public Button destroyLayerButton;
 	@FXML
+	public Button importButton;
+	@FXML
 	public TreeView<Entity> layerTreeView;
+	
+	public void importRes(){
+		
+	}
 	
 	public void destroyLayer(){
 		Core.getGame().getEntityHandler().destroyEntityLayer(layer.getValue());
@@ -60,7 +66,7 @@ public class ToolsWindowController {
 	}
 	
 	public void about(){ 
-		FileHandler.openURL("http://captainsplexx.github.io/FrostBite3Editor/");
+		FileHandler.openURL("http://greydynamics.github.io/Frostbite3_Editor/");
 	}
 	
 	public void incLOD(){ 
@@ -127,6 +133,14 @@ public class ToolsWindowController {
 
 	public ComboBox<String> getVariationDatabase() {
 		return variationDatabase;
+	}
+
+	public Label getLodLabel() {
+		return lodLabel;
+	}
+
+	public Button getImportButton() {
+		return importButton;
 	}
 		
 	

@@ -360,20 +360,13 @@ public class FileHandler {
         return bytesp;
     }
 	
-	public static byte[] toBytes(float flooooat, ByteOrder order) {
+	public static byte[] toBytes(float inputFloat) {
 	    byte[] outData=new byte[4];
-	    int data=Float.floatToIntBits(flooooat);
-	    if (order == ByteOrder.LITTLE_ENDIAN){
-	    	outData[3]=(byte)(data>>>24);
-		    outData[2]=(byte)(data>>>16);
-		    outData[1]=(byte)(data>>>8);
-		    outData[0]=(byte)(data>>>0);
-	    }else{
-		    outData[0]=(byte)(data>>>24);
-		    outData[1]=(byte)(data>>>16);
-		    outData[2]=(byte)(data>>>8);
-		    outData[3]=(byte)(data>>>0);
-	    }
+	    int data=Float.floatToIntBits(inputFloat);
+	    outData[3]=(byte)(data>>>24);
+		outData[2]=(byte)(data>>>16);
+		outData[1]=(byte)(data>>>8);
+		outData[0]=(byte)(data>>>0);
 	    return outData;
 	}
 	

@@ -1,11 +1,8 @@
 package tk.greydynamics.JavaFX.Controller;
 
-import java.util.ArrayList;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
-import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.TreeViewConverter;
 import tk.greydynamics.JavaFX.TreeViewEntry;
@@ -18,24 +15,24 @@ import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureFile;
 
 public class EBXWindowController {
 	@FXML
-	private TreeView<TreeViewEntry> ebxExplorer;
+	private TreeView<Object> ebxExplorer;
 	
 	private EBXWindow window;
 	private Stage stage;
 	
 	
 	public void createLayer(){
-		Core.runOnMainThread(new Runnable() {
+		/*Core.runOnMainThread(new Runnable() {
 			@Override
 			public void run() {
 				Core.getGame().getEntityHandler().createEntityLayer(window.getEBXFile());
 				System.err.println("--------------Layer creation done!!------------------");
 			}
-		});
+		});*/
 	}
 	
 	public void createMeshVariationDatabase(){
-		Core.runOnMainThread(new Runnable() {
+		/*Core.runOnMainThread(new Runnable() {
 			@Override
 			public void run() {
 				if (window.getStage().getTitle().contains("variation")){
@@ -50,7 +47,7 @@ public class EBXWindowController {
 						ArrayList<EntityLayer> layers = Core.getGame().getEntityHandler().getLayers();
 						if (!layers.isEmpty()){
 							Core.getGame().getEntityHandler().updateLayer(layers.get(0), strcFile);
-						}*/
+						}
 						
 					}else{
 						Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "MeshVariationDatabase FAILED!!", null);
@@ -59,7 +56,7 @@ public class EBXWindowController {
 					Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Not a valid MeshVariationDatabase!", null);
 				}	
 			}
-		});
+		});*/
 	}
 	
 	public void close(){
@@ -69,7 +66,22 @@ public class EBXWindowController {
 	public void saveEBX(){
 		if (ebxExplorer.getRoot() != null){
 			if (Core.getGame().getCurrentMod()!=null&&!Core.isDEBUG){
-				EBXHandler ebxHandler = Core.getGame().getResourceHandler().getEBXHandler();
+				
+				
+				System.err.println("REMOVED AFTER STRUCTURE CHANGE.. TODO (EXPERIMENTAL)");
+				
+				EBXFile ebxFile = window.getEBXFile();
+				byte[] ebxBytes = Core.getGame().getResourceHandler().getEBXHandler().createEBX(ebxFile);
+				FileHandler.writeFile("output/DEBUG.ebx", ebxBytes);
+				
+				
+				EBXFile test = Core.getGame().getResourceHandler().getEBXHandler().loadFile(ebxBytes);
+				Core.getJavaFXHandler().getMainWindow().createEBXWindow(test, "recreated ebx test", false);
+				
+				
+				
+				
+				/*EBXHandler ebxHandler = Core.getGame().getResourceHandler().getEBXHandler();
 				
 				Core.getJavaFXHandler().getDialogBuilder().showAsk("WARNING!",
 						"After this process is completed successfully,\nthe EBXWindow will close and the Package will reload.\nThis can take some time!\n\nDo you really want to continue?",
@@ -92,7 +104,7 @@ public class EBXWindowController {
 										}
 									}
 								}
-							}, null);
+							}, null);*/
 				/*
 				String resPath = ebxExplorer.getRoot().getValue().getName()+".ebx";		
 				
@@ -117,22 +129,18 @@ public class EBXWindowController {
 				
 				
 			}else{
-				//DEBUG--
-				EBXFile ebxFile = TreeViewConverter.getEBXFile(ebxExplorer.getRoot());
-				System.err.println("TODO");
-				byte[] ebxBytes = Core.getGame().getResourceHandler().getEBXHandler().createEBX(ebxFile);
-				FileHandler.writeFile("output/DEBUG.ebx", ebxBytes);
-				
+				System.err.println("DUDE, don't try this at home. You will kill your kitten.");
+				/*
 				//TEST 2
 				EBXFile orig = Core.getGame().getResourceHandler().getEBXHandler().loadFile(FileHandler.readFile("mods/SampleMod/resources/levels/mp/mp_playground/content/layer2_buildings.bak--IGNORE"));
 				byte[] origBytes = Core.getGame().getResourceHandler().getEBXHandler().createEBX(orig);
 				FileHandler.writeFile("output/ORIG_DEBUG.ebx", origBytes);
-				
+				*/
 			}
 		}
 	}
 	
-	public TreeView<TreeViewEntry> getEBXExplorer() {
+	public TreeView<Object> getEBXExplorer() {
 		return ebxExplorer;
 	}
 

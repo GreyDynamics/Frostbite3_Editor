@@ -18,26 +18,29 @@ import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.JavaFX.TreeViewConverter;
 import tk.greydynamics.JavaFX.TreeViewEntry;
+import tk.greydynamics.JavaFX.CellFactories.JavaFXebxComponentTCF;
 import tk.greydynamics.JavaFX.CellFactories.JavaFXebxTCF;
+import tk.greydynamics.JavaFX.Controller.EBXComponentWindowController;
 import tk.greydynamics.JavaFX.Controller.EBXWindowController;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
+import tk.greydynamics.Resource.Frostbite3.EBX.Component.EBXComponentComplex;
 
-public class EBXWindow {
-	private FXMLLoader ebxWindowLoader = new FXMLLoader(EBXWindow.class.getResource("EBXWindow.fxml"));
-	private EBXWindowController controller;
+public class EBXComponentWindow {
+	private FXMLLoader ebxComponentWindowLoader = new FXMLLoader(EBXComponentWindow.class.getResource("EBXComponentWindow.fxml"));
+	private EBXComponentWindowController controller;
 	private Parent parent;
 	private Stage stage;
 	private Scene scene;
-	private EBXFile ebxFile;
+	private EBXComponentComplex ebxComponent;
 	private boolean isOriginalFile;
 
-	public EBXWindow(EBXFile ebxFile, String resLinkName, boolean isOriginal){
+	public EBXComponentWindow(EBXComponentComplex ebxComponent, String resLinkName, boolean isOriginal){
 		this.isOriginalFile = isOriginal;
-		this.ebxFile = ebxFile;
+		this.ebxComponent = ebxComponent;
 		try {
-			controller = new EBXWindowController();
-			ebxWindowLoader.setController(controller);
-			parent = ebxWindowLoader.load();
+			controller = new EBXComponentWindowController();
+			ebxComponentWindowLoader.setController(controller);
+			parent = ebxComponentWindowLoader.load();
 		} catch (IOException e) {
 			e.printStackTrace();
 			return;
@@ -45,8 +48,8 @@ public class EBXWindow {
 	    scene = new Scene(parent, 475, 700);
 	    stage = new Stage();
 	    stage.setScene(scene);
-	    if (ebxFile==null){
-	    	stage.setTitle("EBX Tools - NO FILE");
+	    if (ebxComponent==null){
+	    	stage.setTitle("EBX Component Window - NO FILE");
 	    }else{
 	    	stage.setTitle(resLinkName);
 	    }
@@ -60,37 +63,35 @@ public class EBXWindow {
 	    stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent e) {
-				Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+				Core.getJavaFXHandler().getMainWindow().destroyEBXComponentWindow(stage);
 			}
 		});
 	    controller.setWindow(this);
 	    
-	    controller.getEBXExplorer().setEditable(true);
-	    controller.getEBXExplorer().setPrefWidth(Display.getDesktopDisplayMode().getWidth());
-	    controller.getEBXExplorer().setPrefHeight(Display.getDesktopDisplayMode().getHeight());
+	    controller.getEBXComponentExplorer().setEditable(true);
+	    controller.getEBXComponentExplorer().setPrefWidth(Display.getDesktopDisplayMode().getWidth());
+	    controller.getEBXComponentExplorer().setPrefHeight(Display.getDesktopDisplayMode().getHeight());
 	    
-	    controller.getEBXExplorer().setCellFactory(new Callback<TreeView<Object>,TreeCell<Object>>(){
+	    controller.getEBXComponentExplorer().setCellFactory(new Callback<TreeView<Object>,TreeCell<Object>>(){
 	        @Override
 	        public TreeCell<Object> call(TreeView<Object> p) {
-	            return new JavaFXebxTCF(ebxFile, isOriginal);
+	            return new JavaFXebxComponentTCF(ebxComponent, isOriginal);
 	        }
 	    });
 	    
-	    TreeItem<Object> ebxTreeView = null;
-	    if (ebxFile!=null){
-	    	ebxTreeView = TreeViewConverter.getTreeView(ebxFile);
+	    TreeItem<Object> ebxComponentTreeView = null;
+	    if (ebxComponent!=null){
+	    	//ebxComponentTreeView = TreeViewConverter.getTreeView(ebxComponent);
+	    	System.err.println("TODO CONTENT EBX COMPONENT WINDOW");
 	    }
-	    controller.getEBXExplorer().setRoot(ebxTreeView);
+	    controller.getEBXComponentExplorer().setRoot(ebxComponentTreeView);
 	}
 
-	public FXMLLoader getEbxWindowLoader() {
-		return ebxWindowLoader;
-	}
 
-	public EBXWindowController getController() {
+
+	public EBXComponentWindowController getController() {
 		return controller;
 	}
-
 	public Parent getParent() {
 		return parent;
 	}
@@ -103,10 +104,10 @@ public class EBXWindow {
 		return scene;
 	}
 
-	public EBXFile getEBXFile() {
-		return ebxFile;
+	public EBXComponentComplex getEBXComponent() {
+		return ebxComponent;
 	}
-
+	
 	public boolean isOriginalFile() {
 		return isOriginalFile;
 	}

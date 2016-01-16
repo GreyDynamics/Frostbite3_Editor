@@ -10,6 +10,8 @@ import java.util.UUID;
 
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.FileHandler;
+import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
+import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasCatEntry;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasCatManager;
@@ -24,8 +26,6 @@ import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocEntry;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager;
-import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
-import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 
 public class ModTools {
 	public ArrayList<Mod> mods;

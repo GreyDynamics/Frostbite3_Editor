@@ -2,9 +2,8 @@ package tk.greydynamics.Resource.Frostbite3.EBX.Modify;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import tk.greydynamics.Game.Core;
+
 import tk.greydynamics.JavaFX.Windows.MainWindow.EntryType;
-import tk.greydynamics.Resource.FileHandler;
 
 public class EBXModifyHandler {
 	private ArrayList<ChangeFile> files = new ArrayList<>();

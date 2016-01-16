@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
@@ -16,24 +17,15 @@ import javax.imageio.ImageIO;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
-import org.lwjgl.util.vector.Vector3f;
 import org.newdawn.slick.opengl.ImageIOImageData;
 
-import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.EntityTextureData;
-import tk.greydynamics.Entity.LightEntity;
-import tk.greydynamics.Entity.ObjectEntity;
-import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Event.EventHandler;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.Mod.ModTools;
-import tk.greydynamics.Model.RawModel;
 import tk.greydynamics.Render.Render;
 import tk.greydynamics.Render.Gui.GuiTexture;
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.Frostbite3.MESH.MeshChunkLoader;
 
 public class Core {
 	/*Main Components*/
@@ -87,7 +79,7 @@ public class Core {
 	public static void main(String[] args){
 		System.err.println("If Modtools has replaced a resource and then tries to request the orignal resource in the second run for a diffrent resource,\n"
 				+ "it can't find it and the loader will crash.");
-		
+				
 		/*Initialize Variables*/
 		runnables = new ArrayList<Runnable>();
 		runnablesQ = new ArrayList<Runnable>();
@@ -100,7 +92,7 @@ public class Core {
 		keepAlive = true;
 		runEditor = false;
 		
-		FileHandler.cleanFolder("temp/images");
+		FileHandler.cleanFolder("temp");
 		FileHandler.cleanFolder("output");
 		
 		TICK_RATE = 20;
@@ -120,6 +112,10 @@ public class Core {
 					"Make sure to run the latest version!\n"+
 						"http://greydynamics.github.io/Frostbite3_Editor/");
 		}
+		jfxHandler.getDialogBuilder().showWarning("WARNING",
+				"This project is in development!\n"
+				+ "\nThere are a lot of functions missing or bugged.\n"
+				+ "There is no support given at this time!", null);
 		modTools = new ModTools();
 		
 		//jfxHandler.getMainWindow().createImagePreviewWindow(null, null, new ResourceLink(), "test");

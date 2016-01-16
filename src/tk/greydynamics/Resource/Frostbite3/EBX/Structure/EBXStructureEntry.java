@@ -1,6 +1,5 @@
 package tk.greydynamics.Resource.Frostbite3.EBX.Structure;
 
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplex;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureReader.EntryType;
 
 public abstract class EBXStructureEntry {

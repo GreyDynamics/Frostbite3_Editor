@@ -6,11 +6,10 @@ import java.util.ArrayList;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.Windows.MainWindow.EntryType;
 import tk.greydynamics.Mod.ModTools;
-import tk.greydynamics.Mod.Package;
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 import tk.greydynamics.Resource.ResourceHandler.ResourceType;
+import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 
 public class ChangeFile {
 	
@@ -50,7 +49,7 @@ public class ChangeFile {
 						tempValueAsString=""+(long) (ce.getValue());
 						break;
 					case FLOAT:
-						tempValue = FileHandler.toBytes((float) ce.getValue(), order);
+						tempValue = FileHandler.toBytes((float) ce.getValue());
 						tempValueAsString=""+(float) (ce.getValue());
 						break;
 					case UINTEGER:

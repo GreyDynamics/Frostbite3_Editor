@@ -1,14 +1,11 @@
 package tk.greydynamics.Resource.Frostbite3.Cas;
 
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Game.Game;
-import tk.greydynamics.Maths.LZ4;
 import tk.greydynamics.Maths.Patcher;
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.FileSeeker;
 import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
 

@@ -1,18 +1,15 @@
 package tk.greydynamics.Entity;
 
 import tk.greydynamics.Game.Core;
-import tk.greydynamics.Model.RawModel;
-import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
+import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXExternalGUID;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureFile;
-import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureInstance;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXMeshVariationDatabaseEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXMeshVariationDatabaseMaterial;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXObjArray;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXTextureShaderParameter.ParameterName;
 import tk.greydynamics.Resource.Frostbite3.MESH.MeshVariationDatabaseHandler;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
-import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 
 public class EntityTextureData {
 	private int[] diffuseIDs;

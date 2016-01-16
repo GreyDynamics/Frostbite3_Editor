@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITexture;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITextureHandler;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter;

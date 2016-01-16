@@ -22,8 +22,8 @@ import tk.greydynamics.JavaFX.TreeViewEntry;
 import tk.greydynamics.Mod.Mod;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
+import tk.greydynamics.Resource.Frostbite3.EBX.Component.EBXComponentComplex;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureFile;
-import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 
 
 public class MainWindow extends Application{
@@ -43,6 +43,7 @@ public class MainWindow extends Application{
 	public static enum WorkDropType { DROP_INTO, REORDER };
 
 	private ArrayList<EBXWindow> ebxWindows;
+	private ArrayList<EBXComponentWindow> ebxComponentWindows;
 	private ArrayList<ImagePreviewWindow> imagePreviewWindows;
 	private ModLoaderWindow modLoaderWindow = null;
 	private ToolsWindow toolsWindow;
@@ -66,6 +67,7 @@ public class MainWindow extends Application{
 	@Override
 	public void start(Stage stageLeft) {
 		ebxWindows = new ArrayList<>();
+		ebxComponentWindows = new ArrayList<>();
 		imagePreviewWindows = new ArrayList<>();
 		modLoaderWindow = new ModLoaderWindow();
 		toolsWindow = new ToolsWindow();
@@ -82,7 +84,7 @@ public class MainWindow extends Application{
 			});
 		}catch(Exception e){
 			e.printStackTrace();
-			System.err.println("EBXWindow creation failed");
+			System.err.println("EBXWindow creation failed!");
 			return false;
 		}
 		return true;
@@ -113,6 +115,47 @@ public class MainWindow extends Application{
 	public void destroyEBXWindows(){
 		for (EBXWindow window : ebxWindows){
 			destroyEBXWindow(window.getStage());
+		}
+	}
+	public boolean createEBXComponentWindow(EBXComponentComplex ebxComponent, String resName, boolean isOriginal){
+		try{
+			Platform.runLater(new Runnable() {
+				public void run() {
+					EBXComponentWindow window = new EBXComponentWindow(ebxComponent, resName, isOriginal);
+					ebxComponentWindows.add(window);
+				}
+			});
+		}catch(Exception e){
+			e.printStackTrace();
+			System.err.println("EBXComponentWindow creation failed!");
+			return false;
+		}
+		return true;
+	}
+	public boolean destroyEBXComponentWindow(Stage stage){
+		try{Platform.runLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				for (EBXComponentWindow window : ebxComponentWindows){
+					if (window.getStage()==stage){
+						stage.close();
+						ebxComponentWindows.remove(window);
+						break;
+					}
+				}
+			}
+		});
+		}catch(Exception e){
+			e.printStackTrace();
+			System.err.println("EBXComponentWindow could not get destroyed!");
+			return false;
+		}
+		return true;
+	}
+	public void destroyEBXComponentWindows(){
+		for (EBXComponentWindow window : ebxComponentWindows){
+			destroyEBXComponentWindow(window.getStage());
 		}
 	}
 	

@@ -1,7 +1,6 @@
 package tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry;
 
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplex;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXExternalGUID;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXField;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureReader.EntryType;

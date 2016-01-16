@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
@@ -14,9 +13,6 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.CornerRadii;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Game.Game;
 import tk.greydynamics.JavaFX.JavaFXHandler;
@@ -26,12 +22,13 @@ import tk.greydynamics.JavaFX.Windows.MainWindow.EntryType;
 import tk.greydynamics.Mod.ModTools;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
+import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasDataReader;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
-import tk.greydynamics.Resource.Frostbite3.EBX.Component.EBXComponent;
+import tk.greydynamics.Resource.Frostbite3.EBX.Component.EBXComponentComplex;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITexture;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITextureHandler;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter;
@@ -39,7 +36,6 @@ import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter.ImageType;
 import tk.greydynamics.Resource.Frostbite3.MESH.MeshConverter;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter.ResourceBundleType;
-import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 
 public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 	private ContextMenu contextMenu = new ContextMenu();
@@ -140,13 +136,13 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 											Core.getGame().getResourceHandler().getEBXComponentHandler().reset(Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponentsPath());
 //											
 											Core.getGame().getResourceHandler().getEBXComponentHandler().addKnownComponent(ebxFile);
-											ArrayList<EBXComponent> comp = Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponents();
+											ArrayList<EBXComponentComplex> comp = Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponents();
 											Core.getGame().getResourceHandler().getEBXComponentHandler().saveKnownComponents();
 //											Core.getGame().getResourceHandler().getEBXComponentHandler().readKnownComponents();
 //											System.out.println("END OF DEBUG!");
 											
 											
-											TreeItem<TreeViewEntry> ebx = TreeViewConverter.getTreeView(ebxFile);
+											TreeItem<Object> ebx = TreeViewConverter.getTreeView(ebxFile);
 
 											Core.getJavaFXHandler().getMainWindow().createEBXWindow(ebxFile, name, loadOriginal);
 										}

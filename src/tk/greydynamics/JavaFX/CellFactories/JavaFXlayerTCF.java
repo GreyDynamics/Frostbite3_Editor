@@ -6,14 +6,10 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import tk.greydynamics.Entity.Entity;
 import tk.greydynamics.JavaFX.JavaFXHandler;
-import tk.greydynamics.JavaFX.TreeViewEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureEntry;
-import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureReader.EntryType;
 
 public class JavaFXlayerTCF extends TreeCell<Entity> {
 	

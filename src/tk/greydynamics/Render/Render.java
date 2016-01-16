@@ -28,8 +28,8 @@ import org.lwjgl.util.vector.Vector3f;
 
 import tk.greydynamics.Camera.FPCameraController;
 import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.EntityTextureData;
 import tk.greydynamics.Entity.Entity.Type;
+import tk.greydynamics.Entity.EntityTextureData;
 import tk.greydynamics.Entity.ObjectEntity;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
@@ -37,7 +37,6 @@ import tk.greydynamics.Game.Game;
 import tk.greydynamics.Game.Point;
 import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Model.RawModel;
-import tk.greydynamics.Model.TexturedModel;
 import tk.greydynamics.Player.PlayerEntity;
 import tk.greydynamics.Render.Gui.GuiRenderer;
 import tk.greydynamics.Shader.StaticShader;

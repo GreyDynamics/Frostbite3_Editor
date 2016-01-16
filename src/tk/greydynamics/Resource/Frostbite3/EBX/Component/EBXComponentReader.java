@@ -12,12 +12,12 @@ import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler.FieldValueType;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXInstance;
 
 public class EBXComponentReader {
-	public static ArrayList<EBXComponent> analyzeEBX(EBXFile ebxFile, EBXComponentHandler handler){
+	public static ArrayList<EBXComponentComplex> analyzeEBX(EBXFile ebxFile, EBXComponentHandler handler){
 		if (ebxFile==null)return null;
-		ArrayList<EBXComponent> components = new ArrayList<>();
+		ArrayList<EBXComponentComplex> components = new ArrayList<>();
 		
 		for (EBXInstance instance : ebxFile.getInstances()){
-			EBXComponent compexComponent = analyzeEBXComplex(instance.getComplex(), true, handler);
+			EBXComponentComplex compexComponent = analyzeEBXComplex(instance.getComplex(), true, handler);
 			if (compexComponent!=null){
 				components.add(compexComponent);
 			}else{
@@ -29,7 +29,7 @@ public class EBXComponentReader {
 		return components;
 	}
 	
-	public static EBXComponent analyzeEBXComplex(EBXComplex ebxComplex, boolean isInstanceComplex, EBXComponentHandler handler){
+	public static EBXComponentComplex analyzeEBXComplex(EBXComplex ebxComplex, boolean isInstanceComplex, EBXComponentHandler handler){
 		if (ebxComplex==null)return null;
 		
 		ArrayList<EBXComponentEntry> componentEntries = new ArrayList<>();
@@ -41,7 +41,7 @@ public class EBXComponentReader {
 				//ERROR
 			}
 		}
-		EBXComponent complexComponent = new EBXComponent(isInstanceComplex, ebxComplex.getComplexDescriptor().getName(), ebxComplex.getComplexDescriptor().getSize(), ebxComplex.getComplexDescriptor().getAlignment(), true, componentEntries);
+		EBXComponentComplex complexComponent = new EBXComponentComplex(isInstanceComplex, ebxComplex.getComplexDescriptor().getName(), ebxComplex.getComplexDescriptor().getSize(), ebxComplex.getComplexDescriptor().getAlignment(), true, componentEntries);
 		handler.addKnownComponent(complexComponent);//get the name, but keep it independent.
 		return complexComponent;
 	}
@@ -53,9 +53,9 @@ public class EBXComponentReader {
 		String type = null;
 		
 		if (ebxField.getType()==FieldValueType.ArrayComplex||ebxField.getType()==FieldValueType.Complex){
-			EBXComplex fieldValue = ebxField.getValueAsComplex();
-			if (fieldValue instanceof EBXComplex){
-				EBXComponent complexComponent = analyzeEBXComplex(fieldValue, false, handler);
+			if (ebxField.getValue() instanceof EBXComplex){
+				EBXComplex fieldValue = ebxField.getValueAsComplex();
+				EBXComponentComplex complexComponent = analyzeEBXComplex(fieldValue, false, handler);
 				if (complexComponent!=null){
 					type = complexComponent.getName();
 					if (ebxField.getType()==FieldValueType.Complex){
@@ -120,14 +120,14 @@ public class EBXComponentReader {
 			}
 			type = "_"+ebxField.getType().toString().toUpperCase(); // _STRING, _INTEGER, _GUID
 		}
-		return new EBXComponentEntry(ebxField.getFieldDescritor().getName(), type, totalSize, 0);
+		return new EBXComponentEntry(ebxField.getFieldDescritor().getName(), type, totalSize, 0, null);
 	}
 	
-	public static EBXComponent readKnownComponents(File file){
+	public static EBXComponentComplex readKnownComponents(File file){
 		try {
 			FileReader fr = new FileReader(file);
 			BufferedReader br = new BufferedReader(fr);
-			EBXComponent component = new EBXComponent(false, null, -1, -1, false, null);
+			EBXComponentComplex component = new EBXComponentComplex(false, null, -1, -1, false, null);
 			String[] desc = br.readLine().split("::");
 			component.setName(desc[0]);
 			component.setOccurredAsInstance(Boolean.valueOf(desc[1]));
@@ -137,7 +137,7 @@ public class EBXComponentReader {
 		    while ((line = br.readLine()) != null){
 		    	String[] entryParts = line.split("::");
 		    	if (entryParts.length>1){
-		    		component.getEntries().add(new EBXComponentEntry(entryParts[0], entryParts[1], Integer.valueOf(entryParts[2]), Integer.valueOf(entryParts[3])));
+		    		component.getEntries().add(new EBXComponentEntry(entryParts[0], entryParts[1], Integer.valueOf(entryParts[2]), Integer.valueOf(entryParts[3]), null));
 		    	}else{
 		    		break;
 		    	}

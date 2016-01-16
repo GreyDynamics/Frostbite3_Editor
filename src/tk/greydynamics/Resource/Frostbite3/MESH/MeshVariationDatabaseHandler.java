@@ -1,14 +1,9 @@
 package tk.greydynamics.Resource.Frostbite3.MESH;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import tk.greydynamics.Game.Core;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplex;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXExternalGUID;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXField;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXInstance;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureFile;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureInstance;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureReader.EntryType;

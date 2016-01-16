@@ -5,7 +5,6 @@ import java.nio.ByteOrder;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
 import tk.greydynamics.Resource.ResourceHandler.ResourceType;
-import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter.ResourceBundleType;
 
 public class NonCasBundleEntry {
