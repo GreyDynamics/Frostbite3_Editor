@@ -50,7 +50,7 @@
    <center>
       <BorderPane prefHeight="502.0" prefWidth="606.0" BorderPane.alignment="CENTER">
          <top>
-            <HBox alignment="CENTER" BorderPane.alignment="CENTER">
+            <HBox fx:id="modInfo" alignment="CENTER" BorderPane.alignment="CENTER">
                <children>
                   <VBox prefHeight="128.0" prefWidth="321.0">
                      <children>
@@ -77,12 +77,12 @@
                         </Label>
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="340.0">
                            <children>
-                              <CheckBox fx:id="checkBox" disable="true" mnemonicParsing="false" prefHeight="17.0" prefWidth="132.0" text="recompile" visible="false">
+                              <Button fx:id="compileButton" disable="true" mnemonicParsing="false" onAction="#compileMod" prefHeight="32.0" prefWidth="128.0" text="Compile">
                                  <HBox.margin>
-                                    <Insets top="2.0" />
+                                    <Insets bottom="5.0" left="5.0" right="5.0" top="7.0" />
                                  </HBox.margin>
-                              </CheckBox>
-                              <Button fx:id="playButton" disable="true" mnemonicParsing="false" onAction="#playMod" prefHeight="32.0" prefWidth="128.0" text="Play">
+                              </Button>
+                              <Button fx:id="installButton" disable="true" layoutX="102.0" layoutY="17.0" mnemonicParsing="false" onAction="#installMod" prefHeight="32.0" prefWidth="128.0" text="Install">
                                  <HBox.margin>
                                     <Insets bottom="5.0" left="5.0" right="5.0" top="7.0" />
                                  </HBox.margin>
@@ -125,12 +125,15 @@
             </Label>
          </right>
          <left>
-            <Label fx:id="gamepath" prefHeight="17.0" prefWidth="668.0" text="gamepath" BorderPane.alignment="CENTER">
+            <Label fx:id="gamepath" prefHeight="17.0" prefWidth="443.0" text="gamepath" BorderPane.alignment="CENTER">
                <BorderPane.margin>
                   <Insets left="5.0" right="5.0" />
                </BorderPane.margin>
             </Label>
          </left>
+         <center>
+            <Label fx:id="gameVersionLabel" prefHeight="17.0" prefWidth="310.0" BorderPane.alignment="CENTER" />
+         </center>
       </BorderPane>
    </bottom>
 </BorderPane>

@@ -52,7 +52,7 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
             	if (link!=null){
             		data = CasDataReader.readCas(link.getBaseSha1(), link.getDeltaSha1(), link.getSha1(), link.getCasPatchType());
             		if (data!=null){
-            			File target = new File(Core.getGame().getCurrentMod().getPath()+ModTools.RESOURCEFOLDER+link.getName()+"."+link.getBundleType().toString().toLowerCase());
+            			File target = new File(Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+link.getName()+"."+link.getBundleType().toString().toLowerCase());
             			if (target.exists()){
             				File backup = new File(target.getAbsoluteFile()+".bak");
             				if (backup.exists()){
@@ -131,6 +131,7 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 									if (bundleType == ResourceBundleType.EBX){
 										EBXFile ebxFile = game.getResourceHandler().getEBXHandler().loadFile(data);
 										if (ebxFile!=null){
+											FileHandler.writeFile("temp/debug/orig.ebx", data);
 											
 //											System.out.println("DEBUG: COMPONENT VALIDATION TEST!");
 											Core.getGame().getResourceHandler().getEBXComponentHandler().reset(Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponentsPath());

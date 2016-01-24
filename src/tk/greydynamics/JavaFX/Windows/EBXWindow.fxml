@@ -14,7 +14,8 @@
         <menus>
           <Menu mnemonicParsing="false" text="EBX">
             <items>
-              <MenuItem mnemonicParsing="false" onAction="#saveEBX" text="Save to current Mod" />
+              <MenuItem disable="true" mnemonicParsing="false" onAction="#saveEBX" text="Save to current Mod" />
+                  <MenuItem mnemonicParsing="false" onAction="#compileEBX" text="Compile EBX and save to Mod" />
                   <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
             </items>
           </Menu>

@@ -467,7 +467,7 @@ public class Dialog extends Stage {
 				
 				@Override
 				public void run() {
-					System.out.println(message);
+					System.err.println(message);
 					new Builder()
 		            .create()
 		            .setOwner(owner)

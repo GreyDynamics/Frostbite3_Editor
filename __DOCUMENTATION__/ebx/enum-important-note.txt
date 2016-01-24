@@ -1,0 +1,5 @@
+Enum's can have a strange behavior.
+	If the frist byte of numfields (given by the enums complex descriptor)
+	is equal to 0xFF, a 0xFF bitmask has to be applied.
+	This is not common!
+

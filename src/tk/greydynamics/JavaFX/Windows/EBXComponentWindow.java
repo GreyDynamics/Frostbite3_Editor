@@ -16,13 +16,8 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.JavaFXHandler;
-import tk.greydynamics.JavaFX.TreeViewConverter;
-import tk.greydynamics.JavaFX.TreeViewEntry;
 import tk.greydynamics.JavaFX.CellFactories.JavaFXebxComponentTCF;
-import tk.greydynamics.JavaFX.CellFactories.JavaFXebxTCF;
 import tk.greydynamics.JavaFX.Controller.EBXComponentWindowController;
-import tk.greydynamics.JavaFX.Controller.EBXWindowController;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
 import tk.greydynamics.Resource.Frostbite3.EBX.Component.EBXComponentComplex;
 
 public class EBXComponentWindow {

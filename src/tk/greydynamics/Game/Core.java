@@ -7,7 +7,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
@@ -57,6 +56,7 @@ public class Core {
 	public static boolean runEditor;
 	public static boolean isDEBUG;
 	public static String currentDir;
+	public static String gameVersion;
 	
 	/*You w00t mate ?*/
 	public static String buildVersion;
@@ -77,8 +77,14 @@ public class Core {
 	public static Random random = new Random();
 	
 	public static void main(String[] args){
-		System.err.println("If Modtools has replaced a resource and then tries to request the orignal resource in the second run for a diffrent resource,\n"
-				+ "it can't find it and the loader will crash.");
+		String argLine = "";
+		for (String s : args){
+			argLine+=s+" ";
+		}
+		if (argLine.equals("")){
+			argLine = "[No-Arguments]";
+		}
+		System.out.println("Starting with Arguments: "+argLine);
 				
 		/*Initialize Variables*/
 		runnables = new ArrayList<Runnable>();
@@ -86,6 +92,7 @@ public class Core {
 		isExecutingRunnables = false;
 		//sharedObjs = null;
 		gamePath = null;
+		gameVersion = null;
 		checkVersion();
 		
 		currentDir = FileHandler.normalizePath(Paths.get("").toAbsolutePath().toString());
@@ -114,8 +121,9 @@ public class Core {
 		}
 		jfxHandler.getDialogBuilder().showWarning("WARNING",
 				"This project is in development!\n"
-				+ "\nThere are a lot of functions missing or bugged.\n"
-				+ "There is no support given at this time!", null);
+				+ "\nA lot of functions are missing or bugged.\n"
+				+ "There is no support given at this time!\n\n"
+				+ "PS: This tool can cause the killing of your kittens.\n", null);
 		modTools = new ModTools();
 		
 		//jfxHandler.getMainWindow().createImagePreviewWindow(null, null, new ResourceLink(), "test");

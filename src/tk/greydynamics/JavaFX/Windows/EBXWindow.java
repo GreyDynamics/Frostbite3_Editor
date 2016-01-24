@@ -17,7 +17,6 @@ import javafx.util.Callback;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.JavaFX.TreeViewConverter;
-import tk.greydynamics.JavaFX.TreeViewEntry;
 import tk.greydynamics.JavaFX.CellFactories.JavaFXebxTCF;
 import tk.greydynamics.JavaFX.Controller.EBXWindowController;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
@@ -46,7 +45,7 @@ public class EBXWindow {
 	    stage = new Stage();
 	    stage.setScene(scene);
 	    if (ebxFile==null){
-	    	stage.setTitle("EBX Tools - NO FILE");
+	    	stage.setTitle("ERROR.");
 	    }else{
 	    	stage.setTitle(resLinkName);
 	    }
@@ -65,7 +64,7 @@ public class EBXWindow {
 		});
 	    controller.setWindow(this);
 	    
-	    controller.getEBXExplorer().setEditable(true);
+	    controller.getEBXExplorer().setEditable(false);
 	    controller.getEBXExplorer().setPrefWidth(Display.getDesktopDisplayMode().getWidth());
 	    controller.getEBXExplorer().setPrefHeight(Display.getDesktopDisplayMode().getHeight());
 	    
@@ -79,8 +78,12 @@ public class EBXWindow {
 	    TreeItem<Object> ebxTreeView = null;
 	    if (ebxFile!=null){
 	    	ebxTreeView = TreeViewConverter.getTreeView(ebxFile);
+	    	if (!ebxTreeView.getChildren().isEmpty()){
+		    	ebxTreeView.setExpanded(true);
+		    }
 	    }
 	    controller.getEBXExplorer().setRoot(ebxTreeView);
+	    
 	}
 
 	public FXMLLoader getEbxWindowLoader() {

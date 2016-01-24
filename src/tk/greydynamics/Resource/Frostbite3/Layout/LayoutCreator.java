@@ -112,6 +112,10 @@ public class LayoutCreator {
 		while(file.size()%16!=0){
 			file.add((byte) 0x0);
 		}
+		//TODO is this a check ??
+		for(int i=0;i<444;i++){
+			file.add((byte) 0x0);
+		}
 		
 		return FileHandler.toByteArray(file);
 	}
@@ -390,10 +394,7 @@ public class LayoutCreator {
 		//PAYLOAD
 		out.addAll(createEntry(rootEntry));
 		
-		
-		while(out.size()%16!=0){
-			out.add((byte) 0x0);
-		}
+	
 		return FileHandler.toByteArray(out);
 	}
 
@@ -586,6 +587,8 @@ public class LayoutCreator {
 				
 				bundle.setBase(false);
 				bundle.setDelta(true);
+				//TODO bundle.setDelta(true);
+				System.err.println("TODO: Do the bundle.setDelta(true) ?");
 				
 			}else{
 				if (bundle.isBase() && !bundle.isDelta()){
@@ -617,6 +620,9 @@ public class LayoutCreator {
 					chunk.setOffset(currentOffset);
 				}
 			}
+		}
+		for(int i=0;i<444;i++){
+			FileHandler.extendFileFromFile("res/filler/zero", 0, 1, destination, seeker);
 		}
 		return true;
 	}

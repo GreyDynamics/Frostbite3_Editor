@@ -91,7 +91,7 @@ public class ChangeFile {
 						ResourceType.EBX,
 						resLink.getName()+".ebx");
 				
-				FileHandler.writeFile(Core.getGame().getCurrentMod().getPath()+ModTools.RESOURCEFOLDER+resLink.getName()+".ebx", temp);
+				FileHandler.writeFile(Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+resLink.getName()+".ebx", temp);
 			}
 			
 			//This will be moved over into main save.

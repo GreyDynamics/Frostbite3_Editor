@@ -39,25 +39,26 @@ public class Patcher {
 		if (patchedData==null){
 			patchedData = new ArrayList<>();
 		}
+
 		
-		System.out.println("Type Check @ "+deltaSeeker.getOffset());
-		System.out.println("Output bytes: "+patchedData.size());
+////		System.out.println("Type Check @ "+deltaSeeker.getOffset());
+//		System.out.println("Output bytes: "+patchedData.size());
 		type = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN);// Type 0x2000 if its not compressed. 0x1000 if its compressed.
-		System.out.println("Type "+type);
+//		System.out.println("Type "+type);
 		if (deltaSeeker.getOffset()>=0){
-			System.out.println("BREAK!");
+//			System.out.println("BREAK!");
 		}
 		if (type==0x1000){
 			int numEntries = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)&0xFFFF;
-			System.out.println("Num Entries "+numEntries);
+//			System.out.println("Num Entries "+numEntries);
 			byte[] compressedDelta = null;
 			
 			for (int i=0; i<numEntries; i++){
-				System.out.println("Entrie "+i+" @ "+deltaSeeker.getOffset());
+//				System.out.println("Entrie "+i+" @ "+deltaSeeker.getOffset());
 				/*get entry information*/
 				offset = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)&0xFFFF;
 				removeBytes = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)&0xFFFF;
-				System.out.println("Offset "+offset);
+//				System.out.println("Offset "+offset);
 				if (deltaSeeker.hasError()){return null;}
 				
 				/*fill up to offset*/
@@ -81,32 +82,33 @@ public class Patcher {
 				/*decompress the extracted block logic and add it to return data.*/
 				byte[] rawBlock = CompressionUtils.convertToRAWData(compressedDelta);
 				if (rawBlock==null||!FileHandler.addBytes(rawBlock, patchedData)){return null;}
-				System.out.println("RawBlockSize "+rawBlock.length);
+
+//				System.out.println("RawBlockSize "+rawBlock.length);
 				/*skip bytes from base, defined by entry information*/
 				baseSeeker.seek(removeBytes);		
-				System.out.println("Base Seeking "+removeBytes);
+//				System.out.println("Base Seeking "+removeBytes);
 			}
 		}else if (type==0x2000){
 			procSize = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)&0xFFFF;
 			patchedSize = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)&0xFFFF; // (CONTAINS PATCHED SIZE)
-			System.out.println("procSize "+procSize);
-			System.out.println("patchedSize "+patchedSize);
+//			System.out.println("procSize "+procSize);
+//			System.out.println("patchedSize "+patchedSize);
 			
 			int procOffset = deltaSeeker.getOffset();
-			System.out.println("procOffset "+procOffset);
+//			System.out.println("procOffset "+procOffset);
 			
 			byte basedata = 0;
 			byte deltadata = 0;
 			
 			//fill spaces - patch data
 			while(deltaSeeker.getOffset()<procOffset+procSize){
-				
+
 				//*MAY USING LEB128 (DOES EVEN BIG_END. ENCODING EXIST ?)*//
 				offset = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)&0xFFFF;
 				removeBytes = FileHandler.readByte(delta, deltaSeeker)&0xFF;
 				addBytes = FileHandler.readByte(delta, deltaSeeker)&0xFF;
-				System.out.println("Offset "+offset);
-				System.out.println("addBytes "+addBytes);
+//				System.out.println("Offset "+offset);
+//				System.out.println("addBytes "+addBytes);
 				
 				//System.out.println("Offset: "+offset+" Rem: "+removeBytes+" Add: "+addBytes);
 				
@@ -123,7 +125,7 @@ public class Patcher {
 				}
 				//remove
 				baseSeeker.seek(removeBytes);
-				System.out.println("Base Seeking "+removeBytes);
+//				System.out.println("Base Seeking "+removeBytes);
 				
 				//add
 				for (int patchIndex=0; patchIndex<addBytes; patchIndex++){
@@ -139,9 +141,9 @@ public class Patcher {
 			}
 			
 			//fill up left over data
-			if (patchedData.size()<patchedSize){
-				System.out.println("Fillup Data: "+(patchedSize-patchedData.size()));
-				while (patchedData.size()<patchedSize){
+			if (patchedData.size()<patchedSize+1){
+//				System.out.println("Fillup Data: "+(patchedSize-patchedData.size()));
+				while (patchedData.size()<patchedSize+1){//TODO Keep +1? This workaround fixed the issue, that one byte is missing.
 					basedata = FileHandler.readByte(decompressedBase, baseSeeker);
 					if (!baseSeeker.hasError()){
 						patchedData.add(basedata);
@@ -178,12 +180,12 @@ public class Patcher {
 			
 			//Same as 0x1000 but without offset and remove bytes for each entry!
 			int numEntries = FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)&0xFFFF;
-			System.out.println("Num Entries: "+numEntries);
+//			System.out.println("Num Entries: "+numEntries);
 			
 			byte[] compressedDelta = null;
 			
 			for (int i=0; i<numEntries; i++){
-				System.out.println("Entry: "+i+" @ "+deltaSeeker.getOffset());
+//				System.out.println("Entry: "+i+" @ "+deltaSeeker.getOffset());
 				/*take a look into block logic to obtain the compressed size*/
 				deltaSeeker.seek(6);//4 bytes decompressed size, 2 bytes type
 				compressedDelta = new byte[FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)+8/*compressed size is without header, so add decompsize, type and compressedsize to it!*/];
@@ -198,7 +200,7 @@ public class Patcher {
 				/*decompress the extracted block logic and add it to return data.*/
 				byte[] rawBlock = CompressionUtils.convertToRAWData(compressedDelta);
 				if (rawBlock==null||!FileHandler.addBytes(rawBlock, patchedData)){return null;}
-				System.out.println("RawBlock Size: "+rawBlock.length);
+//				System.out.println("RawBlock Size: "+rawBlock.length);
 				
 				//tested, dont skip here!
 			}

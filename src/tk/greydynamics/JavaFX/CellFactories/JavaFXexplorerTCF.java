@@ -47,11 +47,15 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 							if (Core.getGame().getCurrentToc().isCas()){
 								//CAS-> Frostbite 3
 								LayoutFile bundleLayout = entry.getLayout();
-								CasBundle casBundle = TocConverter.convertCASBundle(bundleLayout);
+								CasBundle casBundle = TocConverter.convertCASBundle(bundleLayout, true);
 																
 								//EBX-Export
 								for (ResourceLink ebx : casBundle.getEbx()){
 									ResourceLink.exportResourceLink(ebx, ResourceHandler.getOrigin(Core.getGame().getCurrentFile()), Core.EDITOR_PATH_GAMEDATA+Core.gameName+"/ResourceLink/EBX/", ".erl");//EBX RESOURCE LINK == ERL
+								}
+								//RES-Export
+								for (ResourceLink res : casBundle.getRes()){
+									ResourceLink.exportResourceLink(res, ResourceHandler.getOrigin(Core.getGame().getCurrentFile()), Core.EDITOR_PATH_GAMEDATA+Core.gameName+"/ResourceLink/RES/", ".rrl");//RES RESOURCE LINK == ERL
 								}
 								
 								Core.getGame().setCurrentBundle(casBundle);

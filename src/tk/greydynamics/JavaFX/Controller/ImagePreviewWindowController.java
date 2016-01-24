@@ -55,7 +55,7 @@ public class ImagePreviewWindowController {
 					if (succ){
 						byte[] fileBytes = FileHandler.readFile(importFile.getAbsolutePath());
 						if (fileBytes!=null){
-							FileHandler.writeFile(Core.getGame().getCurrentMod().getPath()+ModTools.RESOURCEFOLDER+resPath, fileBytes);
+							FileHandler.writeFile(Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+resPath, fileBytes);
 							
 							
 							//This will be moved over into main save.

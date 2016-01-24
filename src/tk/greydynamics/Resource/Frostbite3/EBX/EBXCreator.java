@@ -2,11 +2,9 @@ package tk.greydynamics.Resource.Frostbite3.EBX;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler.FieldValueType;
 
 public class EBXCreator {
 	
@@ -206,11 +204,7 @@ public class EBXCreator {
 	
 	public int proccComplex(EBXComplex ebxComplex, boolean isInstanceComplex, boolean isArrayMember, boolean proccDescriptor, boolean hasNoPayload, boolean isNoNameParent){
 		//return index of complex
-		
-		//TODO proccDescriptor (boolean)
-		//TODO hasNoPayload (boolean)
-		//TODO alignment
-		
+				
 		ArrayList<Byte> targetList = null;
 		if (isArrayMember){
 			targetList = this.arrayPayloadData;
@@ -219,9 +213,7 @@ public class EBXCreator {
 		}
 		
 		//The complexOffset is needed to calculate the relative field offset.
-		int complexOffset = targetList.size();
-		//TODO complexOffset -1 ?
-		
+		int complexOffset = targetList.size();	
 		
 		int obfuscationShift = 0;
 		if (isInstanceComplex&&ebxComplex.getComplexDescriptor().getAlignment()==4){
@@ -352,60 +344,33 @@ public class EBXCreator {
 			short index = (short) (proccComplex(ebxField.getValueAsComplex(), false, isArrayMember, proccDescriptor, hasNoPayload, ebxField.getFieldDescritor().getName().equals("$")));
 			//TODO does it need work ?
 			desc.setRef(index);
-		}else if (h==(short)0xC089||h==(short)0x0089){//_________________________________________________________________________________ENUM //TODO NEEDS WORK IN TCF, SELECTED INDEX FAIL.
+		}else if (h==(short)0xC089||h==(short)0x0089){//_________________________________________________________________________________ENUM
 			//TODO whats the difference (type)?
-			if (ebxField.getValue() instanceof String){
-				System.err.println("NULL ENUM (STRING)");
-				EBXComplexDescriptor enumComplexDesc = new EBXComplexDescriptor(
-						"$", //name
-						0,
-						(char) (0),//numFields <-0 == nullENUM
-						(char) 4,//TODO alignment
-						(short) 0x0,//type
-						(short) 0x0,//size
-						(short)0x0//secondarySize
-						);
-				complexDescriptors.add(enumComplexDesc);//add directly because proccComplexDescr. contains size methods
-				desc.setRef((short) (complexDescriptors.size()-1));//TODO -1 ??
+			
+			//TODO see enum-important-note.txt -> uncommon enum behaivor.
+			if (ebxField.getValue() instanceof EBXComplexDescriptor){
+				System.err.println("NULL ENUM");
+				this.complexDescriptors.add((EBXComplexDescriptor) ebxField.getValue());
+				desc.setRef((short) (this.complexDescriptors.size()-1));
 
 				data = FileHandler.toBytes(0, ByteOrder.LITTLE_ENDIAN);
-				if (ebxField.getValue()!=null){//for hasEmtyPayload
-					FileHandler.addBytes(data, targetList);
-				}
-			}else if(ebxField.getValue() instanceof HashMap<?, ?>){//EBXFieldDescriptor, Boolean
-				HashMap<EBXFieldDescriptor, Boolean> enumList = (HashMap<EBXFieldDescriptor, Boolean>) ebxField.getValue();
+				FileHandler.addBytes(data, targetList);
+			}else if(ebxField.getValue() instanceof EBXEnumHelper){
+				EBXEnumHelper enumHelper = (EBXEnumHelper) ebxField.getValue();
 				int selectedIndex = -1;
-				boolean treeSet = false;
-				for (EBXFieldDescriptor fieldDesc : enumList.keySet()){
-					String fieldName = fieldDesc.getName();
-					if (fieldName.contains("_")&&!treeSet){
-						String treeName = fieldName.replace("_", " ").split(" ")[0];
-						proccName(treeName);
-						treeSet = true;
-					}
-					//fieldDesc.setOffset(current);//offset does represent the relative index from fieldStartIndex, is already set in loader
-					fieldDescriptors.add(fieldDesc);
-					Boolean selected = enumList.get(fieldDesc);
-					if (selected){
-						selectedIndex = fieldDesc.getOffset();
-					}
+				proccName(enumHelper.getEnumName());
+				
+				EBXComplexDescriptor enumComplexDesc = enumHelper.getEnumComplexDesc();
+				int enumComplexIndex = proccComplexDescriptor(enumComplexDesc, this.fieldDescriptors.size());
+				desc.setRef((short) (enumComplexIndex));
+				
+				
+				for (EBXFieldDescriptor fieldDesc : enumHelper.getEntries()){
+					proccFieldDescriptor(fieldDesc);
 				}
-				EBXComplexDescriptor enumComplexDesc = new EBXComplexDescriptor(
-						"$", //name
-						fieldDescriptors.size()-1-enumList.size(),//start index //TODO -1 ??
-						(char) (enumList.size()&0xFF),//numFields
-						(char) 4,//TODO alignment
-						(short) 0x0,//type
-						(short) 0x0,//size
-						(short)0x0//secondarySize
-						);
-				complexDescriptors.add(enumComplexDesc);//add directly because proccComplexDescr. contains size methods
-				desc.setRef((short) (complexDescriptors.size()-1));
-
-				data = FileHandler.toBytes(selectedIndex, ByteOrder.LITTLE_ENDIAN);
-				if (selectedIndex>=0){//for hasNoPayloadData
-					FileHandler.addBytes(data, targetList);
-				}
+				
+				data = FileHandler.toBytes(enumHelper.getSelectedIndex(), ByteOrder.LITTLE_ENDIAN);
+				FileHandler.addBytes(data, targetList);
 			}else{
 				System.err.println("ENUM ERROR");
 			}
@@ -436,8 +401,6 @@ public class EBXCreator {
 						internal = null;
 						Integer index = proccInternalGUID(val);
 						data = FileHandler.toBytes(index, ByteOrder.LITTLE_ENDIAN);
-						//data for now :)
-						System.err.println("TEST->internal guid with 16 bytes");//TODO TEST internal guid
 					}else{
 						System.err.println("Invalid Internal GUID - check length!");
 					}				
@@ -504,7 +467,7 @@ public class EBXCreator {
 				short val = (short) ebxField.getValue();
 				if (isArrayMember){
 					data = FileHandler.toBytes(val, ByteOrder.BIG_ENDIAN);
-				}else{//normalPayload short is 4 bytes. defuq... //TODO are you bananas ? ;) its an casted short.
+				}else{//normalPayload short is 4 bytes. defuq...
 					data = FileHandler.toBytes((int) val, ByteOrder.LITTLE_ENDIAN);
 				}
 				FileHandler.addBytes(data, targetList);
@@ -554,14 +517,19 @@ public class EBXCreator {
 	
 	
 	public int proccName(String name){
-		//returns FNV_1 hash
-		for (String entryValue : names){
-			if (name.equals(entryValue)){
-				return EBXHandler.hasher(name.getBytes());
+		if (name!=null){
+			//returns FNV_1 hash
+			for (String entryValue : names){
+				if (name.equals(entryValue)){
+					return EBXHandler.hasher(name.getBytes());
+				}
 			}
+			names.add(name);
+			return EBXHandler.hasher(name.getBytes());
+		}else{
+			System.err.println("Can't proccName, the value is null.");
+			return -1;
 		}
-		names.add(name);
-		return EBXHandler.hasher(name.getBytes());
 	}
 	
 	public int proccExternalGUID(EBXExternalGUID guid){

@@ -25,7 +25,7 @@ public class CasManager {
 		try{
 			File casFile = new File(FileHandler.normalizePath(path99cas));
 			if (casFile.exists()){
-				System.err.println("Cas file does already exist.");
+//				System.err.println("Cas file does already exist.\n");
 				return false;
 			}
 			if (FileHandler.writeFile(path99cas, header)){
@@ -69,7 +69,7 @@ public class CasManager {
 		int casEntryOffset = (int) cas.length(); //Max file size is anyways less than 2GB's so we can go with integers.
 		if (FileHandler.writeFile(FileHandler.normalizePath(cas.getAbsolutePath()), FileHandler.toByteArray(procEntries), true)){
 			CasCatEntry entry = new CasCatEntry(genSHA1(casCatMan), casEntryOffset, procEntries.size(), 99);
-			System.out.println("New CatCatEntry "+entry.getSHA1()+" in cas_99 created!");
+			System.out.println("New CatCatEntry "+entry.getSHA1()+" in "+cas.getAbsolutePath()+" created!");
 			return entry;
 		}
 		System.err.println("Could not extend CASFile :(");

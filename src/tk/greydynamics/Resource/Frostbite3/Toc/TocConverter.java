@@ -94,7 +94,7 @@ public class TocConverter {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static CasBundle convertCASBundle(LayoutFile casBundleLayout){
+	public static CasBundle convertCASBundle(LayoutFile casBundleLayout, boolean findEBXid){
 		try{
 			CasBundle casBundle = new CasBundle(casBundleLayout.getSBPath(), null, null, 0, 0);
 			LayoutEntry masterEntry = casBundleLayout.getEntries().get(0);
@@ -116,35 +116,35 @@ public class TocConverter {
 				}
 				else if (field.getName().toLowerCase().equals("ebx") && field.getType() == LayoutFieldType.LIST){
 					for (LayoutEntry entry : (ArrayList<LayoutEntry>) field.getObj()){
-						ResourceLink link = readResourceLink(entry, ResourceBundleType.EBX);
+						ResourceLink link = readResourceLink(entry, ResourceBundleType.EBX, findEBXid);
 						if (link != null){
 							casBundle.getEbx().add(link);
 						}
 					}
 				}else if (field.getName().toLowerCase().equals("dbx") && field.getType() == LayoutFieldType.LIST){
 					for (LayoutEntry entry : (ArrayList<LayoutEntry>) field.getObj()){
-						ResourceLink link = readResourceLink(entry, ResourceBundleType.DBX);
+						ResourceLink link = readResourceLink(entry, ResourceBundleType.DBX, findEBXid);
 						if (link != null){
 							casBundle.getDbx().add(link);
 						}
 					}
 				}else if (field.getName().toLowerCase().equals("res") && field.getType() == LayoutFieldType.LIST){
 					for (LayoutEntry entry : (ArrayList<LayoutEntry>) field.getObj()){
-						ResourceLink link = readResourceLink(entry, ResourceBundleType.RES);
+						ResourceLink link = readResourceLink(entry, ResourceBundleType.RES, findEBXid);
 						if (link != null){
 							casBundle.getRes().add(link);
 						}
 					}
 				}else if (field.getName().toLowerCase().equals("chunks") && field.getType() == LayoutFieldType.LIST){
 					for (LayoutEntry entry : (ArrayList<LayoutEntry>) field.getObj()){
-						ResourceLink link = readResourceLink(entry, ResourceBundleType.CHUNKS);
+						ResourceLink link = readResourceLink(entry, ResourceBundleType.CHUNKS, findEBXid);
 						if (link != null){
 							casBundle.getChunks().add(link);
 						}
 					}
 				}else if (field.getName().toLowerCase().equals("chunkmeta") && field.getType() == LayoutFieldType.LIST){ //chunk(only singular)Meta!
 					for (LayoutEntry entry : (ArrayList<LayoutEntry>) field.getObj()){
-						ResourceLink link = readResourceLink(entry, ResourceBundleType.CHUNKMETA);
+						ResourceLink link = readResourceLink(entry, ResourceBundleType.CHUNKMETA, findEBXid);
 						if (link != null){
 							casBundle.getChunkMeta().add(link);
 						}
@@ -161,7 +161,7 @@ public class TocConverter {
 		}
 	}
 
-	static ResourceLink readResourceLink(LayoutEntry entry, ResourceBundleType type) {
+	static ResourceLink readResourceLink(LayoutEntry entry, ResourceBundleType type, boolean findEBXid) {
 		if (entry != null){
 			ResourceLink link = new ResourceLink(/*USING NULLCONSTUCTOR*/);
 			link.setBundleType(type);
@@ -260,17 +260,18 @@ public class TocConverter {
 						link.setType(ResourceType.EBX);
 					}
 					try{
-						
-						link.setEbxFileGUID(
-							EBXLoader.getGUID(
-								CasDataReader.readCas(
-										link.getBaseSha1(),
-										link.getDeltaSha1(),
-										link.getSha1(),
-										link.getCasPatchType()
+						if (findEBXid){
+							link.setEbxFileGUID(
+								EBXLoader.getGUID(
+									CasDataReader.readCas(
+											link.getBaseSha1(),
+											link.getDeltaSha1(),
+											link.getSha1(),
+											link.getCasPatchType()
+									)
 								)
-							)
-						);	
+							);
+						}
 //						EBXFile easd = Core.getGame().getResourceHandler().getEBXHandler().loadFile(CasDataReader.readCas(link.getBaseSha1(),link.getDeltaSha1(),link.getSha1(),link.getCasPatchType()));
 //						Core.getGame().getResourceHandler().getEBXComponentHandler().addKnownComponent(easd);
 					}catch (Exception e){

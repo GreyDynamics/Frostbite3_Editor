@@ -318,23 +318,29 @@ public class EBXLoader {
 				}
 			}
 		}else if (fieldDesc.getType() == (short) 0x0089 || fieldDesc.getType() == (short) 0xC089){
-			int compareValue = -1;
+			int selectedIndex = -1;
 			if (!hasEmtyPayload){
-				compareValue = FileHandler.readInt(ebxFileBytes, seeker);
+				selectedIndex = FileHandler.readInt(ebxFileBytes, seeker);//starts always at 0 and counts up.
 			}
 			EBXComplexDescriptor enumComplex = complexDescriptors[fieldDesc.getRef()];
 			if (enumComplex.getNumField()==0){
-				field.setValue("*nullEnum*", FieldValueType.Enum);
+				field.setValue(enumComplex, FieldValueType.Enum);//null Enum
 			}else{
-				HashMap<EBXFieldDescriptor, Boolean> enums = new HashMap<>();
-				for (int index=0; index<enumComplex.getNumField(); index++){
-					if (fieldDescriptors[enumComplex.getFieldStartIndex()+index].getOffset()==compareValue){
-						enums.put(fieldDescriptors[enumComplex.getFieldStartIndex()+index], true);//SELECTED
+				EBXEnumHelper enumHelper = new EBXEnumHelper(enumComplex, selectedIndex);
+				int numFields = enumComplex.getNumField();
+				if (numFields>>8==0xFF){
+					numFields=numFields&0xFF;
+				}
+				for (int index=0; index<numFields; index++){
+					int absIndex = enumComplex.getFieldStartIndex()+index;
+					if (absIndex<fieldDescriptors.length){
+						enumHelper.addEntry(fieldDescriptors[absIndex]);
 					}else{
-						enums.put(fieldDescriptors[enumComplex.getFieldStartIndex()+index], false);//NOT SELECTED
+						System.err.println("EBXLoader has a problem with a ENUM!");
+						return null;
 					}
 				}
-				field.setValue(enums, FieldValueType.Enum);
+				field.setValue(enumHelper, FieldValueType.Enum);//Enum with one entry selected
 			}
 		}else if (fieldDesc.getType()== (short) 0xC15D){ //GUID CHUNK
 			if (hasEmtyPayload){

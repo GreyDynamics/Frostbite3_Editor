@@ -1,11 +1,13 @@
 package tk.greydynamics.Resource;
 
 import java.awt.Desktop;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
@@ -598,7 +600,13 @@ public class FileHandler {
     			}
     		}
 	        if (file.isFile()) {
-	        	if (file.getName().contains(contains)){
+	        	boolean include = false;
+	        	if (contains!=null){
+	        		include = file.getName().contains(contains);
+	        	}else{
+	        		include = true;
+	        	}
+	        	if (include){
 	        		if (excludeName!=null){
 	        			//If the File Name contains this String, skip it.
 	        			if (file.getName().contains(excludeName)){
@@ -649,6 +657,65 @@ public class FileHandler {
 			System.err.println("ERROR!");
 		}
 		return false;
+	}
+	
+	public static boolean move(File source, File target, boolean replace){
+		System.out.print("MOVE: <"+source.getAbsolutePath()+"> to <"+target.getAbsolutePath()+"> ");
+		try{
+			if ((target.exists()&&replace)||!target.exists()){
+				prepareDir(target.getAbsolutePath());
+				Files.move(source.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				System.out.println("SUCCESS!");
+				return true;
+			}else{
+				System.err.println("FAILED! Not allowed to override.");
+			}
+		}catch (Exception e){
+			e.printStackTrace();
+			System.err.println("ERROR!");
+		}
+		return false;
+	}
+	public static byte hexToByte(String s) {
+		return (byte)((Character.digit(s.charAt(0), 16) << 4) + Character.digit(s.charAt(1), 16));
+	}
+
+	public static String byteToHex(byte in) {
+		return String.format("%02x", in).toUpperCase();
+	}  	
+	public static ArrayList<String> readTextFile(String path){
+		path = FileHandler.normalizePath(path);
+		try{
+			ArrayList<String> lines = new ArrayList<>();
+			FileReader fr = new FileReader(path);
+			
+			BufferedReader br = new BufferedReader(fr);
+		    String line = "";
+		    while ((line = br.readLine()) != null){
+		    	lines.add(line);
+		    }
+		    br.close();
+		    fr.close();
+		    return lines;
+		}catch (Exception e){
+//			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public static void deleteFolder(File folder) {
+		//Thanks to NCode @ http://stackoverflow.com/users/805569/ncode
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	                deleteFolder(f);
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    folder.delete();
 	}
 	
 //	static void listfdir(String directoryName, ArrayList<File> files , String contains) {

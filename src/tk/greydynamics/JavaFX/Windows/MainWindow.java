@@ -7,6 +7,8 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -14,11 +16,13 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import tk.greydynamics.Entity.Entity;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.TreeViewConverter;
 import tk.greydynamics.JavaFX.TreeViewEntry;
+import tk.greydynamics.JavaFX.CellFactories.ModLoaderListFactory;
 import tk.greydynamics.Mod.Mod;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
@@ -247,6 +251,10 @@ public class MainWindow extends Application{
 				ObservableList<Mod> mods = modLoaderWindow.getController().getList().getItems();
 				mods.clear();
 				mods.addAll(Core.getModTools().getMods());
+				ModLoaderListFactory cellFactory = modLoaderWindow.getListfactory();
+				if (cellFactory!=null){
+					cellFactory.updateModInfo(Core.getGame().getCurrentMod());
+				}
 			}
 		});	
 	}

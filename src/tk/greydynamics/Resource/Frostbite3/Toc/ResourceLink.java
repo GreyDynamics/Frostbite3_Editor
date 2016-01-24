@@ -128,6 +128,7 @@ public class ResourceLink {
 		    resLink.setFirstMip(Integer.valueOf(br.readLine()));
 		    
 		    resLink.setEbxFileGUID(br.readLine());
+		    resLink.setBundleType(ResourceBundleType.valueOf(br.readLine()));
 		    
 		    br.close();
 		    fr.close();

@@ -1,6 +1,9 @@
 package tk.greydynamics.Game;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -100,6 +103,7 @@ public class Game {
 			}
 		}
 		resourceHandler.createEBXComponentHandler(Core.gameName);
+		checkGameVersion();
 		Core.getJavaFXHandler().getMainWindow().getModLoaderWindow().getController().setGamepath(FileHandler.normalizePath(Core.gamePath));
 		Core.getJavaFXHandler().getMainWindow().toggleModLoaderVisibility();
 		File cascat = new File(Core.gamePath+Core.PATH_DATA+"cas.cat");
@@ -127,6 +131,31 @@ public class Game {
 	}
 	
 	
+	private boolean checkGameVersion() {
+		if (Core.gamePath!=null){
+			//{"sku":"origin","build":"923305"}
+			//TODO just grep game version.
+			try{
+				FileReader fr = new FileReader(Core.gamePath+"/version.json");
+				BufferedReader br = new BufferedReader(fr);
+			    String line = br.readLine();
+			    Core.gameVersion = line;
+			    Core.getJavaFXHandler().getMainWindow().getModLoaderWindow().getController().getGameVersionLabel().setText("Version: "+Core.gameVersion);
+			    br.close();
+			    fr.close();
+			}catch (FileNotFoundException e){
+				Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Please make sure a \"version.json\" exists in the game root directory.", null);
+				Core.gameVersion = "not found";
+			}catch (Exception e){
+				e.printStackTrace();
+				Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Please submit your \"version.json\" file. Its not compatible with this editor. Thanks!", null);
+				Core.gameVersion = "not compatible";
+			}
+		}
+		return false;
+	}
+
+
 	public void buildEditor(){
 		resourceHandler.getCasCatManager().readCat(FileHandler.readFile(Core.gamePath+Core.PATH_DATA+"cas.cat"), "normal");
 		File patchedCasCat = new File(Core.gamePath+Core.PATH_UPDATE_PATCH+Core.PATH_DATA+"cas.cat");

@@ -1,5 +1,7 @@
 package tk.greydynamics.JavaFX.Controller;
 
+import java.io.File;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
@@ -7,8 +9,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Mod.Mod;
+import tk.greydynamics.Mod.ModTools;
 import tk.greydynamics.Resource.FileHandler;
 
 public class ModLoaderController {
@@ -29,25 +33,52 @@ public class ModLoaderController {
 	@FXML
 	Button runEditor;
 	@FXML
-	Button playButton;
+	Button installButton;
 	@FXML
-	CheckBox checkBox;
+	Button compileButton;
+	@FXML
+	HBox modInfo;
+	@FXML
+	Label gameVersionLabel;
 	
 	
 	public void runEditor(){
 		Core.runEditor = true;
 	}
 	
-	public void playMod(){
+	public void installMod(){
+		if (Core.getGame().getCurrentMod()!=null){
+			Mod mod = Core.getGame().getCurrentMod();
+			if (mod.isInstalled()){
+				Core.getJavaFXHandler().getDialogBuilder().showAsk("Do you really want to ?", "Do you want to revert the Game to the original state ?", new Runnable() {
+					@Override
+					public void run() {
+						Core.getModTools().uninstallMod(Core.gamePath, mod);
+					}
+				}, null);
+			}else{
+				Core.getJavaFXHandler().getDialogBuilder().showAsk("Do you really want to ?", "To be able to play these mods, there is maybe a DRM/Update-Bypass needed.\n"
+						+ "If you want to do that with a Online Game (Battlefield) you have apply these changes to the server too! (ZLOEmu)\n\n"
+						+ "Singleplayer or basic changes (Textures..) should work fine, keep in mind:\n"
+						+ " YOU RISK GETTING BANNED, IF YOU USE THIS ON A OFFICIAL/RANKED ONLINE SERVER!\n\n"
+						+ "The Mod can be reverted at any time!\n"
+						+ "Do you want to install the mod ?", new Runnable() {
+					@Override
+					public void run() {
+						Core.getModTools().installMod(Core.gamePath, Core.getGame().getCurrentMod());
+					}
+				}, null);
+			}
+		}
+	}
+	public void compileMod(){
 		//Core.getJavaFXHandler().getDialogBuilder().showInfo("INFO", "This may take a while!");
-		Core.getJavaFXHandler().getDialogBuilder().showAsk("Do you really want to ?", "To be able to play these mods, there is maybe a DRM/Update-Bypass needed.\n"
-				+ "If you want to do that with a Online Game (Battlefield) you have apply these changes to the server too! (ZLOEmu)\n\n"
-				+ "Singleplayer or basic changes (Textures..) should work fine, keep in mind:\n"
-				+ " YOU RISK GETTING BANNED, IF YOU USE THIS ON A OFFICIAL/RANKED ONLINE SERVER!\n\n"
-				+ "Do you want to build your modificated version ?", new Runnable() {
+		Core.getJavaFXHandler().getDialogBuilder().showAsk("Do you really want to ?", "Do you want to (re)compile the mod ?", new Runnable() {
 			@Override
 			public void run() {
-				Core.getModTools().playMod((checkBox.isVisible()&&checkBox.isSelected())||!checkBox.isVisible());
+				String compileFolderPath = Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_COMPILEDDATA;
+				FileHandler.deleteFolder(new File(compileFolderPath));
+				Core.getModTools().compileMod(compileFolderPath);
 			}
 		}, null);
 		
@@ -110,16 +141,26 @@ public class ModLoaderController {
 		return gameName;
 	}
 
-	public Button getPlayButton() {
-		return playButton;
+
+
+	public Label getGamepath() {
+		return gamepath;
 	}
 
-	public CheckBox getCheckBox() {
-		return checkBox;
+	public Button getInstallButton() {
+		return installButton;
 	}
 
-	public void setCheckBox(CheckBox checkBox) {
-		this.checkBox = checkBox;
+	public Button getCompileButton() {
+		return compileButton;
+	}
+
+	public HBox getModInfo() {
+		return modInfo;
+	}
+
+	public Label getGameVersionLabel() {
+		return gameVersionLabel;
 	}
 	
 	

@@ -21,10 +21,11 @@ public class ResourceHandler {
 	public static enum ResourceType{ EBX, CHUNK, ITEXTURE, MESH, HKDESTRUCTION, HKNONDESTRUCTION, ANT,
 				ANIMTRACKDATA, RAGDOLL, OCCLUSIONMESH,
 			LIGHTINGSYSTEM, GFX, STREAIMINGSTUB, ENLIGHTEN, PROBESET, STATICENLIGHTEN,
-		SHADERDATERBASE, SHADERDB, SHADERPROGRAMDB, LUAC, UNDEFINED
+		SHADERDATERBASE, SHADERDB, SHADERPROGRAMDB, LUAC, UNDEFINED, EDITOR_RESOURCELINK
 	};
 		
 	public static enum LinkBundleType{BUNDLES, CHUNKS};
+	public static enum OriginType{BASE, PATCHED, XPACK};
 	
 	MeshChunkLoader mcL;
 	MeshVariationDatabaseHandler mvdH;
@@ -104,7 +105,7 @@ public class ResourceHandler {
 		byte[] data = null;
 		if (!useOriginal && name!=null){//should get patched files used ? (default: true)
 			File modFilePack = new File(FileHandler.normalizePath(
-					Core.getGame().getCurrentMod().getPath()+ModTools.PACKAGEFOLDER+
+					Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_PACKAGE+
 					Core.getGame().getCurrentFile().replace(Core.gamePath, "")+ModTools.PACKTYPE)
 			);
 			Package modPackage = null;
@@ -120,7 +121,7 @@ public class ResourceHandler {
 					{
 						//we are in the right package and an entry was found ;)
 						System.err.println("Mod file was found, this is our resource!");
-						data = FileHandler.readFile(Core.getGame().getCurrentMod().getPath()+ModTools.RESOURCEFOLDER+entry.getResourcePath());
+						data = FileHandler.readFile(Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+entry.getResourcePath());
 						if (data!=null){
 							return data;
 						}
@@ -179,6 +180,16 @@ public class ResourceHandler {
 			return Core.PATH_UPDATE.replace("/", "");
 		}else{
 			return null;
+		}
+	}
+	public static OriginType getOriginType(String filePath){
+		String normalizedPath = FileHandler.normalizePath(filePath);
+		if (normalizedPath.contains(Core.PATH_UPDATE_PATCH)){
+			return OriginType.PATCHED;
+		}else if (normalizedPath.contains(Core.PATH_PATCH)){
+			return OriginType.XPACK;
+		}else{
+			return OriginType.BASE;
 		}
 	}
 	

@@ -3,7 +3,6 @@ package tk.greydynamics.JavaFX;
 import java.io.File;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
@@ -23,9 +22,7 @@ import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleChunk;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplex;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplexDescriptor;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXField;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXFieldDescriptor;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler.FieldValueType;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXInstance;
@@ -401,7 +398,7 @@ public class TreeViewConverter {
 		TreeItem<TreeViewEntry> rootnode = new TreeItem<TreeViewEntry>(new TreeViewEntry(part.getBasePath(), new ImageView(JavaFXHandler.ICON_DOCUMENT), null, EntryType.LIST));
 		
 		File modFilePack = new File(FileHandler.normalizePath(
-				Core.getGame().getCurrentMod().getPath()+ModTools.PACKAGEFOLDER+
+				Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_PACKAGE+
 				Core.getGame().getCurrentFile().replace(Core.gamePath, "")+ModTools.PACKTYPE)
 		);
 		Package modPackage = null;
@@ -498,7 +495,7 @@ public class TreeViewConverter {
 		TreeItem<TreeViewEntry> rootnode = new TreeItem<TreeViewEntry>(new TreeViewEntry(nonCas.getName(), new ImageView(JavaFXHandler.ICON_DOCUMENT), null, EntryType.LIST));
 		
 		File modFilePack = new File(FileHandler.normalizePath(
-				Core.getGame().getCurrentMod().getPath()+ModTools.PACKAGEFOLDER+
+				Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_PACKAGE+
 				Core.getGame().getCurrentFile().replace(Core.gamePath, "")+ModTools.PACKTYPE)
 		);
 		Package modPackage = null;

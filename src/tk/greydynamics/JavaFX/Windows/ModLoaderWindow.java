@@ -23,6 +23,7 @@ public class ModLoaderWindow {
 	private FXMLLoader loader;
 	private Parent parent;
 	private ModLoaderController controller;
+	private ModLoaderListFactory listfactory = null;
 	
 	
 	
@@ -52,10 +53,12 @@ public class ModLoaderWindow {
         controller.getList().setCellFactory(new Callback<ListView<Mod>, ListCell<Mod>>() {
 	        @Override 
 	        public ListCell<Mod> call(ListView<Mod> list) {
-	            return new ModLoaderListFactory();
+	        	listfactory = new ModLoaderListFactory();
+	            return listfactory;
 	        }
         });
         controller.getRunEditor().setDisable(true);
+        controller.getModInfo().setDisable(true);   
 	}
 
 
@@ -80,6 +83,12 @@ public class ModLoaderWindow {
 
 	public Parent getParent() {
 		return parent;
+	}
+
+
+
+	public ModLoaderListFactory getListfactory() {
+		return listfactory;
 	}
 
 

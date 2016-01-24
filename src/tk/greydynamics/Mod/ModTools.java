@@ -8,9 +8,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.UUID;
 
+
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.FileHandler;
+import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
+import tk.greydynamics.Resource.ResourceHandler.OriginType;
 import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasCatEntry;
@@ -24,20 +27,25 @@ import tk.greydynamics.Resource.Frostbite3.Layout.LayoutFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.ConvertedTocFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter;
+import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter.ResourceBundleType;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocEntry;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager;
 
 public class ModTools {
 	public ArrayList<Mod> mods;
 	public ArrayList<Package> packages;
-	public static final String RESOURCEFOLDER = "/resources/";
-	public static final String PACKAGEFOLDER = "/packages/";
+	public static final String FOLDER_RESOURCE = "/resources/";
+	public static final String FOLDER_PACKAGE = "/packages/";
 	public static final String PACKTYPE = ".pack";
+	public static final String FOLDER_COMPILEDDATA = "/compiled_data/";
+	public static final String FILE_EDITOR_CONFIG = "/currentmod.cfg";
+	public static final String FOLDER_ORIGINAL = "/original_backup/";
+	public static final String FILE_MODFILE_LIST = "/modfiles.txt";
 
 	public ModTools() {
 		init();
 	}
-	public void init(/*AKA. RESET*/){
+	public void init(){
 		this.mods = new ArrayList<>();
 		this.packages = new ArrayList<>();
 		fetchMods();
@@ -56,18 +64,25 @@ public class ModTools {
 				if (info.exists()){
 					readModInfo(mod, info);
 				}
+				if (mod.getPath()!=null){
+					File compiledFolder = new File(mod.getPath()+ModTools.FOLDER_COMPILEDDATA);
+					if (compiledFolder.isDirectory()&&compiledFolder.exists()){
+						mod.setCompiled(true);
+					}
+				}
 				if (mod.getAuthor() != null){
-					String[] split = Core.gamePath.split("/");
-					int length = split.length;
-					if (Core.gamePath.endsWith("/")){
-						length--;
-					}
-					String destFolderPath = "";
-					for (int i=0; i<length-1;i++){
-						destFolderPath +=split[i]+"/";
-					}
-					destFolderPath += mod.getGame()+"_"+mod.getFolderName();
-					mod.setDestFolderPath(destFolderPath);
+//					String[] split = Core.gamePath.split("/");
+//					int length = split.length;
+//					if (Core.gamePath.endsWith("/")){
+//						length--;
+//					}
+//					String destFolderPath = "";
+//					for (int i=0; i<length-1;i++){
+//						destFolderPath +=split[i]+"/";
+//					}
+//					destFolderPath += mod.getGame()+"_"+mod.getFolderName();
+//					mod.setDestFolderPath(destFolderPath);
+//					mod.setDestFolderPath(null);
 					mods.add(mod);
 				}
 			}
@@ -82,6 +97,7 @@ public class ModTools {
 		    mod.setName(br.readLine());
 		    mod.setAuthor(br.readLine());
 		    mod.setGame(br.readLine());
+		    mod.setGameVersion(br.readLine());
 		    String line = "";
 		    String text = "";
 		    while ((line = br.readLine()) != null){
@@ -90,6 +106,14 @@ public class ModTools {
 		    mod.setDesc(text);
 		    br.close();
 		    fr.close();
+		    String installedMod = ModTools.getInstalledMod(Core.gamePath);
+		    if (installedMod!=null){
+		    	mod.setInstalled(installedMod.equals(mod.getFolderName()));
+		    }else{
+		    	mod.setInstalled(false);
+		    }
+		    
+		    mod.setCompiled(new File(mod.getPath()+ModTools.FOLDER_COMPILEDDATA).exists());
 		    
 		    
 		}catch (Exception e){
@@ -100,7 +124,7 @@ public class ModTools {
 	
 	public void fetchPackages(){
 		int entries = 0;
-		ArrayList<File> files = FileHandler.listf(Core.getGame().getCurrentMod().getPath()+PACKAGEFOLDER, ".pack");
+		ArrayList<File> files = FileHandler.listf(Core.getGame().getCurrentMod().getPath()+FOLDER_PACKAGE, ".pack");
 		for (File f : files){
 			if (!f.isDirectory()){
 				Package pack = readPackageInfo(f);
@@ -123,11 +147,7 @@ public class ModTools {
 			while ((line = br.readLine()) != null){
 					if (!line.startsWith("#")){
 						String[] parts = line.split("\\|");
-						
-						/*| is treated as an OR in RegEx. So you need to escape it:
-						 * String[] separated = line.split("\\|");
-						 */
-						
+												
 						if (parts.length<4||parts.length>5){continue;}
 						PackageEntry entry = new PackageEntry(
 							LinkBundleType.valueOf(parts[0]),
@@ -193,22 +213,139 @@ public class ModTools {
 		packages.add(pack);
 		return null;
 	}
+	public boolean installMod(String rootPath, Mod mod){
+		if (mod.isCompiled&&getInstalledMod(rootPath)==null){
+			setInstalledMod(rootPath, mod);
+			
+			//TODO LOGIC
+			String compiledDataPath = FileHandler.normalizePath(mod.getPath()+FOLDER_COMPILEDDATA);
+			ArrayList<File> modFiles = FileHandler.listf(compiledDataPath, null);
+			ArrayList<String> relModFilePaths = new ArrayList<>();
+			for (File modFile : modFiles){
+				if (!modFile.isDirectory()){
+					String relPath = FileHandler.normalizePath(modFile.getAbsolutePath()).replace(compiledDataPath, "/");
+					relModFilePaths.add(relPath);
+					File original = new File(rootPath+relPath);
+					if (original.exists()){
+						//Move to backup location.
+						if (!FileHandler.move(original, new File(rootPath+FOLDER_ORIGINAL+relPath), false)){
+							Core.getJavaFXHandler().getDialogBuilder().showError("Operation failed.", "A file can't be moved to backup location. \n"
+									+ "Target does already exist."
+									+ "\n\n"
+									+ "You maybe have to repair with Origin.", null);
+							return false;
+						}
+					}
+					if (!FileHandler.copy(modFile, new File(rootPath+relPath), false)){
+						//Copy mod file to target.
+						Core.getJavaFXHandler().getDialogBuilder().showError("Operation failed.", "A mod file can't be copied. \n"
+								+ "Target does already exist."
+								+ "\n\n"
+								+ "You maybe have to repair with Origin.", null);
+						return false;
+					}
+				}
+			}
+			FileHandler.writeLine(relModFilePaths, new File(rootPath+FOLDER_ORIGINAL+FILE_MODFILE_LIST));
+			mod.setInstalled(true);
+			init();
+			return true;
+		}else{
+			Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Only one Mod can be installed, once at the time!", null);
+		}
+		return false;
+	}
+	public boolean uninstallMod(String rootPath, Mod mod){
+		ArrayList<String> modFilePaths = FileHandler.readTextFile(rootPath+FOLDER_ORIGINAL+FILE_MODFILE_LIST);
+		if (modFilePaths!=null){
+			for (String modFilePath : modFilePaths){
+				File modFile = new File(rootPath+modFilePath);
+				if (modFile.exists()){
+					modFile.delete();
+				}
+			}
+			ArrayList<File> originalFiles = FileHandler.listf(rootPath+FOLDER_ORIGINAL, null);
+			for (File originalFile : originalFiles){
+				if (!originalFile.isDirectory()&&!originalFile.getName().equals(FILE_MODFILE_LIST.replace("/", ""))){
+					if (!FileHandler.move(originalFile, new File(FileHandler.normalizePath(originalFile.getAbsolutePath()).replace(FOLDER_ORIGINAL.replace("/", ""), "")), true)){
+						Core.getJavaFXHandler().getDialogBuilder().showError("Operation failed.", "A original file could not be restored. \n"
+								+ "\n\n"
+								+ "You maybe have to repair with Origin or try to replace manually from "+FOLDER_ORIGINAL+".", null);
+					}
+				}
+			}
+			
+			File installedModFile = new File(rootPath+FILE_EDITOR_CONFIG); 
+			if (installedModFile.exists()){
+				installedModFile.delete();
+			}
+			
+			File backupFolder = new File(rootPath+FOLDER_ORIGINAL+"/"); 
+			if (backupFolder.exists()&&backupFolder.isDirectory()){
+				FileHandler.deleteFolder(backupFolder);
+			}
+			mod.setInstalled(false);
+			init();
+			return true;
+		}
+		System.err.println("If you have already uninstalled and still stuck, delete the "+FILE_EDITOR_CONFIG+" file to clean!");
+		return false;
+	}
 	
-	public boolean playMod(boolean recompile){
-		if (recompile){
-			String path = Client.cloneClient(Core.gamePath+"/", Core.getGame().getCurrentMod().getGame()+"_"+Core.getGame().getCurrentMod().getFolderName(), true);
-			/*String path = Core.getGame().getCurrentMod().getGame()+"_"+Core.getGame().getCurrentMod().getFolderName();*/
+	public static String getInstalledMod(String rootPath){
+		try{
+			FileReader fr = new FileReader(rootPath+FILE_EDITOR_CONFIG);
+			
+			BufferedReader br = new BufferedReader(fr);
+			String installedMod = br.readLine();
+			fr.close();
+			br.close();
+		    return installedMod;
+		}catch (Exception e){
+			return null;
+		}
+	}
+	private static boolean setInstalledMod(String rootPath, Mod mod){
+		try{
+			ArrayList<String> stringArr = new ArrayList<>();
+			stringArr.add(mod.getFolderName());
+			FileHandler.writeLine(stringArr, new File(rootPath+FILE_EDITOR_CONFIG));
+			mod.setInstalled(true);
+		    return true;
+		}catch (Exception e){
+			return false;
+		}
+	}
+	
+	public boolean compileMod(String path){
+		Boolean enabled = true;
+		if (enabled&&Core.getGame().getCurrentMod()!=null){
+			Mod mod = Core.getGame().getCurrentMod();
+
 			if (path!=null){
 				System.out.println("Compile Client...");
-				String casCatPath = path+"/Update/Patch/Data/cas_99.cas";
-				CasCatManager manPatched = Core.getGame().getResourceHandler().getPatchedCasCatManager();
-				CasManager.createCAS(casCatPath);
+				String relCas_Path = "/Data/cas_99.cas";
 				Mod currentMod = Core.getGame().getCurrentMod();
-				//TODO MOD CLIENT LOGIC! multi subpackages doesnt work ;(
+				
 				for (Package pack : packages){
 					Core.getGame().setCurrentFile(FileHandler.normalizePath((Core.gamePath+"/"+pack.getName())));
-					LayoutFile toc = TocManager.readToc(Core.getGame().getCurrentFile());
-					ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
+					String casCatPath = null;
+					CasCatManager casCatMgr = null;
+					OriginType origin = ResourceHandler.getOriginType(Core.getGame().getCurrentFile());
+					
+					if (origin==OriginType.PATCHED){
+						casCatPath = FileHandler.normalizePath(path+Core.PATH_UPDATE_PATCH+relCas_Path);
+						casCatMgr = Core.getGame().getResourceHandler().getPatchedCasCatManager();
+					}else if (origin==OriginType.XPACK){
+						System.err.println("XPacks currently not supported.");
+						return false;
+					}else if (origin==OriginType.BASE){
+						casCatPath = FileHandler.normalizePath(path+relCas_Path);
+						casCatMgr = Core.getGame().getResourceHandler().getCasCatManager();
+					}
+					
+					
+					CasManager.createCAS(casCatPath);
 					
 					//SORT
 					HashMap<String, ArrayList<PackageEntry>> sorted = new HashMap<>();
@@ -221,15 +358,18 @@ public class ModTools {
 						}
 						subPackageEntries.add(entry);
 					}
-					
+
 					//PROCC
 					for (String subPackageName : sorted.keySet()){
+						LayoutFile toc = TocManager.readToc(Core.getGame().getCurrentFile());
+						ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
+
 						CasBundle currentSBpart = null;
 						for (TocEntry link : convToc.getBundles()){
 							if (link.getID().equals(subPackageName)){
-																				//link.setSbPath(sbPath); change the sb path once one subpackage is already done
+								//link.setSbPath(sbPath); change the sb path once one subpackage is already done
 								LayoutFile casBundle = link.getLayout();
-								currentSBpart = TocConverter.convertCASBundle(casBundle);
+								currentSBpart = TocConverter.convertCASBundle(casBundle, false);
 								break;
 							}
 						}
@@ -237,6 +377,78 @@ public class ModTools {
 							System.err.println("Mod.ModTools.playMod can't handle new subpackages at this time. ");
 							return false;
 						}
+						
+						/*SMASH LOGIC*/
+						boolean test = false;
+						if (test){
+							LayoutFile toc2 = TocManager.readToc(Core.gamePath+"/Update/Patch/Data/Win32/Levels/SP/SP_Suez/SP_Suez");
+							ConvertedTocFile convToc2 = TocConverter.convertTocFile(toc2);
+							
+							CasBundle currentSBpart2 = null;
+							for (TocEntry link : convToc2.getBundles()){
+								if (link.getID().equals("win32/levels/sp/sp_suez/bridge")){
+									LayoutFile casBundle2 = link.getLayout();
+									currentSBpart2 = TocConverter.convertCASBundle(casBundle2, false);
+									break;
+								}
+							}
+							if (currentSBpart2==null){
+								System.err.println("smash failed ");
+								return false;
+							}
+							for (ResourceLink ebxLink : currentSBpart2.getEbx()){
+								boolean exists = false;
+								for (ResourceLink ebxLink2 : currentSBpart.getEbx()){
+									if (ebxLink.getName().equals(ebxLink2.getName())){
+										exists = true;
+										break;
+									}
+								}
+								if (!exists){
+									currentSBpart.getEbx().add(ebxLink);
+								}
+							}
+							for (ResourceLink resLink : currentSBpart2.getRes()){
+								boolean exists = false;
+								for (ResourceLink resLink2 : currentSBpart.getRes()){
+									if (resLink.getName().equals(resLink2.getName())){
+										exists = true;
+										break;
+									}
+								}
+								if (!exists){
+									currentSBpart.getRes().add(resLink);
+								}
+							}
+							for (ResourceLink chunkLink : currentSBpart2.getChunks()){
+								boolean exists = false;
+								for (ResourceLink chunkLink2 : currentSBpart.getChunks()){
+									if (chunkLink2.getId().equals(chunkLink.getId())){
+										exists = true;
+										break;
+									}
+								}
+								if (!exists){
+									currentSBpart.getChunks().add(chunkLink);
+								}
+							}
+							for (ResourceLink chunkMeta : currentSBpart2.getChunkMeta()){
+								boolean exists = false;
+								for (ResourceLink chunkMeta2 : currentSBpart.getChunkMeta()){
+									if (chunkMeta2.getH32()==chunkMeta.getH32()){
+										exists = true;
+										break;
+									}
+								}
+								if (!exists){
+									currentSBpart.getChunkMeta().add(chunkMeta);
+								}
+							}
+						}
+						/**/
+						
+						
+						
 						int originalSize = 0;
 						ArrayList<PackageEntry> subPackageEntries = sorted.get(subPackageName);
 						byte[] data = null;
@@ -248,136 +460,108 @@ public class ModTools {
 							casCatEntryChunk = null;
 							chunkID = null;
 							switch(sortedEntry.getResType()){
-								case ANIMTRACKDATA:
-									break;
-								case ANT:
-									break;
-								case CHUNK:
-									break;
 								case EBX:
-									data = FileHandler.readFile(currentMod.getPath()+RESOURCEFOLDER+sortedEntry.getResourcePath());
+									data = FileHandler.readFile(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath());
 									originalSize = data.length;
-									casCatEntry = CasManager.extendCAS(data, new File(casCatPath), manPatched);
-									break;
-								case ENLIGHTEN:
-									break;
-								case GFX:
-									break;
-								case HKDESTRUCTION:
-									break;
-								case HKNONDESTRUCTION:
+									casCatEntry = CasManager.extendCAS(data, new File(casCatPath), casCatMgr);
 									break;
 								case ITEXTURE:
-									byte[] ddsFileBytes = /*DSS FILE*/FileHandler.readFile(currentMod.getPath()+RESOURCEFOLDER+sortedEntry.getResourcePath());
+									byte[] ddsFileBytes = /*DSS FILE*/FileHandler.readFile(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath());
 									chunkID = UUID.randomUUID().toString().replace("-", "");
-																		
+	
 									String[] split = sortedEntry.getResourcePath().split("\\.");
 									byte[] originalHeaderBytes = readOrignalData(split[0], currentSBpart.getRes());
 									if (originalHeaderBytes!=null){
-										
+	
 										FileHandler.writeFile("output/debug/originalHeaderBytes", originalHeaderBytes);
-										
+	
 										ITexture newITexture = ITextureConverter.getITextureHeader(ddsFileBytes, new ITexture(originalHeaderBytes, null), chunkID);
-																				
+	
 										/*Temp debug test
-										System.err.println("Texture Replacement does not work at the moment :(\n"
-												+ "use originalHeaderBytes instead!");
-										ITexture oldITexture = new ITexture(originalHeaderBytes, new FileSeeker());
-										newITexture.setChunkID(oldITexture.getChunkID());*/
-																			
-										
+												System.err.println("Texture Replacement does not work at the moment :(\n"
+														+ "use originalHeaderBytes instead!");
+												ITexture oldITexture = new ITexture(originalHeaderBytes, new FileSeeker());
+												newITexture.setChunkID(oldITexture.getChunkID());*/
+	
+	
 										data = newITexture.toBytes();
-										
+	
 										FileHandler.writeFile("output/debug/newITexture", data);
-										
-										
+	
+	
 										originalSize = data.length;
-										casCatEntry = CasManager.extendCAS(data, new File(casCatPath), manPatched);
-										
+										casCatEntry = CasManager.extendCAS(data, new File(casCatPath), casCatMgr);
+	
 										byte[] blockData = ITextureConverter.getBlockData(ddsFileBytes);
-										casCatEntryChunk = CasManager.extendCAS(blockData, new File(casCatPath), manPatched);
-										
+										casCatEntryChunk = CasManager.extendCAS(blockData, new File(casCatPath), casCatMgr);
+	
 										modifyChunkEntry(casCatEntryChunk, chunkID, blockData.length, newITexture.getNameHash(), currentSBpart, true /*isNew*/);
 									}else{
 										System.err.println("ITexture could not get applied!");
 									}
 									break;
-								case LIGHTINGSYSTEM:
-									break;
-								case LUAC:
-									break;
-								case MESH:
-									break;
-								case OCCLUSIONMESH:
-									break;
-								case PROBESET:
-									break;
-								case RAGDOLL:
-									break;
-								case SHADERDATERBASE:
-									break;
-								case SHADERDB:
-									break;
-								case SHADERPROGRAMDB:
-									break;
-								case STATICENLIGHTEN:
-									break;
-								case STREAIMINGSTUB:
-									break;
-								case UNDEFINED:
-									break;
 								default:
 									break;
 							}
-							
+
 							if (sortedEntry.getResType()==ResourceType.EBX){
 								modifyResourceLink(sortedEntry, casCatEntry, originalSize, currentSBpart.getEbx());
 							}else if (sortedEntry.getResType()==ResourceType.ITEXTURE||sortedEntry.getResType()==ResourceType.MESH){
 								modifyResourceLink(sortedEntry, casCatEntry, originalSize, currentSBpart.getRes());
+							}else if (sortedEntry.getResType()==ResourceType.EDITOR_RESOURCELINK){
+								ResourceLink link =  ResourceLink.importResourceLink(new File(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath()));
+								if (link!=null){
+									if (link.getBundleType()==ResourceBundleType.EBX){
+										currentSBpart.getEbx().add(link);
+									}else if (link.getBundleType()==ResourceBundleType.RES){
+										currentSBpart.getRes().add(link);
+									}else{
+										System.err.println("ResourceLink can't be inported to subpackage. Unknown ResourceBundleType!");
+									}
+								}
 							}else{
 								System.err.println(sortedEntry.getResType()+" isn't defined in (Mod.ModTools.playMod) for modifyResourceL1nk!");
 							}
 							if (casCatEntryChunk!=null){
-								manPatched.getEntries().add(casCatEntryChunk);
+								casCatMgr.getEntries().add(casCatEntryChunk);
 							}
 							if (casCatEntry!=null){
-								manPatched.getEntries().add(casCatEntry);
+								casCatMgr.getEntries().add(casCatEntry);
 							}
 						}
 						//TODO convToc.setTotalSize(totalSize);
 						String newPath = ((String) Core.getGame().getCurrentFile()+".sb").replace(Core.gamePath, path);
 						LayoutCreator.createModifiedSBFile(convToc, currentSBpart, false/*TODO*/, newPath, true/*delete first*/);
+						byte[] tocBytes = LayoutCreator.createTocFile(convToc);
+						File newTocFile = new File(((String) Core.getGame().getCurrentFile()+".toc").replace(Core.gamePath, path));
+						FileHandler.writeFile(newTocFile.getAbsolutePath(), tocBytes);
 					}
-					byte[] tocBytes = LayoutCreator.createTocFile(convToc);
-					File newTocFile = new File(((String) Core.getGame().getCurrentFile()+".toc").replace(Core.gamePath, path));
-					if (newTocFile.exists()){
-						newTocFile.delete();//delete do remove hardlink.
+					//Create new CasCat
+					byte[] casCatBytes = casCatMgr.getCat();
+					String relPart = null;
+					if (origin==OriginType.BASE){
+						relPart = "";
+					}else if (origin==OriginType.PATCHED){
+						relPart = Core.PATH_UPDATE_PATCH;
 					}
-					FileHandler.writeFile(newTocFile.getAbsolutePath(), tocBytes);
-					
+					File casCatFile = new File(path+relPart+"/Data/cas.cat");
+					FileHandler.writeFile(casCatFile.getAbsolutePath(), casCatBytes);
 				}
-				//CREATE CAS.CAT
-				byte[] patchedCasCatBytes = manPatched.getCat();
-				File casCatFile = new File(path+"/Update/Patch/Data/cas.cat");
-				if (casCatFile.exists()){
-					casCatFile.delete();
-				}
-				FileHandler.writeFile(casCatFile.getAbsolutePath(), patchedCasCatBytes);
 				
-				//DONE OPEN FOLDER!
-				FileHandler.openFolder(path);
-				//Core.getJavaFXHandler().getDialogBuilder().showInfo("INFO", "Ready to Play!\nOrigin DRM Files needs to be replaced manually!");
-				//Core.getJavaFXHandler().getMainWindow().toggleModLoaderVisibility();
-				Core.keepAlive = false;
+				mod.setCompiled(true);
+				init();
 				return true;
 			}
 			Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Something went wrong :(", null, null);
 			return false;
-		}else{
-			FileHandler.openFolder(Core.getGame().getCurrentMod().getDestFolderPath());
-			Core.getJavaFXHandler().getDialogBuilder().showInfo("INFO", "Have fun =)");
-			return false;
+			//			}else{
+			//				FileHandler.openFolder(Core.getGame().getCurrentMod().getDestFolderPath());
+			//				Core.getJavaFXHandler().getDialogBuilder().showInfo("INFO", "Have fun =)");
+			//				return false;
+			//			}
 		}
+		Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "This feature is currently not working or available for public.", null);
+		return false;
 	}
 	/*public ResourceLink modifyChunkEntry(CasCatEntry chunkCatEntry, String chunkGuid, Integer chunkSize, ConvertedSBpart convertedSBpart, boolean isNew){
 		return modifyChunkEntry(chunkCatEntry, chunkGuid, chunkSize, 0, convertedSBpart, isNew);
@@ -520,24 +704,24 @@ public class ModTools {
 				return true;
 			}
 		}
-		
-	/*NEW ONE*/
-		String targetObject = packEntry.getTargetPath();//has a special targetPath defined, use this.
-		if (targetObject==null){
-			targetObject = packEntry.getResourcePath();//otherwise use the resourcePath as target.
-		}
-		ResourceLink link = new ResourceLink();
-		link.setName(targetObject.replace(".", "-").split("-")[0]);
-		link.setType(packEntry.getResType());
-		//link.setResType(resType);
-		//link.setLogicalOffset(logicalOffset);
-		link.setBaseSha1(null);
-		link.setDeltaSha1(null);
-		link.setCasPatchType(1);//Patching using data from update cas
-		link.setSha1(casCatEntry.getSHA1().toLowerCase());
-		link.setSize(casCatEntry.getProcSize());
-		link.setOriginalSize(originalSize);
-		targetList.add(link);
+//		
+//	/*NEW ONE*/
+//		String targetObject = packEntry.getTargetPath();//has a special targetPath defined, use this.
+//		if (targetObject==null){
+//			targetObject = packEntry.getResourcePath();//otherwise use the resourcePath as target.
+//		}
+//		ResourceLink link = new ResourceLink();
+//		link.setName(targetObject.replace(".", "-").split("-")[0]);
+//		link.setType(packEntry.getResType());
+//		//link.setResType(resType);
+//		//link.setLogicalOffset(logicalOffset);
+//		link.setBaseSha1(null);
+//		link.setDeltaSha1(null);
+//		link.setCasPatchType(1);//Patching using data from update cas
+//		link.setSha1(casCatEntry.getSHA1().toLowerCase());
+//		link.setSize(casCatEntry.getProcSize());
+//		link.setOriginalSize(originalSize);
+//		targetList.add(link);
 		return false;
 	}
 	public boolean extendCurrentPackage(LinkBundleType bundle, String sbPart, ResourceType type, String path){
