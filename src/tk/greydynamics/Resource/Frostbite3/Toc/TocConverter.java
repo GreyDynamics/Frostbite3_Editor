@@ -261,14 +261,33 @@ public class TocConverter {
 					}
 					try{
 						if (findEBXid){
+							byte[] data = CasDataReader.readCas(
+									link.getBaseSha1(),
+									link.getDeltaSha1(),
+									link.getSha1(),
+									link.getCasPatchType()
+							);
+//							if (data!=null){
+//								EBXFile ebxFile = Core.getGame().getResourceHandler().getEBXHandler().loadFile(data);
+//								if (ebxFile!=null){
+//									byte[] ebxBytes = Core.getGame().getResourceHandler().getEBXHandler().createEBX(ebxFile);
+//									if (ebxBytes!=null){
+//										EBXFile ebxFileRecreated = Core.getGame().getResourceHandler().getEBXHandler().loadFile(ebxBytes);
+//										if (ebxFileRecreated!=null){
+//											System.out.println("Recreation worked fine for "+link.getName());
+//										}else{
+//											System.err.println("Recreation worked bad for "+link.getName());
+//										}
+//									}
+//								}else{
+//									System.err.println("EBX Reading failed for "+link.getName());
+//								}
+//							}else{
+//								System.err.println("Can't find resource data for "+link.getName());
+//							}
 							link.setEbxFileGUID(
 								EBXLoader.getGUID(
-									CasDataReader.readCas(
-											link.getBaseSha1(),
-											link.getDeltaSha1(),
-											link.getSha1(),
-											link.getCasPatchType()
-									)
+										data
 								)
 							);
 						}
@@ -276,7 +295,7 @@ public class TocConverter {
 //						Core.getGame().getResourceHandler().getEBXComponentHandler().addKnownComponent(easd);
 					}catch (Exception e){
 						e.printStackTrace();
-						//Timeout in JavaFX Thread ??
+//						//Timeout in JavaFX Thread ??
 					}
 					break;
 				case RES:

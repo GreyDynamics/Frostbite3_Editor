@@ -1,7 +1,5 @@
 package tk.greydynamics.Mod;
 
-import java.io.File;
-
 public class Mod {
 	String name;
 	String author;

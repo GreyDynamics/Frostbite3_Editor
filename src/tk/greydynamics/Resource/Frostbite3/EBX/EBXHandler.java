@@ -51,7 +51,7 @@ public class EBXHandler {
 	public EBXFile loadFile(byte[] data) {
 		try{
 			if (loader.loadEBX(data)){
-				EBXFile newFile = new EBXFile(loader.getTrueFilename(), loader.getInstances(), loader.getFileGUID(), loader.getByteOrder());
+				EBXFile newFile = new EBXFile(loader.getTrueFilename(), loader.getInstances(), loader.getFileGUID(), loader.getByteOrder(), loader.getExternalGUIDs());
 				EBXExternalFileReference efr = new EBXExternalFileReference(loader.getFileGUID(), loader.getTrueFilename());
 				ebxFiles.put(efr, newFile);
 				return newFile;

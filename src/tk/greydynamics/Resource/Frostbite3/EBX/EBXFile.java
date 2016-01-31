@@ -9,11 +9,18 @@ public class EBXFile {
 	private ArrayList<EBXInstance> instances;
 	private ByteOrder order;
 	
-	public EBXFile(String truePath, ArrayList<EBXInstance> instances, String guid, ByteOrder order) {
+	private ArrayList<EBXExternalGUID> externalGUIDs;
+	
+	public EBXFile(String truePath, ArrayList<EBXInstance> instances, String guid, ByteOrder order, ArrayList<EBXExternalGUID> externalGUIDs) {
 		this.truePath = truePath;
 		this.instances = instances;
 		this.guid = guid;
 		this.order = order;
+		if (externalGUIDs!=null){
+			this.externalGUIDs = externalGUIDs;
+		}else{
+			this.externalGUIDs = new ArrayList<>();
+		}	
 	}
 
 	public String getTruePath() {
@@ -38,6 +45,10 @@ public class EBXFile {
 
 	public ByteOrder getByteOrder() {
 		return order;
+	}
+
+	public ArrayList<EBXExternalGUID> getExternalGUIDs() {
+		return externalGUIDs;
 	}
 	
 }

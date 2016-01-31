@@ -119,7 +119,11 @@ public class TreeViewConverter {
 	static boolean readComplex(EBXComplex ebxComplex, TreeItem<Object> parent){
 		if (ebxComplex != null){
 			for(EBXField field : ebxComplex.getFields()){
-				parent.getChildren().add(readField(field));
+				TreeItem<Object> treeItem = readField(field);
+				parent.getChildren().add(treeItem);
+				if (treeItem.getChildren().size()>0){
+					treeItem.setExpanded(true);
+				}
 			}
 			return true;
 		}else{

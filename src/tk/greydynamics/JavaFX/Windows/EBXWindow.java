@@ -71,19 +71,11 @@ public class EBXWindow {
 	    controller.getEBXExplorer().setCellFactory(new Callback<TreeView<Object>,TreeCell<Object>>(){
 	        @Override
 	        public TreeCell<Object> call(TreeView<Object> p) {
-	            return new JavaFXebxTCF(ebxFile, isOriginal);
+	            return new JavaFXebxTCF(controller, ebxFile, isOriginal);
 	        }
 	    });
 	    
-	    TreeItem<Object> ebxTreeView = null;
-	    if (ebxFile!=null){
-	    	ebxTreeView = TreeViewConverter.getTreeView(ebxFile);
-	    	if (!ebxTreeView.getChildren().isEmpty()){
-		    	ebxTreeView.setExpanded(true);
-		    }
-	    }
-	    controller.getEBXExplorer().setRoot(ebxTreeView);
-	    
+	    controller.update(ebxFile);
 	}
 
 	public FXMLLoader getEbxWindowLoader() {

@@ -27,5 +27,12 @@ public class EBXArrayRepeater{
 	public void setComplexIndex(int complexIndex) {
 		this.complexIndex = complexIndex;
 	}
+	public static EBXArrayRepeater clone(EBXArrayRepeater arrayRepeater) {
+		return new EBXArrayRepeater(
+				Integer.valueOf(arrayRepeater.getOffset()),
+				Integer.valueOf(arrayRepeater.getRepetitions()),
+				Integer.valueOf(arrayRepeater.getComplexIndex())
+			);
+	}
 	
 }

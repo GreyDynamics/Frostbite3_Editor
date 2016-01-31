@@ -4,10 +4,10 @@ import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler.FieldValueType;
 
 
 public class EBXField{
-	EBXFieldDescriptor fieldDescritor;
-	int offset;
-	Object value;
-	FieldValueType type;
+	private EBXFieldDescriptor fieldDescritor;
+	private int offset;
+	private Object value;
+	private FieldValueType type;
 	
 	public int indexDEBUG = 0;
 	
@@ -45,5 +45,69 @@ public class EBXField{
 	
 	public EBXComplex getValueAsComplex(){
 		return (EBXComplex) value;
+	}
+	public static EBXField clone(EBXField ebxField) {
+		EBXField newEBXField = new EBXField(EBXFieldDescriptor.clone(ebxField.getFieldDescritor()), Integer.valueOf(ebxField.getOffset()));
+		Object newValue = null;
+		if (ebxField.getValue()!=null){
+			switch (ebxField.getType()){
+				case ArrayComplex:
+					if (ebxField.getValue() instanceof EBXArrayRepeater){
+						newValue = EBXArrayRepeater.clone((EBXArrayRepeater) ebxField.getValue());
+					}else{
+						newValue = EBXComplex.clone(ebxField.getValueAsComplex());
+					}
+					break;
+				case Bool:
+					newValue = Boolean.valueOf((boolean) ebxField.getValue());
+					break;
+				case Byte:
+					newValue = Byte.valueOf((byte) ebxField.getValue());
+					break;
+				case ChunkGuid:
+					newValue = String.valueOf(((String) (ebxField.getValue())).toCharArray());
+					break;
+				case Complex:
+					newValue = EBXComplex.clone(ebxField.getValueAsComplex());
+					break;
+				case Enum:
+					if (ebxField.getValue() instanceof EBXComplexDescriptor){
+						newValue = EBXComplexDescriptor.clone((EBXComplexDescriptor) ebxField.getValue());
+					}else{
+						newValue = EBXEnumHelper.clone((EBXEnumHelper) ebxField.getValue());
+					}
+					break;
+				case ExternalGuid:
+					newValue = String.valueOf(((String) (ebxField.getValue())).toCharArray());
+					break;
+				case Float:
+					newValue = Float.valueOf((Float) ebxField.getValue());
+					break;
+				case Guid:
+					newValue = String.valueOf(((String) (ebxField.getValue())).toCharArray());
+					break;
+				case Hex8:
+					newValue = String.valueOf(((String) (ebxField.getValue())).toCharArray());
+					break;
+				case Integer:
+					newValue = Integer.valueOf((String) ebxField.getValue());
+					break;
+				case Short:
+					newValue = Short.valueOf((short) ebxField.getValue());
+					break;
+				case String:
+					newValue = String.valueOf(((String) (ebxField.getValue())).toCharArray());
+					break;
+				case UInteger:
+					newValue = Long.valueOf((Long) ebxField.getValue());
+					break;
+				case Unknown:
+					return null;
+				default:
+					return null;
+			}
+		}
+		newEBXField.setValue(newValue, FieldValueType.valueOf(ebxField.getType().toString()));
+		return newEBXField;
 	}	
 }

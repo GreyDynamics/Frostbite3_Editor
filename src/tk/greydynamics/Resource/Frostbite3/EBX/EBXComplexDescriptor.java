@@ -65,4 +65,16 @@ public class EBXComplexDescriptor{
 	public void setSecondarySize(short secondarySize) {
 		this.secondarySize = secondarySize;
 	}
+
+	public static EBXComplexDescriptor clone(EBXComplexDescriptor complexDescriptor) {
+		EBXComplexDescriptor newComplex = new EBXComplexDescriptor(complexDescriptor.getName(),
+				Integer.valueOf(complexDescriptor.getFieldStartIndex()), 
+				Character.valueOf((char) complexDescriptor.getNumField()),
+				Character.valueOf((char) complexDescriptor.getAlignment()),
+				Short.valueOf(complexDescriptor.getType()),
+				Short.valueOf(complexDescriptor.getSize()),
+				Short.valueOf(complexDescriptor.getSecondarySize())
+			);;
+		return newComplex;
+	}
 }

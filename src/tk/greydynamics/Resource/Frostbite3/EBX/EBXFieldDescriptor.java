@@ -67,4 +67,16 @@ public class EBXFieldDescriptor{
 	public void setSecondaryOffset(int secondaryOffset) {
 		this.secondaryOffset = secondaryOffset;
 	}
+
+	public static EBXFieldDescriptor clone(EBXFieldDescriptor fieldDescritor) {
+		EBXFieldDescriptor newFieldDescriptor = new EBXFieldDescriptor(
+				fieldDescritor.getName(),
+				Short.valueOf((short) fieldDescritor.getType()),
+				Short.valueOf((short) fieldDescritor.getRef()),
+				Integer.valueOf(fieldDescritor.getOffset()),
+				Integer.valueOf(fieldDescritor.getSecondaryOffset())
+			);
+		newFieldDescriptor.setSize(Integer.valueOf(fieldDescritor.getSize()));
+		return newFieldDescriptor;
+	}
 }

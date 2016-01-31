@@ -259,8 +259,8 @@ public class NonCasBundle extends Bundle{
 		metaSize = FileHandler.readInt(data, seeker, order);
 		metaOffset = seeker.getOffset();
 		header = new NonCasBundleHeader(data, seeker, order); //8x Integer == 32 Bytes
-		if (header.getMagic()!=0x9D798ED5){
-			System.out.println("You are trying to use an NON CAS Bundle with a Game THAT IS NOT Battlefield 4,\nMaybe this will not work!");
+		if (header.getMagic()!=NonCasBundleHeader.FOURCC_BF4){
+			System.out.println("You are trying to use an NON CAS Bundle with a Game THAT IS NOT Battlefield 4,\nMaybe this won't work!");
 //			return false;
 		}
 		if(seeker.hasError()){return false;}

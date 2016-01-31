@@ -75,8 +75,17 @@ Field types:
                 Apart from that, it's the same as before.
        
         Type 0x417d has its payload size reduced from 24 bytes to 8 bytes.
+		
+		Enum's can have a strange behavior.
+			If the frist byte of numfields (given by the enums complex descriptor)
+			is equal to 0xFF, a 0xFF bitmask has to be applied.
+			This is not common!
  
 File names:
         In bf3 there was a field called Name located in the primary instance of every ebx file.
         In particular, this name had proper capitalization whereas the sbtoc archives contain names in lowercase only.
         In bf4, most fx files do not have a Name field anymore, so it is necessary to use the sbtoc names.
+		
+		
+
+

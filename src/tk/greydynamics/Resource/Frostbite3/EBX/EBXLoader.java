@@ -258,7 +258,7 @@ public class EBXLoader {
 				return null;
 			}
 		}
-		cmplx.fields = fields;
+		cmplx.setFields(fields);
 		seeker.setOffset(cmplx.getOffset()+complexDesc.getSize()-obfuscationShift);
 		return cmplx;
 	}
@@ -283,12 +283,13 @@ public class EBXLoader {
 			EBXComplex arrayComplex = new EBXComplex(arrayComplexDesc);
 			EBXField[] fields = null;
 			EBXComplexDescriptor test = complexDescriptors[arrayRepeater.getComplexIndex()];
-			if (arrayRepeater.getRepetitions()>0){//Guids,Strings,Integer... =) ?
+			if (arrayRepeater.getRepetitions()>0){//Guids,Strings,Integer... with payload
 				fields = new EBXField[arrayRepeater.getRepetitions()];
 				for (int i=0; i<fields.length;i++){
 					fields[i] = readField(arrayComplexDesc.getFieldStartIndex(), false);
 				}
-			}else if (arrayComplexDesc.getNumField()>0){//Field is prob, Complex|||  ------------>The complexDescr does exist but without any payload ??
+			}else if (arrayComplexDesc.getNumField()>0){//Field is prob, Complex|| fields does not have any payload!
+				arrayComplex.setEmtyPayload(true);
 //TODO is this needed, removed 16-jan-2016	int index = FileHandler.readInt(ebxFileBytes, new FileSeeker(seeker.getOffset()));//array section contains a integer for it ?
 				//System.out.println("ArrayComplex-Integer-Debug: "+index);
 				fields = new EBXField[arrayComplexDesc.getNumField()];
@@ -402,6 +403,9 @@ public class EBXLoader {
 			if (hasEmtyPayload){
 				field.setValue(null, FieldValueType.Guid);
 			}else{
+//				if (seeker.getOffset()>=33043){
+//					System.err.println("ASdasdf");
+//				}
 				int tempValue = FileHandler.readInt(ebxFileBytes, seeker);
 				//field.setValue(String.valueOf(tempValue)+"test", FieldValueType.Guid);
 				//return field;
@@ -526,6 +530,13 @@ public class EBXLoader {
 	public ByteOrder getByteOrder() {
 		return order;
 	}
-
+	
+	public ArrayList<EBXExternalGUID> getExternalGUIDs(){
+		ArrayList<EBXExternalGUID> externalGUIDsList = new ArrayList<>();
+		for (EBXExternalGUID guid : externalGUIDs){
+			externalGUIDsList.add(guid);
+		}
+		return externalGUIDsList;
+	}
 	
 }

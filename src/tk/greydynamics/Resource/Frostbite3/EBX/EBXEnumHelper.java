@@ -47,4 +47,12 @@ public class EBXEnumHelper {
 	public String getEnumName() {
 		return this.enumName;
 	}
+
+	public static EBXEnumHelper clone(EBXEnumHelper enumHelper) {
+		EBXEnumHelper newHelper = new EBXEnumHelper(EBXComplexDescriptor.clone(enumHelper.getEnumComplexDesc()), Integer.valueOf(enumHelper.getSelectedIndex()));
+		for (EBXFieldDescriptor entry : enumHelper.getEntries()){
+			newHelper.addEntry(EBXFieldDescriptor.clone(entry));
+		}
+		return newHelper;
+	}
 }

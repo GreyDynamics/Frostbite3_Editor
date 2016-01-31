@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.UUID;
 
-
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
@@ -389,59 +388,59 @@ public class ModTools {
 								if (link.getID().equals("win32/levels/sp/sp_suez/bridge")){
 									LayoutFile casBundle2 = link.getLayout();
 									currentSBpart2 = TocConverter.convertCASBundle(casBundle2, false);
+									if (currentSBpart2==null){
+										System.err.println("smash failed ");
+										return false;
+									}
+									for (ResourceLink ebxLink : currentSBpart2.getEbx()){
+										boolean exists = false;
+										for (ResourceLink ebxLink2 : currentSBpart.getEbx()){
+											if (ebxLink.getName().equals(ebxLink2.getName())){
+												exists = true;
+												break;
+											}
+										}
+										if (!exists){
+											currentSBpart.getEbx().add(ebxLink);
+										}
+									}
+									for (ResourceLink resLink : currentSBpart2.getRes()){
+										boolean exists = false;
+										for (ResourceLink resLink2 : currentSBpart.getRes()){
+											if (resLink.getName().equals(resLink2.getName())){
+												exists = true;
+												break;
+											}
+										}
+										if (!exists){
+											currentSBpart.getRes().add(resLink);
+										}
+									}
+									for (ResourceLink chunkLink : currentSBpart2.getChunks()){
+										boolean exists = false;
+										for (ResourceLink chunkLink2 : currentSBpart.getChunks()){
+											if (chunkLink2.getId().equals(chunkLink.getId())){
+												exists = true;
+												break;
+											}
+										}
+										if (!exists){
+											currentSBpart.getChunks().add(chunkLink);
+										}
+									}
+									for (ResourceLink chunkMeta : currentSBpart2.getChunkMeta()){
+										boolean exists = false;
+										for (ResourceLink chunkMeta2 : currentSBpart.getChunkMeta()){
+											if (chunkMeta2.getH32()==chunkMeta.getH32()){
+												exists = true;
+												break;
+											}
+										}
+										if (!exists){
+											currentSBpart.getChunkMeta().add(chunkMeta);
+										}
+									}
 									break;
-								}
-							}
-							if (currentSBpart2==null){
-								System.err.println("smash failed ");
-								return false;
-							}
-							for (ResourceLink ebxLink : currentSBpart2.getEbx()){
-								boolean exists = false;
-								for (ResourceLink ebxLink2 : currentSBpart.getEbx()){
-									if (ebxLink.getName().equals(ebxLink2.getName())){
-										exists = true;
-										break;
-									}
-								}
-								if (!exists){
-									currentSBpart.getEbx().add(ebxLink);
-								}
-							}
-							for (ResourceLink resLink : currentSBpart2.getRes()){
-								boolean exists = false;
-								for (ResourceLink resLink2 : currentSBpart.getRes()){
-									if (resLink.getName().equals(resLink2.getName())){
-										exists = true;
-										break;
-									}
-								}
-								if (!exists){
-									currentSBpart.getRes().add(resLink);
-								}
-							}
-							for (ResourceLink chunkLink : currentSBpart2.getChunks()){
-								boolean exists = false;
-								for (ResourceLink chunkLink2 : currentSBpart.getChunks()){
-									if (chunkLink2.getId().equals(chunkLink.getId())){
-										exists = true;
-										break;
-									}
-								}
-								if (!exists){
-									currentSBpart.getChunks().add(chunkLink);
-								}
-							}
-							for (ResourceLink chunkMeta : currentSBpart2.getChunkMeta()){
-								boolean exists = false;
-								for (ResourceLink chunkMeta2 : currentSBpart.getChunkMeta()){
-									if (chunkMeta2.getH32()==chunkMeta.getH32()){
-										exists = true;
-										break;
-									}
-								}
-								if (!exists){
-									currentSBpart.getChunkMeta().add(chunkMeta);
 								}
 							}
 						}

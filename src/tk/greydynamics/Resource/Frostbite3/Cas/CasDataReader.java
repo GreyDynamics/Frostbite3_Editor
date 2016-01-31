@@ -50,9 +50,9 @@ public class CasDataReader { //casPath == folderPath
 			}
 			
 			byte[] data = Patcher.getPatchedData(base, delta);
-			FileHandler.writeFile("output/debug/patcher_data", data);
-			FileHandler.writeFile("output/debug/patcher_base", base);
-			FileHandler.writeFile("output/debug/patcher_delta", delta);
+//			FileHandler.writeFile("output/debug/patcher_data", data);
+//			FileHandler.writeFile("output/debug/patcher_base", base);
+//			FileHandler.writeFile("output/debug/patcher_delta", delta);
 			if (data != null){
 				return data;
 			}else{

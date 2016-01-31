@@ -128,7 +128,7 @@ public class Core {
 		
 		//jfxHandler.getMainWindow().createImagePreviewWindow(null, null, new ResourceLink(), "test");
 				
-		/*Let's loop until user's exit request was initialized*/
+		/*Let's loop until user's exit request was initialized*/		
 		while (keepAlive){
 			/* Wait for starting editor.
 			 * JavaFX is running on a different Thread,

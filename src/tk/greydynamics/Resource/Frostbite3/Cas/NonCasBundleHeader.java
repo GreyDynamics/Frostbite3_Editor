@@ -1,11 +1,14 @@
 package tk.greydynamics.Resource.Frostbite3.Cas;
 
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
 
 public class NonCasBundleHeader {
+	public static final int HEADER_BYTESIZE = 32;
+	public static final int FOURCC_BF4 = 0x9D798ED5;
 
 	private int magic = -1; //970d1c13 for bf3, 9D798ED5 for bf4
 	private int totalCount = -1; //total entries = ebx + res + chunks
@@ -25,6 +28,24 @@ public class NonCasBundleHeader {
 		this.stringOffset = FileHandler.readInt(bundleBytes, seeker, order);
 		this.chunkMetaOffset = FileHandler.readInt(bundleBytes, seeker, order);
 		this.chunkMetaSize = FileHandler.readInt(bundleBytes, seeker, order);
+	}
+	
+	public ArrayList<Byte> getHeaderBytes(ByteOrder order){
+		ArrayList<Byte> headerBytes = new ArrayList<>();
+		FileHandler.addBytes(FileHandler.toBytes(this.magic, order), headerBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.totalCount, order), headerBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.ebxCount, order), headerBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.resCount, order), headerBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.chunkCount, order), headerBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.stringOffset, order), headerBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.chunkMetaOffset, order), headerBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.chunkMetaSize, order), headerBytes);
+		if (headerBytes.size()==HEADER_BYTESIZE){
+			return headerBytes;
+		}else{
+			System.err.println("NonCasBundleHeader couldn't be created.");//check HEADER_BYTESIZE(if changed) and written data.
+			return null;
+		}
 	}
 	
 	

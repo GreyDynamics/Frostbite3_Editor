@@ -169,10 +169,14 @@ public class Game {
 		commonChunks = new ArrayList<ConvertedTocFile>();
 		for (File file : FileHandler.listf(Core.gamePath+"/", "Chunks")){
 			if (file.getAbsolutePath().endsWith(".toc")){
-				String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", "");
-				LayoutFile toc = TocManager.readToc(relPath);
-				ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
-				commonChunks.add(convToc);
+				try{
+					String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", "");
+					LayoutFile toc = TocManager.readToc(relPath);
+					ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
+					commonChunks.add(convToc);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		}
 		/*End of common chunks!*/
@@ -180,10 +184,14 @@ public class Game {
 		/*Battlefield Weapons and Attachments*/
 		for (File file : FileHandler.listf(Core.gamePath+"/", "WeaponsAndAttachments")){
 			if (file.getAbsolutePath().endsWith(".toc")){
-				String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", "");
-				LayoutFile toc = TocManager.readToc(relPath);
-				ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
-				commonChunks.add(convToc);
+				try{
+					String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", "");
+					LayoutFile toc = TocManager.readToc(relPath);
+					ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
+					commonChunks.add(convToc);
+				}catch(Exception e){
+					e.printStackTrace();
+				}
 			}
 		}
 		

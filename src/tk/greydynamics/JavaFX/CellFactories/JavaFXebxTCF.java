@@ -1,5 +1,8 @@
 package tk.greydynamics.JavaFX.CellFactories;
 
+import java.util.ArrayList;
+
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
@@ -14,12 +17,16 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.JavaFXHandler;
+import tk.greydynamics.JavaFX.Controller.EBXWindowController;
+import tk.greydynamics.JavaFX.Windows.EBXWindow;
+import tk.greydynamics.JavaFX.Windows.ListSelectWindow;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXArrayRepeater;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplex;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplexDescriptor;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXEnumHelper;
+import tk.greydynamics.Resource.Frostbite3.EBX.EBXExternalGUID;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXField;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFieldDescriptor;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
@@ -35,9 +42,11 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 
 	private EBXFile ebxFile;
 	private boolean isOriginal;
-	public JavaFXebxTCF(EBXFile ebxFile, boolean isOriginal) {
+	private EBXWindowController controller;
+	public JavaFXebxTCF(EBXWindowController controller, EBXFile ebxFile, boolean isOriginal) {
 		this.ebxFile = ebxFile;
 		this.isOriginal = isOriginal;
+		this.controller = controller;
 		setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -47,16 +56,45 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 						contextMenu.getItems().clear();
 						if (getTreeItem().getValue() instanceof EBXField){
 							EBXField ebxField = (EBXField) getTreeItem().getValue();
+							if (getTreeItem().getParent()!=null){
+								if (getTreeItem().getParent().getValue() instanceof EBXField){
+									EBXField parentField = (EBXField) getTreeItem().getParent().getValue();
+									if (parentField.getType()==FieldValueType.ArrayComplex){
+										contextMenu.getItems().add(duplicate);
+									}
+								}
+							}
+							
+							
 							if (ebxField.getType()==FieldValueType.ExternalGuid||ebxField.getType()==FieldValueType.Guid){
 								contextMenu.getItems().add(follow);
 							}
-							if (ebxField.getType()==FieldValueType.Complex||ebxField.getType()==FieldValueType.ArrayComplex){
+							if (ebxField.getType()==FieldValueType.Complex){								
+								//REPLACE
+							}else if (ebxField.getType()==FieldValueType.ArrayComplex){
 								//REPLACE
 							}else{
 								contextMenu.getItems().add(edit);
 							}
-							setContextMenu(contextMenu);
+						}else if (getTreeItem().getValue() instanceof EBXInstance){
+							EBXInstance value = (EBXInstance) getTreeItem().getValue();
+							
+							//If its the last instance in the file, it can have a diffrent padding and will not allow to
+							//have a instance on it's ass. While this is not taken into account in the creator, there is no duplicate method for this instance.
+							int instanceIndex = -1;
+							ArrayList<EBXInstance> instances = ebxFile.getInstances();
+							for (int i=0; i<instances.size(); i++){
+								if (value==instances.get(i)){
+									instanceIndex = i;
+									break;
+								}
+							}
+							if (instanceIndex<instances.size()-1&&instanceIndex!=-1){
+								contextMenu.getItems().add(duplicate);
+							}
 						}
+						setContextMenu(contextMenu);
+						//System.out.println(getTreeItem().getValue().getClass());
 					}
 				}
 			}
@@ -87,8 +125,183 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 		edit.setOnAction(new EventHandler<ActionEvent>() {
 			public void handle(ActionEvent t) {
 				if (getTreeItem()!=null){
+					if (getTreeItem().getValue() instanceof EBXField && getTreeItem().getValue()!=null){
+						EBXField ebxField = (EBXField) getTreeItem().getValue();
+						if (ebxField.getType()==FieldValueType.Enum){
+							if (ebxField.getValue() instanceof EBXEnumHelper) {
+								EBXEnumHelper enumHelper = (EBXEnumHelper) ebxField.getValue();
+								
+//								Platform.runLater(new Runnable() {
+//									@Override
+//									public void run() {
+										ArrayList<String> values = new ArrayList<>();
+										for (EBXFieldDescriptor enumEntry : enumHelper.getEntries()){
+											values.add(enumEntry.getName());
+										}
+										ListSelectWindow lsw = new ListSelectWindow("Enum Selection",
+												"Please make a choise for the "+enumHelper.getEnumName()+" Enum!", values, 500, 500);
+										//System.out.println(lsw.getSelectedString());
+										if (lsw.getSelectedString()!=null){
+											for (EBXFieldDescriptor enumEntry : enumHelper.getEntries()){
+												if (lsw.getSelectedString().equals(enumEntry.getName())){
+													enumHelper.setSelectedIndex(enumEntry.getOffset());
+													break;
+												}
+											}
+											updateItem(getTreeItem().getValue(), getTreeItem().getValue()==null);
+										}
+//								}});
+							}else{
+								System.err.println("This is not a editable Enum!");
+							}
+						}else if (ebxField.getType()==FieldValueType.ExternalGuid || ebxField.getType()==FieldValueType.Guid){
+							if (ebxField.getValue() instanceof String) {
+								String currentValue = (String) ebxField.getValue();
+								if (currentValue!=null&&!currentValue.startsWith("*")){
+//									Platform.runLater(new Runnable() {
+//									@Override
+//									public void run() {
+										ArrayList<String> values = new ArrayList<>();
+										if (ebxField.getType()==FieldValueType.ExternalGuid){
+											for (EBXWindow ebxWindow : Core.getJavaFXHandler().getMainWindow().getEBXWindows()){
+												if (ebxWindow.getEBXFile()!=null){
+													if (ebxFile!=ebxWindow.getEBXFile()){
+														EBXFile ebxFileFromWindow = ebxWindow.getEBXFile();
+														for (EBXInstance ebxInstance : ebxFileFromWindow.getInstances()){
+															values.add(ebxWindow.getStage().getTitle()+" "+ebxInstance.getGuid()+" ("+ebxInstance.getComplex().getComplexDescriptor().getName()+")");
+														}
+													}
+												}
+											}
+											for (EBXExternalGUID externalGUID : ebxFile.getExternalGUIDs()){
+												values.add(externalGUID.getFileGUID()+" "+externalGUID.getInstanceGUID());
+											}
+										}else{
+											if (ebxFile!=null){//EBXFile from current Window.
+												EBXField[] fields = null;
+												if (getTreeItem().getParent()!=null){
+													if (getTreeItem().getParent().getValue() instanceof EBXField&&getTreeItem().getParent().getValue()!=null){
+														EBXField parentField = (EBXField) getTreeItem().getParent().getValue();
+														if (parentField.getType()==FieldValueType.ArrayComplex){
+															fields = parentField.getValueAsComplex().getFields();
+														}
+													}
+												}
+												for (EBXInstance ebxInstance : ebxFile.getInstances()){
+													boolean found = false;
+													if (fields!=null){
+														for (int i=0; i<fields.length; i++){
+															if (ebxInstance.getGuid().equalsIgnoreCase((String) fields[i].getValue())){
+																found = true;
+																break;
+															}
+														}
+														
+													}
+													if (!found){
+														values.add(ebxInstance.getGuid()+" ("+ebxInstance.getComplex().getComplexDescriptor().getName()+")");
+													}
+												}
+											}
+										}
+										ListSelectWindow lsw = new ListSelectWindow("Guid Selection",
+												"Please select a guid. (Data is from all open EBXWindows!)", values, 700, 500);
+										//System.out.println(lsw.getSelectedString());
+										if (lsw.getSelectedString()!=null){
+											String[] split = lsw.getSelectedString().split(" ");
+											if (split.length==2&&split[1].contains("(")){
+												//Internal
+												ebxField.setValue(split[0], ebxField.getType());
+											}else if (split.length==3&&split[2].contains("(")){
+												//External
+												String externalGUID = (String) convertToObject(split[0]+" "+split[1], FieldValueType.ExternalGuid);
+												if (externalGUID!=null){
+													ebxField.setValue(externalGUID, ebxField.getType());
+												}else{
+													System.err.println("The selected data couldn't be parsed! (String to FileGUID)");
+												}
+											}else if (split.length==2){
+												//External from currently assigned
+												ebxField.setValue(split[0]+" "+split[1], ebxField.getType());
+											}else{
+												System.err.println("The selected data couldn't be parsed!");
+											}
+											updateItem(getTreeItem().getValue(), getTreeItem().getValue()==null);
+										}
+//								}});
+								}else{
+									System.err.println("This guid uses a emty payload!");
+								}
+							}else{
+								System.err.println("This is not a editable Guid!");
+							}
+						}else{
+							startEdit();
+						}
+					}
+				}
+			}
+		});
+		duplicate = new MenuItem("Duplicate");
+		duplicate.setGraphic(new ImageView(JavaFXHandler.ICON_PLUS));
+		duplicate.setOnAction(new EventHandler<ActionEvent>(){
+			@Override
+			public void handle(ActionEvent event) {
+				if (getTreeItem()!=null){
 					if (getTreeItem().getValue() instanceof EBXField){
-						startEdit();
+						EBXField value = (EBXField) getTreeItem().getValue();
+						EBXField newField = EBXField.clone(value);
+						if (getTreeItem().getParent()!=null){
+							if (getTreeItem().getParent().getValue() instanceof EBXField){
+								EBXField parentField = (EBXField) getTreeItem().getParent().getValue();
+								if (parentField.getType()==FieldValueType.Complex||parentField.getType()==FieldValueType.ArrayComplex){
+									EBXComplex parentComplex = parentField.getValueAsComplex();
+									parentComplex.extendFields(newField);
+								}
+							}else{
+								System.out.println("parent not a ebxField");
+							}
+							//getTreeItem().getParent().getChildren().add(new TreeItem<Object>(newField));
+							//updateTreeView(getTreeView());
+							controller.update(ebxFile);
+						}else{
+							System.err.println("Can't duplicate a EBXFile! (NoParent)");
+						}
+					}else if (getTreeItem().getValue() instanceof EBXInstance){
+						EBXInstance newInstance = EBXInstance.clone((EBXInstance) getTreeItem().getValue());
+						if (newInstance.getGuid().length()>=16){
+							newInstance.assignRandomGUID();
+							
+						//* Put below duplicated. *//
+							int originalIndex = -1;
+							ArrayList<EBXInstance> ebxInstances = ebxFile.getInstances();
+							for (int i=0; i<ebxInstances.size(); i++){
+								if ((EBXInstance) getTreeItem().getValue()==ebxInstances.get(i)){
+									originalIndex = i;
+								}
+							}
+							ArrayList<EBXInstance> instanceBufferList = new ArrayList<>();
+							for (int i=0;i<originalIndex+1;i++){
+								instanceBufferList.add(ebxInstances.get(i));
+							}
+							instanceBufferList.add(newInstance);
+							for (int i=originalIndex+1;i<(ebxInstances.size());i++){
+								instanceBufferList.add(ebxInstances.get(i));
+							}
+							ebxFile.getInstances().clear();
+							for (EBXInstance instnace : instanceBufferList){
+								ebxFile.getInstances().add(instnace);
+							}
+						//* END of Put below duplicated. *//
+							
+							
+							controller.update(ebxFile);
+							Core.getJavaFXHandler().getDialogBuilder().showInfo("INFO", "You may have to change the \"Flags\" value!");
+						}else{
+							System.err.println("Not implemented yet! (Duplicate Instance without public guid)");
+						}
+					}else{
+						System.err.println("Duplicate ??");
 					}
 				}
 			}
@@ -158,6 +371,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 				}
 			}
 		}
+		cancelEdit();
 	};    
 
 	@Override
@@ -184,6 +398,20 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 					}else if (item instanceof EBXField){
 						EBXField ebxField = (EBXField) item;
 						setGraphic(getIcon(ebxField.getType()));
+//						if (ebxField.getType()==FieldValueType.ArrayComplex){
+//							if (ebxField.getValue() instanceof EBXArrayRepeater){
+//								//Emty array
+//								setText(ebxField.getFieldDescritor().getName()+"::array (emty)"+" ( DEBUG: "+ebxField.indexDEBUG+" )");
+//							}else{
+//								setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+ebxField.indexDEBUG+" )");
+//							}
+//						}else if (ebxField.getType()==FieldValueType.Complex){
+//							setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+ebxField.getValueAsComplex().getComplexDescriptor().getAlignment()+" - "+ebxField.getValueAsComplex().getComplexDescriptor().getSize()+" )");
+//						}else{
+//							String fieldValue = convertToString(ebxField.getValue(), ebxField.getType());
+//
+//							setText(ebxField.getFieldDescritor().getName()+": "+fieldValue+" ( DEBUG: "+ebxField.getFieldDescritor().getSize()+" )");
+//						}
 						if (ebxField.getType()==FieldValueType.ArrayComplex){
 							if (ebxField.getValue() instanceof EBXArrayRepeater){
 								//Emty array

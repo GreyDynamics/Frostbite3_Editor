@@ -1,16 +1,18 @@
 package tk.greydynamics.JavaFX.Controller;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import tk.greydynamics.Game.Core;
+import tk.greydynamics.JavaFX.TreeViewConverter;
 import tk.greydynamics.JavaFX.Windows.EBXWindow;
+import tk.greydynamics.Mod.ModTools;
+import tk.greydynamics.Mod.Package;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
-import tk.greydynamics.Mod.ModTools;
-import tk.greydynamics.Mod.Package;
 
 public class EBXWindowController {
 	@FXML
@@ -69,7 +71,7 @@ public class EBXWindowController {
 				if (window.getEBXFile()!=null){
 					EBXFile ebxFile = window.getEBXFile();
 					byte[] ebxBytes = Core.getGame().getResourceHandler().getEBXHandler().createEBX(ebxFile);
-					//FileHandler.writeFile("output/DEBUG.ebx", ebxBytes);
+					FileHandler.writeFile("output/DEBUG.ebx", ebxBytes);
 					
 					
 					EBXFile test = Core.getGame().getResourceHandler().getEBXHandler().loadFile(ebxBytes);
@@ -131,6 +133,16 @@ public class EBXWindowController {
 				}
 			}
 		}
+	}
+	public void update(EBXFile ebxFile){
+		TreeItem<Object> ebxTreeView = null;
+	    if (ebxFile!=null){
+	    	ebxTreeView = TreeViewConverter.getTreeView(ebxFile);
+	    	if (!ebxTreeView.getChildren().isEmpty()){
+		    	ebxTreeView.setExpanded(true);
+		    }
+	    }
+	    ebxExplorer.setRoot(ebxTreeView);
 	}
 	
 	public TreeView<Object> getEBXExplorer() {

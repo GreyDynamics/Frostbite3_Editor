@@ -164,6 +164,7 @@ public class EBXCreator {
 			finalDataArrays.add(filler);//TEST
 		finalDataArrays.add(arrayPayloadData);
 		
+		
 		byte[] data = FileHandler.toBytes(finalDataArrays);
 		return data;
 	}
@@ -195,14 +196,14 @@ public class EBXCreator {
 //			}
 //		}
 		//obfuscationShift. shift by 8 ?? #alignment 4 instances require subtracting 8 for all field offsets and the complex size
-		int index = proccComplex(ebxInstance.getComplex(), true /*isInstanceComplex*/, false/*isArrayMember*/, true/*proccFieldDesc*/, false/*hasNoPayload*/, false /*isNoNameParent*/);
+		int index = proccComplex(ebxInstance.getComplex(), true /*isInstanceComplex*/, false/*isArrayMember*/, true/*proccFieldDesc*/, false/*hasNoPayload*/, false /*isNoNameChild*/);
 		
 		EBXInstanceRepeater repeater = new EBXInstanceRepeater(index, 1);
 		instanceRepeaters.add(repeater);
 		return true;
 	}
 	
-	public int proccComplex(EBXComplex ebxComplex, boolean isInstanceComplex, boolean isArrayMember, boolean proccDescriptor, boolean hasNoPayload, boolean isNoNameParent){
+	public int proccComplex(EBXComplex ebxComplex, boolean isInstanceComplex, boolean isArrayMember, boolean proccDescriptor, boolean hasNoPayload, boolean isNoNameChild){
 		//return index of complex
 				
 		ArrayList<Byte> targetList = null;
@@ -215,6 +216,7 @@ public class EBXCreator {
 		//The complexOffset is needed to calculate the relative field offset.
 		int complexOffset = targetList.size();	
 		
+		
 		int obfuscationShift = 0;
 		if (isInstanceComplex&&ebxComplex.getComplexDescriptor().getAlignment()==4){
 			obfuscationShift = -8;
@@ -223,8 +225,19 @@ public class EBXCreator {
 				targetList.add((byte) 0x00);
 			}
 		}
+		
+		
+		/*New Alignment calculation*/
+		while ((complexOffset)%ebxComplex.getComplexDescriptor().getAlignment()!=0&&!isInstanceComplex&&!isNoNameChild){
+			targetList.add((byte) 0x00);
+			complexOffset = targetList.size();
+			//System.out.println("Name: "+ebxComplex.getComplexDescriptor().getName()+" Offset: "+complexOffset+" Alignment: "+ebxComplex.getComplexDescriptor().getAlignment());
+		}
+	
+
+		
 		int noNameShift = 0;
-		if (isNoNameParent){
+		if (isNoNameChild){
 			noNameShift = -8;
 		}
 		
@@ -385,18 +398,12 @@ public class EBXCreator {
 					int index = proccExternalGUID(extGUID);
 					data = FileHandler.toBytes(index+0x80000000/*first bit toggled ;)*/, ByteOrder.LITTLE_ENDIAN);
 				}else{//Internal GUID
-					byte[] internal = FileHandler.hexStringToByteArray(val);//
+					byte[] internal = FileHandler.hexStringToByteArray(val);
 					if (internal.length==4){
-						data = new byte[] {
-								internal[3],
-								internal[2],
-								internal[1],
-								internal[0]//Should be LITTLE_ENDIAN :)
-						};
-						Integer index = FileHandler.readInt(internal, new FileSeeker());
+						//hex string is big endian, but we need little and +1.
+						Integer index = FileHandler.readInt(internal, new FileSeeker(), ByteOrder.BIG_ENDIAN);
 						index++;
 						data = FileHandler.toBytes(index, ByteOrder.LITTLE_ENDIAN);
-						//System.err.println("GUID");//i changed the loader so it uses the index as guid :)
 					}else if (internal.length==16){
 						internal = null;
 						Integer index = proccInternalGUID(val);
@@ -432,7 +439,7 @@ public class EBXCreator {
 				}
 				if (type==-1){
 					System.err.println("TODO: ARRAYCOMPLEX UNDEFINED TYPE");
-				}else if (type==(short)0x29){//Type of Complex
+				}else if (arrayComplex.isEmtyPayload()){//Type of Complex
 					ArrayList<EBXFieldDescriptor> arrayFieldDescs = new ArrayList<>();
 					for (EBXField field : arrayComplex.getFields()){
 						arrayFieldDescs.add(proccField(field, true, proccDescriptor, false));						

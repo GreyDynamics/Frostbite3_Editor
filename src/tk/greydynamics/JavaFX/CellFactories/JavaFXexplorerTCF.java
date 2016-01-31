@@ -62,7 +62,7 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 								TreeItem<TreeViewEntry> tree = TreeViewConverter.getTreeView(casBundle);
 								Core.getJavaFXHandler().getMainWindow().setPackageExplorer1(tree, null);
 							}else{
-								//NON-CAS -> Frostbite 2 but for DLC's in Frostbite 3
+								//NON-CAS -> Common Chunks, DLC's and on Servers!
 								int size = entry.getSize();
 								if (size==-1){
 									size = (int) entry.getSizeLong();
@@ -115,11 +115,11 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 								}else if (entry.isBase()){
 									//inside Patched but reads Base
 									File base = ResourceFinder.findUnpatchedXPackData(entry.getBundlePath());//Update/XPack0/Random.sb
-									if (!base.exists()){
+									if (base==null){//!base.exists()
 										//Its not a XPack, so its has to be inside Data.
 										base = ResourceFinder.findUnpatchedData(entry.getBundlePath());
 									}
-									if (base.exists()){
+									if (base!=null){//base.exists()
 										byte[] bundleBytes = FileHandler.readFile(base.getAbsolutePath(), entry.getOffset(), size);
 										if (bundleBytes!=null){
 											NonCasBundle nonCas = new NonCasBundle(base.getAbsolutePath(), null, entry.getID(), (int) entry.getOffset(), -1, bundleBytes, null);
@@ -165,14 +165,7 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 							convToc.setName(Core.getGame().getCurrentFile().replace(FileHandler.normalizePath(Core.gamePath), ""));
 						}
 						if (!convToc.isCas()){
-							Core.getJavaFXHandler().getDialogBuilder().showWarning("WARNING", ">>NON-CAS IS VIEWING ONLY!<<\n\n"
-									+ "This is the old Frostbite 2 Data-Structure and just used for DLC's.\n"
-									+ "\nIt is:\n"
-									+ " -inefficient\n"
-									+ " -big (size)\n"
-									+ " -stupid as hell\n\n"
-									+ "I'd rather quit playing forever, than working with this!\n"
-									+ "\nOk, maybe there will be a way to convert it to CAS :)", null);
+							Core.getJavaFXHandler().getDialogBuilder().showWarning("WARNING", ">>NON-CAS IS VIEWING ONLY!<<\n\n", null);
 						
 							Core.getJavaFXHandler().getMainWindow().setPackageExplorerBackground(Color.PEACHPUFF);
 						}

@@ -67,17 +67,20 @@ public class ModLoaderListFactory extends ListCell<Mod>{
 				ctrlr.getInstallButton().setText("Uninstall");
 				ctrlr.getInstallButton().setUnderline(true);
 				ctrlr.getCompileButton().setDisable(true);
+				ctrlr.getRunEditor().setDisable(true);
 			}else if (installedMod==null&&mod.isCompiled()){
 				ctrlr.getInstallButton().setText("Install");
 				ctrlr.getCompileButton().setText("Recompile");
 				ctrlr.getInstallButton().setUnderline(false);
 				ctrlr.getCompileButton().setDisable(false);
+				ctrlr.getRunEditor().setDisable(false);
 			}else{
 				ctrlr.getInstallButton().setDisable(true);
 				ctrlr.getInstallButton().setUnderline(false);
 				ctrlr.getInstallButton().setText("Install");
 				ctrlr.getCompileButton().setText("Compile");
 				ctrlr.getCompileButton().setDisable(false);
+				ctrlr.getRunEditor().setDisable(false);
 			}
 		}else{
 			ctrlr.getModInfo().setDisable(true);

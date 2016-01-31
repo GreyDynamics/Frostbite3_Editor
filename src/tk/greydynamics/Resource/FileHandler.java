@@ -37,9 +37,10 @@ public class FileHandler {
 	}
 	
 	public static int longToInt(long l) {
-	    if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
-	        System.err.println("Long is to small/big. No convertion to Integer possible!");
-	    	return 0;
+	    if (l < Integer.MIN_VALUE) {
+	    	return 0x0;
+	    }else if(l > Integer.MAX_VALUE){
+	    	return 0xFFFFFFFF;
 	    }
 	    return (int) l;
 	}
