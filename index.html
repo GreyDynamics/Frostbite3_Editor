@@ -12,7 +12,7 @@
   <body>
     <section class="page-header">
       <h1 class="project-name">FrostBite3 Editor Tools</h1>
-      <h2 class="project-tagline">ZLOEmu: Origin Emulator + Battlefield 4 works. <a href="http://zloemu.org/">Closed Beta Running!</a></h2>
+      <h2 class="project-tagline">ZLOEmu: Origin Emulator + Battlefield 4 works. <a href="http://zlogames.ru/index.php?/topic/5187/">Closed Beta Giveaway!</a></h2>
       <a href="https://github.com/GreyDynamics/FrostBite3_Editor" class="btn">View on GitHub</a>
       <a href="#download" class="btn">Download .zip</a>
       <a href="#help-development" class="btn">Support Development</a>
@@ -84,20 +84,21 @@ we will have a working editor with a bunch of features soon!</pre>
     </tr>
     <tr>
       <td width="800px"><b>Latest changelog:</b><br>
+                            -Map Editor loading (10-Feb-16)<br>
+                            -Mod loader changed (08-Feb-16)<br>
+                            -Bf4 server support (07-Feb-16)<br>
+                            -Recompile NON-CAS implementation (05-Feb-16)<br>
                             -EBXCreator returns working EBXFile (16-Jan-16)<br>
                             -Bugfix (10-Jan-16)<br>
                             -EBXCreator preparations (24-Dec-15)<br>
-                            -Visual, Cas + NonCas Support update (14-Dec-15)<br>
-                            -Implementation for Unpatched NonCas (06-Dec-15)<br>
-                            -EBX Editor for Int, Float, Long, Bool, Byte (13-Nov-15)<br>
-                            -Layer support with Objects from EBX (04-Nov-15)<br>
-                            -Following EBX done (01-Nov-15)<br>
-                            -Image replacement finally done (30-Oct-15)<br>
-                            -Reworking main structrure (28-Sep-15)</td>
+                            -Visual, Cas + NonCas Support update (14-Dec-15)</td>
     </tr>
     <tr>
-     <td width="800px">ZLOEmu: BF4 Private Servers coming soon! <a href="https://www.youtube.com/watch?v=KcD3nBofSPY">http://youtube.com/...</a><br>
-	  Don't ask how to join Beta! You will be choosen.</td>
+     <td width="800px"><b>ZLOEmu:</b><br>
+      BF4 Private Servers coming soon! <a href="https://www.youtube.com/watch?v=KcD3nBofSPY">http://youtube.com/...</a><br>
+	  Don't ask how to join Beta! You will be choosen.<br>
+	  <a href="http://zlogames.ru/index.php?/topic/5187/">Take the chance in our closed beta giveaway!</a><br>
+	  </td>
     </tr>
     
   </tbody>
@@ -106,7 +107,7 @@ we will have a working editor with a bunch of features soon!</pre>
 <table>
   <tbody>
     <tr>
-      <td width="800px"><b>NON-CAS extraction/viewing only!<br>Convertion from NON-CAS to CAS possible in the future!</b></td>
+      <td width="800px"><b>No full NON-CAS implementation yet!</b><br>Convertion from NON-CAS to CAS and PATCHED NON-CAS TO BASE NON-CAS possible in the future!</td>
     </tr>
   </tbody>
 </table>
@@ -123,8 +124,8 @@ we will have a working editor with a bunch of features soon!</pre>
         -Loading DLC Content (NON-CAS) 80% ✗<br>
         -Loading General Content (CAS) 95% ✓<br>
         -Extract EBX Files 99.9% ✓<br>
-        -Modify EBX Files 90% (only in debug) ✓<br>
-        -EBX Editor 80% (will have interface soon) ✓<br>
+        -Modify EBX Files 95% ✓<br>
+        -EBX Editor 80% ✗<br>
         -Extract ITexture Files to DDS 100% ✓<br>
         -Modify DDS and recompile to ITexture 99.8% ✓<br>
         -Extract MESH Files Geometry + UVs 90% ✓<br>
@@ -133,10 +134,10 @@ we will have a working editor with a bunch of features soon!</pre>
         -Convert Mesh,UVs and Normals to Wavefront OBJ 99% ✓<br>
         -Recompile Mesh from OBJ 0% ✗<br>
         -Extract Sound Files 0% ✗<br>
-        -Mod Loader 60.0% ✗<br>
+        -Mod Loader 80.0% ✗<br>
         -New Version Alert 100% ✓<br>
-        -Clone client using Hardlinks 100% ✓<br>
-        -Apply Modified EBX 100% (CAS-Only) ✓<br>
+        <strike>-Clone client using Hardlinks 100% ✓</strike><br>
+        -Apply Modified EBX 100% ✓<br>
         -Apply Mesh 0% ✗<br>
         -Apply ITexture 90% (CAS-Only) ✓<br>
         -Apply Chunks 100% (CAS-Only) ✓
@@ -146,7 +147,7 @@ we will have a working editor with a bunch of features soon!</pre>
     <tr>
       <td width="800px"><b>Editor-Pipeline:</b><br>
        <div align="center">
-        -Axis Aligned Raycasting 100% ✓<br>
+        <strike>-Axis Aligned Raycasting 100% ✓<br></strike>
         -Axis Aligned Bouding Boxes 100% ✓<br>
         -Advanced Raycasting 0% ✗<br>
         -Advanced Hit Boxes 0% ✗<br>
@@ -155,10 +156,11 @@ we will have a working editor with a bunch of features soon!</pre>
         -Object Selection 99.9% ✓<br>
         -Object Transf./Rot./Scal. using HotKeys 100% ✓<br>
         -Layer support 100% ✓<br>
-        -Convert EBX Stucture to Map Editor 45% (Currently CAS-Only) ✗<br>
+        -Convert EBX to Map Editor 70% ✗<br>
         -Modify EBX Structure from Map Editor 0% ✗<br>
         -Light support 0% ✗<br>
-        -Advanced Shading 0% ✗
+        -Advanced Shading 0% ✗<br>
+        -Efficient gpu memory management 0% ✗
         </div>
       </td>
     </tr>
@@ -169,7 +171,8 @@ we will have a working editor with a bunch of features soon!</pre>
         -LuaC support 0% ✗<br>
         -Enlighten/Staticenlighten support 0% ✗<br>
         -Animationtrackdata support 0% ✗<br>
-        -HKDestruction support 0% ✗
+        -HKDestruction support 0% ✗<br>
+        -HKNONDestruction support 0% ✗
         </div>
       </td>
     </tr>
@@ -179,8 +182,11 @@ we will have a working editor with a bunch of features soon!</pre>
 <p><br></p>
 
 <h1>
-<a id="images" class="anchor" href="#images" aria-hidden="true"><span class="octicon octicon-link"></span></a>Progress January</h1>
-<p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/9f6HSfR3dew" frameborder="0" allowfullscreen></iframe></p>
+<a id="poc" class="anchor" href="#poc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Progress January</h1>
+<p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/P_qxIZzI3lo" frameborder="0" allowfullscreen></iframe></p>
+<h1>
+<a id="bots" class="anchor" href="#bots" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bots on ZLOBf4</h1>
+<p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/dFPM1aLx06I" frameborder="0" allowfullscreen></iframe></p>
 
 
 <h1>
@@ -202,8 +208,11 @@ we will have a working editor with a bunch of features soon!</pre>
 <h1>
 <a id="download" class="anchor" href="#download" aria-hidden="true"><span class="octicon octicon-link"></span></a>Download</h1>
 
-<p>Run "run_binary.bat" to launch.<br>
-<code>This application Requires Java Runtime Environment 1.6+ !</code></p>
+<p>Run "run_binary.bat" to launch.<br><br>
+This application requires:<br>
+	<code>>Java Runtime Environment 1.8+</code><br>
+	<code>>2GB of free Memory</code><br>
+	<code>>OpenGL 3.1 GPU (GeForce GTX 260, ATI Radeon™ HD 5750 or better)</code></p>
 
 <p><br></p>
 <table>
