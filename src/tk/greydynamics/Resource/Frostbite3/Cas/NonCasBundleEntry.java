@@ -1,6 +1,7 @@
 package tk.greydynamics.Resource.Frostbite3.Cas;
 
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
@@ -8,9 +9,11 @@ import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter.ResourceBundleType;
 
 public class NonCasBundleEntry {
+	public static final int BYTESIZE = 8;
+	
 	private String name = null;
-	private final int nameOffset; //relative to the string section
-	private final int originalSize; //uncompressed size of the payload
+	private int nameOffset; //relative to the string section
+	private int originalSize; //uncompressed size of the payload
 	private String sha1 = null;
 	
 	private int baseOffset = -1;
@@ -28,8 +31,13 @@ public class NonCasBundleEntry {
 	
 	//additional Entries if its a res!
 	private ResourceType resType = null;
+	private int resTypeInt = -1;
 	private byte[] resMeta = null;
 	private long resRid = -1;
+	
+	
+	private String modFilePath = null;
+	private String ebxFileGUID = null;
 	
 	public NonCasBundleEntry(int nameOffset, int originalSize) {
 		this.nameOffset = nameOffset;
@@ -43,10 +51,26 @@ public class NonCasBundleEntry {
 			}
 		}
 		return null;
-	}	
+	}
+
+	public ArrayList<Byte> getEntryBytes(ByteOrder order){
+		ArrayList<Byte> entryBytes = new ArrayList<>();
+		FileHandler.addBytes(FileHandler.toBytes(this.nameOffset, order), entryBytes);
+		FileHandler.addBytes(FileHandler.toBytes(this.originalSize, order), entryBytes);
+		if (entryBytes.size()!=BYTESIZE){//issues ? - change BYTESIZE(if wrong or changed) and check parsing
+			return null;
+		}
+		return entryBytes;
+	}
 	
-	
-	
+	public String getModFilePath() {
+		return modFilePath;
+	}
+
+	public void setModFilePath(String modFilePath) {
+		this.modFilePath = modFilePath;
+	}
+
 	public int getBaseOffset() {
 		return baseOffset;
 	}
@@ -103,9 +127,6 @@ public class NonCasBundleEntry {
 		this.resType = resType;
 	}
 
-	public void setResourceType(ResourceType resType) {
-		this.resType = resType;
-	}
 
 	public ResourceBundleType getBundleType() {
 		return bundleType;
@@ -130,10 +151,6 @@ public class NonCasBundleEntry {
 
 	public void setSha1(String sha1) {
 		this.sha1 = sha1;
-	}
-
-	public ResourceType getResourceType() {
-		return resType;
 	}
 
 	public byte[] getResMeta() {
@@ -167,6 +184,31 @@ public class NonCasBundleEntry {
 	public void setCurrentSize(int currentSize) {
 		this.currentSize = currentSize;
 	}
+
+	public int getResTypeInt() {
+		return resTypeInt;
+	}
+
+	public void setResTypeInt(int resTypeInt) {
+		this.resTypeInt = resTypeInt;
+	}
+
+	public void setNameOffset(int nameOffset) {
+		this.nameOffset = nameOffset;
+	}
+
+	public void setOriginalSize(int originalSize) {
+		this.originalSize = originalSize;
+	}
+
+	public String getEbxFileGUID() {
+		return ebxFileGUID;
+	}
+
+	public void setEbxFileGUID(String ebxFileGUID) {
+		this.ebxFileGUID = ebxFileGUID;
+	}
+
 	
 	
 	

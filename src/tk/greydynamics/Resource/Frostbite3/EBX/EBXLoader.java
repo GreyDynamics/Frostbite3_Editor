@@ -426,7 +426,7 @@ public class EBXLoader {
 						field.setValue(fileGUIDName+" "+guid.getInstanceGUID(), FieldValueType.ExternalGuid); //We need to convert the String later back to a FileGUID
 					}else{//}*/
 	
-					field.setValue(guid.getFileGUID()+" "+guid.getInstanceGUID(), FieldValueType.ExternalGuid);
+					field.setValue(guid, FieldValueType.ExternalGuid);
 					
 				}else if (tempValue == 0x0){
 					field.setValue("*nullGUID*", FieldValueType.Guid);

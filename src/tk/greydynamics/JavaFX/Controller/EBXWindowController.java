@@ -23,13 +23,13 @@ public class EBXWindowController {
 	
 	
 	public void createLayer(){
-		/*Core.runOnMainThread(new Runnable() {
+		Core.runOnMainThread(new Runnable() {
 			@Override
 			public void run() {
 				Core.getGame().getEntityHandler().createEntityLayer(window.getEBXFile());
 				System.err.println("--------------Layer creation done!!------------------");
 			}
-		});*/
+		});
 	}
 	
 	public void createMeshVariationDatabase(){
@@ -83,13 +83,14 @@ public class EBXWindowController {
 					
 					String resPath = resLinkName+".ebx";
 					
-					String currentToc = Core.getGame().getCurrentToc().getName();
+					String currentToc = FileHandler.normalizePath(Core.getGame().getCurrentFile()).replace(Core.gamePath, "");
 					Package pack = Core.getModTools().getPackage(currentToc);
 					Core.getModTools().extendPackage(
 							LinkBundleType.BUNDLES,
-							Core.getGame().getCurrentBundle().getBasePath(),//TODO is this basePath ?ß 
+							Core.getGame().getCurrentBundle().getName(),
 							ResourceType.EBX,
 							resPath,
+							null,
 							pack
 					);
 					

@@ -8,6 +8,7 @@ import tk.greydynamics.Maths.Patcher;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
+import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 
 public class CasDataReader { //casPath == folderPath
 	public static byte[] readCas(String baseSHA1, String deltaSHA1, String SHA1, Integer patchType){
@@ -109,6 +110,15 @@ public class CasDataReader { //casPath == folderPath
 			e.printStackTrace();
 			return null;
 		}
+	}
+	public static byte[] readOrignalData(String resourceName, ArrayList<ResourceLink> resourceList){
+		for (ResourceLink link : resourceList){
+			if (link.getName().equalsIgnoreCase(resourceName)){
+				return CasDataReader.readCas(link.getBaseSha1(), link.getDeltaSha1(), link.getSha1(), link.getCasPatchType());
+			}
+		}
+		System.err.println("Original Data could not get found for "+resourceName);
+		return null;
 	}
 	
 }

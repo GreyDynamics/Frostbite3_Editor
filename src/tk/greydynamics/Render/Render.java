@@ -16,6 +16,7 @@ import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
@@ -174,8 +175,11 @@ public class Render {
 		//Display.setVSyncEnabled(true);
 	}
 	public void RenderEntityLayers(ArrayList<EntityLayer> layers, Matrix4f identityMatrix, StaticShader shader){
-		for (EntityLayer layer : layers){
-			RenderEntities(layer.getEntities(), identityMatrix, shader, false);
+		try{
+			for (EntityLayer layer : layers){
+				RenderEntities(layer.getEntities(), identityMatrix, shader, false);
+			}
+		}catch(ConcurrentModificationException e){
 		}
 	}
 	
@@ -210,9 +214,9 @@ public class Render {
 					ObjectEntity objEntity = (ObjectEntity) e;
 					EntityTextureData etd = objEntity.getTextureData();
 					if (etd!=null){
-						if (etd.getMeshGUID().getInstanceGUID().equalsIgnoreCase("003c1de501eed2fab93fc29b19850e89")){
-							//System.out.println("Y");
-						}
+//						if (etd.getMeshGUID().getInstanceGUID().equalsIgnoreCase("003c1de501eed2fab93fc29b19850e89")){
+//							//System.out.println("Y");
+//						}
 						if (etd.getDiffuseIDs()!=null){
 							diffuseTextures = etd.getDiffuseIDs();
 						}

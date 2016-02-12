@@ -8,9 +8,13 @@ import tk.greydynamics.Mod.Package;
 import tk.greydynamics.Mod.PackageEntry;
 import tk.greydynamics.Render.TextureHandler;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle;
+import tk.greydynamics.Resource.Frostbite3.Cas.Bundle.BundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasCatManager;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasDataReader;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.Component.EBXComponentHandler;
 import tk.greydynamics.Resource.Frostbite3.MESH.MeshChunkLoader;
@@ -57,6 +61,7 @@ public class ResourceHandler {
 	}
 	
 	public ResourceLink getResourceLinkByEBXGUID(String ebxGUID){
+		//CAS
 		if (Core.getGame().getCurrentBundle().getType()==Bundle.BundleType.CAS){
 			CasBundle casBundle = (CasBundle) Core.getGame().getCurrentBundle();
 			for (ResourceLink link : casBundle.getEbx()){
@@ -67,6 +72,20 @@ public class ResourceHandler {
 				}
 			}
 			//System.err.println("ResourceLink not found for EBXGUID "+ebxGUID+"!");
+		}
+		return null;
+	}
+	public NonCasBundleEntry getNonCasBundleEntrykByEBXGUID(String ebxGUID){
+		//NONCAS
+		if (Core.getGame().getCurrentBundle().getType()!=Bundle.BundleType.CAS){
+			NonCasBundle nonCasBundle = (NonCasBundle) Core.getGame().getCurrentBundle();
+			for (NonCasBundleEntry entry : nonCasBundle.getEbx()){
+				if (entry.getEbxFileGUID()!=null){
+					if (entry.getEbxFileGUID().equalsIgnoreCase(ebxGUID)){
+						return entry;
+					}
+				}
+			}
 		}
 		return null;
 	}
@@ -98,6 +117,13 @@ public class ResourceHandler {
 	}	
 	public byte[] readResourceLink(ResourceLink link){
 		return readResourceLink(link, false);
+	}
+	public byte[] readNonCasBundleEntry(NonCasBundleEntry nonCasBundleEntry){
+		if (Core.getGame().getCurrentBundle().getType()==BundleType.CAS){
+			System.err.println(Core.getGame().getCurrentBundle().getName()+" is not a NON-CAS Bundle!");
+			return null;
+		}
+		return NonCasDataReader.readNonCasBundleData((NonCasBundle) Core.getGame().getCurrentBundle(), nonCasBundleEntry);
 	}
 	public byte[] readResource(String baseSHA1, String deltaSHA1, String SHA1, int casPatchType,
 			String name, ResourceType resourceType, boolean useOriginal)

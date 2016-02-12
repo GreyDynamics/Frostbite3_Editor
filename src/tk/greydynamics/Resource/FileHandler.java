@@ -169,12 +169,35 @@ public class FileHandler {
 	
 	//WRITE - FileOutputStream
 	public static boolean writeFile(String filepath, byte[] arr, boolean append){
+		return writeFile(filepath, arr, append, true);
+	}
+	public static boolean writeFile(String filepath, byte[] arr, boolean append, boolean showWriteInfo){
 		FileOutputStream fos;
 		prepareDir(filepath);
 		try {
 			fos = new FileOutputStream(filepath, append);
 			fos.write(arr);
-			System.out.println("Write: "+filepath+"!");
+			if (showWriteInfo)System.out.println("Write: "+filepath+"!");
+			fos.close();
+			return true;
+		} catch (NullPointerException e) {
+			System.err.println("could not write data to file: "+filepath+" because of nullpointer.");
+			return false;
+		}catch (Exception e) {
+			e.printStackTrace();
+			System.err.println("could not write data to file: "+filepath);
+			return false;
+		}	
+	}
+	public static boolean writeFile(String filepath, ArrayList<Byte> arr, boolean append, boolean showWriteInfo){
+		FileOutputStream fos;
+		prepareDir(filepath);
+		try {
+			fos = new FileOutputStream(filepath, append);
+			for (Byte b : arr){
+				fos.write(b);
+			}
+			if (showWriteInfo)System.out.println("Write: "+filepath+"!");
 			fos.close();
 			return true;
 		} catch (NullPointerException e) {
@@ -223,16 +246,22 @@ public class FileHandler {
 			//System.out.println(file.length());
 			FileInputStream fin = new FileInputStream(file);
 			fin.skip(sourceOffset);
-			
+			prepareDir(targetFile);
 			FileOutputStream fos = new FileOutputStream(normalizePath(targetFile), true);
-			//byte[] test = FileHandler.readFile(normalizePath(targetFile));
-			byte[] data = new byte[1];
-			for (int i=0; i<sourceSize; i++){
-				int bob = fin.read(data);//TODO ??
-				fos.write(data, 0x0, 1);
-				targetSeeker.seek(1);
+			int blockSize = 8192;
+			int copiedBytes = 0;
+			byte[] data = new byte[blockSize];
+			while (copiedBytes<sourceSize){
+				while ((sourceSize-copiedBytes)<blockSize&&blockSize>=2){
+					blockSize /= 2;
+				}
+				data = new byte[blockSize];
+				fin.read(data);
+				fos.write(data, 0x0, data.length);
+				targetSeeker.seek(data.length);
+				copiedBytes+=data.length;
 			}
-			
+
 			fin.close();
 			fos.close();
 			return true;
@@ -717,6 +746,13 @@ public class FileHandler {
 	        }
 	    }
 	    folder.delete();
+	}
+
+	public static boolean addBytes(ArrayList<Byte> sourceList, ArrayList<Byte> targetList) {
+		for (Byte sourceByte : sourceList){
+			targetList.add(sourceByte);
+		}
+		return true;
 	}
 	
 //	static void listfdir(String directoryName, ArrayList<File> files , String contains) {

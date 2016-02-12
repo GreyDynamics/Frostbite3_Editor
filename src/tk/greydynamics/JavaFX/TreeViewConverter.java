@@ -19,7 +19,7 @@ import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
-import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleChunk;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleChunkEntry;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXComplex;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXField;
@@ -532,8 +532,8 @@ public class TreeViewConverter {
 		TreeItem<TreeViewEntry> res = new TreeItem<TreeViewEntry>(new TreeViewEntry("res - "+nonCas.getRes().size()+" Children", new ImageView(JavaFXHandler.ICON_LIST), null, EntryType.LIST));
 		for (NonCasBundleEntry nonCasBundleEntry : nonCas.getRes()){
 			String[] name = nonCasBundleEntry.getName().split("/");
-			TreeViewEntry childEntry = new TreeViewEntry(name[name.length-1]+" ("+nonCasBundleEntry.getSha1()+", "+nonCasBundleEntry.getResourceType()+")", null, nonCasBundleEntry, EntryType.STRING);
-			ImageView graphic = getGraphic(nonCasBundleEntry.getResourceType());
+			TreeViewEntry childEntry = new TreeViewEntry(name[name.length-1]+" ("+nonCasBundleEntry.getSha1()+", "+nonCasBundleEntry.getResType()+")", null, nonCasBundleEntry, EntryType.STRING);
+			ImageView graphic = getGraphic(nonCasBundleEntry.getResType());
 			childEntry.setGraphic(graphic);
 			TreeItem<TreeViewEntry> child = new TreeItem<TreeViewEntry>(childEntry);
 			pathToTree(res, nonCasBundleEntry.getName(), child);
@@ -542,7 +542,7 @@ public class TreeViewConverter {
 		
 		/*CHUNKS*/
 		TreeItem<TreeViewEntry> chunks = new TreeItem<TreeViewEntry>(new TreeViewEntry("chunks - "+nonCas.getChunks().size()+" Children", new ImageView(JavaFXHandler.ICON_LIST), null, EntryType.LIST));
-		for (NonCasBundleChunk nonCasBundleChunk : nonCas.getChunks()){
+		for (NonCasBundleChunkEntry nonCasBundleChunk : nonCas.getChunks()){
 			chunks.getChildren().add(new TreeItem<TreeViewEntry>(
 					new TreeViewEntry(nonCasBundleChunk.getId()//+" SHA1: "+link.getSha1()+" (offset: 0x"+FileHandler.toHexInteger(link.getLogicalOffset())+" , size: 0x"+FileHandler.toHexInteger(link.getLogicalSize())+"
 					,new ImageView(JavaFXHandler.ICON_INSTANCE), nonCasBundleChunk, EntryType.STRING)));

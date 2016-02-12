@@ -19,14 +19,12 @@ import tk.greydynamics.JavaFX.TreeViewConverter;
 import tk.greydynamics.JavaFX.TreeViewEntry;
 import tk.greydynamics.JavaFX.Windows.MainWindow.EntryType;
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.ResourceFinder;
 import tk.greydynamics.Resource.Frostbite3.Layout.LayoutFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.ConvertedTocFile;
-import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocEntry;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager;
@@ -49,14 +47,14 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 								LayoutFile bundleLayout = entry.getLayout();
 								CasBundle casBundle = TocConverter.convertCASBundle(bundleLayout, true);
 																
-								//EBX-Export
-								for (ResourceLink ebx : casBundle.getEbx()){
-									ResourceLink.exportResourceLink(ebx, ResourceHandler.getOrigin(Core.getGame().getCurrentFile()), Core.EDITOR_PATH_GAMEDATA+Core.gameName+"/ResourceLink/EBX/", ".erl");//EBX RESOURCE LINK == ERL
-								}
-								//RES-Export
-								for (ResourceLink res : casBundle.getRes()){
-									ResourceLink.exportResourceLink(res, ResourceHandler.getOrigin(Core.getGame().getCurrentFile()), Core.EDITOR_PATH_GAMEDATA+Core.gameName+"/ResourceLink/RES/", ".rrl");//RES RESOURCE LINK == ERL
-								}
+//								//EBX-Export
+//								for (ResourceLink ebx : casBundle.getEbx()){
+//									ResourceLink.exportResourceLink(ebx, ResourceHandler.getOrigin(Core.getGame().getCurrentFile()), Core.EDITOR_PATH_GAMEDATA+Core.gameName+"/ResourceLink/EBX/", ".erl");//EBX RESOURCE LINK == ERL
+//								}
+//								//RES-Export
+//								for (ResourceLink res : casBundle.getRes()){
+//									ResourceLink.exportResourceLink(res, ResourceHandler.getOrigin(Core.getGame().getCurrentFile()), Core.EDITOR_PATH_GAMEDATA+Core.gameName+"/ResourceLink/RES/", ".rrl");//RES RESOURCE LINK == ERL
+//								}
 								
 								Core.getGame().setCurrentBundle(casBundle);
 								TreeItem<TreeViewEntry> tree = TreeViewConverter.getTreeView(casBundle);
@@ -137,6 +135,10 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 									byte[] bundleBytes = FileHandler.readFile(entry.getBundlePath(), entry.getOffset(), size);
 									if (bundleBytes!=null){
 										NonCasBundle nonCas = new NonCasBundle(entry.getBundlePath(), null, entry.getID(), (int) entry.getOffset(), -1, bundleBytes, null);
+										//TEST
+//										FileHandler.writeFile("temp/debug/test_nonCasBundle_unpatched/original_bundle", bundleBytes);
+//										NonCasBundleCompiler.compileUnpatchedBundle(nonCas, ByteOrder.BIG_ENDIAN, "temp/debug/test_nonCasBundle_unpatched/");
+										
 										Core.getGame().setCurrentBundle(nonCas);
 										TreeItem<TreeViewEntry> tree = TreeViewConverter.getTreeView(nonCas);
 										if (tree!=null){
@@ -164,7 +166,7 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 							//is null if patched! (update folder files are noname's)
 							convToc.setName(Core.getGame().getCurrentFile().replace(FileHandler.normalizePath(Core.gamePath), ""));
 						}
-						if (!convToc.isCas()){
+						if (!convToc.isCas()&&Core.getGame().getCurrentFile().contains(Core.PATH_UPDATE.replace("/", ""))){
 							Core.getJavaFXHandler().getDialogBuilder().showWarning("WARNING", ">>NON-CAS IS VIEWING ONLY!<<\n\n", null);
 						
 							Core.getJavaFXHandler().getMainWindow().setPackageExplorerBackground(Color.PEACHPUFF);

@@ -19,6 +19,9 @@ import tk.greydynamics.Resource.Frostbite3.Cas.CasCatEntry;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasCatManager;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasDataReader;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasManager;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
+import tk.greydynamics.Resource.Frostbite3.Cas.Data.Block;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITexture;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITextureConverter;
 import tk.greydynamics.Resource.Frostbite3.Layout.LayoutCreator;
@@ -70,18 +73,6 @@ public class ModTools {
 					}
 				}
 				if (mod.getAuthor() != null){
-//					String[] split = Core.gamePath.split("/");
-//					int length = split.length;
-//					if (Core.gamePath.endsWith("/")){
-//						length--;
-//					}
-//					String destFolderPath = "";
-//					for (int i=0; i<length-1;i++){
-//						destFolderPath +=split[i]+"/";
-//					}
-//					destFolderPath += mod.getGame()+"_"+mod.getFolderName();
-//					mod.setDestFolderPath(destFolderPath);
-//					mod.setDestFolderPath(null);
 					mods.add(mod);
 				}
 			}
@@ -210,7 +201,7 @@ public class ModTools {
 		}
 		Package pack = new Package(name);
 		packages.add(pack);
-		return null;
+		return pack;
 	}
 	public boolean installMod(String rootPath, Mod mod){
 		if (mod.isCompiled&&getInstalledMod(rootPath)==null){
@@ -332,19 +323,20 @@ public class ModTools {
 					CasCatManager casCatMgr = null;
 					OriginType origin = ResourceHandler.getOriginType(Core.getGame().getCurrentFile());
 					
-					if (origin==OriginType.PATCHED){
-						casCatPath = FileHandler.normalizePath(path+Core.PATH_UPDATE_PATCH+relCas_Path);
-						casCatMgr = Core.getGame().getResourceHandler().getPatchedCasCatManager();
-					}else if (origin==OriginType.XPACK){
-						System.err.println("XPacks currently not supported.");
-						return false;
-					}else if (origin==OriginType.BASE){
-						casCatPath = FileHandler.normalizePath(path+relCas_Path);
-						casCatMgr = Core.getGame().getResourceHandler().getCasCatManager();
+					boolean isCas = TocConverter.convertTocFile(TocManager.readToc(Core.getGame().getCurrentFile())).isCas();
+					if (isCas){
+						if (origin==OriginType.PATCHED){
+							casCatPath = FileHandler.normalizePath(path+Core.PATH_UPDATE_PATCH+relCas_Path);
+							casCatMgr = Core.getGame().getResourceHandler().getPatchedCasCatManager();
+						}else if (origin==OriginType.XPACK){
+							System.err.println("XPacks currently not supported.");
+							return false;
+						}else if (origin==OriginType.BASE){
+							casCatPath = FileHandler.normalizePath(path+relCas_Path);
+							casCatMgr = Core.getGame().getResourceHandler().getCasCatManager();
+						}
+						CasManager.createCAS(casCatPath);
 					}
-					
-					
-					CasManager.createCAS(casCatPath);
 					
 					//SORT
 					HashMap<String, ArrayList<PackageEntry>> sorted = new HashMap<>();
@@ -363,88 +355,102 @@ public class ModTools {
 						LayoutFile toc = TocManager.readToc(Core.getGame().getCurrentFile());
 						ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
 
-						CasBundle currentSBpart = null;
+						CasBundle casBundle = null;
+						NonCasBundle nonCasBundle = null;
 						for (TocEntry link : convToc.getBundles()){
 							if (link.getID().equals(subPackageName)){
 								//link.setSbPath(sbPath); change the sb path once one subpackage is already done
-								LayoutFile casBundle = link.getLayout();
-								currentSBpart = TocConverter.convertCASBundle(casBundle, false);
+								
+								if (isCas){
+									LayoutFile casBundleLayout = link.getLayout();
+									casBundle = TocConverter.convertCASBundle(casBundleLayout, false);
+								}else{
+									int size = link.getSize();
+									if (size==-1){
+										size = (int) link.getSizeLong();
+									}
+									//unpatched non-cas
+									byte[] bundleBytes = FileHandler.readFile(link.getBundlePath(), link.getOffset(), size);
+									if (bundleBytes!=null){
+										nonCasBundle = new NonCasBundle(link.getBundlePath(), null, link.getID(), (int) link.getOffset(), -1, bundleBytes, null);
+									}
+								}
 								break;
 							}
 						}
-						if (currentSBpart==null){
-							System.err.println("Mod.ModTools.playMod can't handle new subpackages at this time. ");
+						if (casBundle==null&&nonCasBundle==null){
+							System.err.println("Mod.ModTools.compileMod can't handle new subpackages at this time. ");
 							return false;
 						}
 						
-						/*SMASH LOGIC*/
-						boolean test = false;
-						if (test){
-							LayoutFile toc2 = TocManager.readToc(Core.gamePath+"/Update/Patch/Data/Win32/Levels/SP/SP_Suez/SP_Suez");
-							ConvertedTocFile convToc2 = TocConverter.convertTocFile(toc2);
-							
-							CasBundle currentSBpart2 = null;
-							for (TocEntry link : convToc2.getBundles()){
-								if (link.getID().equals("win32/levels/sp/sp_suez/bridge")){
-									LayoutFile casBundle2 = link.getLayout();
-									currentSBpart2 = TocConverter.convertCASBundle(casBundle2, false);
-									if (currentSBpart2==null){
-										System.err.println("smash failed ");
-										return false;
-									}
-									for (ResourceLink ebxLink : currentSBpart2.getEbx()){
-										boolean exists = false;
-										for (ResourceLink ebxLink2 : currentSBpart.getEbx()){
-											if (ebxLink.getName().equals(ebxLink2.getName())){
-												exists = true;
-												break;
-											}
-										}
-										if (!exists){
-											currentSBpart.getEbx().add(ebxLink);
-										}
-									}
-									for (ResourceLink resLink : currentSBpart2.getRes()){
-										boolean exists = false;
-										for (ResourceLink resLink2 : currentSBpart.getRes()){
-											if (resLink.getName().equals(resLink2.getName())){
-												exists = true;
-												break;
-											}
-										}
-										if (!exists){
-											currentSBpart.getRes().add(resLink);
-										}
-									}
-									for (ResourceLink chunkLink : currentSBpart2.getChunks()){
-										boolean exists = false;
-										for (ResourceLink chunkLink2 : currentSBpart.getChunks()){
-											if (chunkLink2.getId().equals(chunkLink.getId())){
-												exists = true;
-												break;
-											}
-										}
-										if (!exists){
-											currentSBpart.getChunks().add(chunkLink);
-										}
-									}
-									for (ResourceLink chunkMeta : currentSBpart2.getChunkMeta()){
-										boolean exists = false;
-										for (ResourceLink chunkMeta2 : currentSBpart.getChunkMeta()){
-											if (chunkMeta2.getH32()==chunkMeta.getH32()){
-												exists = true;
-												break;
-											}
-										}
-										if (!exists){
-											currentSBpart.getChunkMeta().add(chunkMeta);
-										}
-									}
-									break;
-								}
-							}
-						}
-						/**/
+//						/*SMASH LOGIC*/
+//						boolean test = false;
+//						if (test){
+//							LayoutFile toc2 = TocManager.readToc(Core.gamePath+"/Update/Patch/Data/Win32/Levels/SP/SP_Suez/SP_Suez");
+//							ConvertedTocFile convToc2 = TocConverter.convertTocFile(toc2);
+//							
+//							CasBundle currentSBpart2 = null;
+//							for (TocEntry link : convToc2.getBundles()){
+//								if (link.getID().equals("win32/levels/sp/sp_suez/bridge")){
+//									LayoutFile casBundle2 = link.getLayout();
+//									currentSBpart2 = TocConverter.convertCASBundle(casBundle2, false);
+//									if (currentSBpart2==null){
+//										System.err.println("smash failed ");
+//										return false;
+//									}
+//									for (ResourceLink ebxLink : currentSBpart2.getEbx()){
+//										boolean exists = false;
+//										for (ResourceLink ebxLink2 : currentSBpart.getEbx()){
+//											if (ebxLink.getName().equals(ebxLink2.getName())){
+//												exists = true;
+//												break;
+//											}
+//										}
+//										if (!exists){
+//											currentSBpart.getEbx().add(ebxLink);
+//										}
+//									}
+//									for (ResourceLink resLink : currentSBpart2.getRes()){
+//										boolean exists = false;
+//										for (ResourceLink resLink2 : currentSBpart.getRes()){
+//											if (resLink.getName().equals(resLink2.getName())){
+//												exists = true;
+//												break;
+//											}
+//										}
+//										if (!exists){
+//											currentSBpart.getRes().add(resLink);
+//										}
+//									}
+//									for (ResourceLink chunkLink : currentSBpart2.getChunks()){
+//										boolean exists = false;
+//										for (ResourceLink chunkLink2 : currentSBpart.getChunks()){
+//											if (chunkLink2.getId().equals(chunkLink.getId())){
+//												exists = true;
+//												break;
+//											}
+//										}
+//										if (!exists){
+//											currentSBpart.getChunks().add(chunkLink);
+//										}
+//									}
+//									for (ResourceLink chunkMeta : currentSBpart2.getChunkMeta()){
+//										boolean exists = false;
+//										for (ResourceLink chunkMeta2 : currentSBpart.getChunkMeta()){
+//											if (chunkMeta2.getH32()==chunkMeta.getH32()){
+//												exists = true;
+//												break;
+//											}
+//										}
+//										if (!exists){
+//											currentSBpart.getChunkMeta().add(chunkMeta);
+//										}
+//									}
+//									break;
+//								}
+//							}
+//						}
+//						/**/
 						
 						
 						
@@ -460,16 +466,23 @@ public class ModTools {
 							chunkID = null;
 							switch(sortedEntry.getResType()){
 								case EBX:
-									data = FileHandler.readFile(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath());
-									originalSize = data.length;
-									casCatEntry = CasManager.extendCAS(data, new File(casCatPath), casCatMgr);
+									if (isCas){
+										data = FileHandler.readFile(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath());
+										originalSize = data.length;
+										casCatEntry = CasManager.extendCAS(data, new File(casCatPath), casCatMgr);
+										
+										
+										modifyResourceLink(sortedEntry, casCatEntry, originalSize, casBundle.getEbx());
+									}else{
+										modifyNonCasBundleEntry(sortedEntry, nonCasBundle.getEbx());
+									}
 									break;
 								case ITEXTURE:
 									byte[] ddsFileBytes = /*DSS FILE*/FileHandler.readFile(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath());
 									chunkID = UUID.randomUUID().toString().replace("-", "");
 	
 									String[] split = sortedEntry.getResourcePath().split("\\.");
-									byte[] originalHeaderBytes = readOrignalData(split[0], currentSBpart.getRes());
+									byte[] originalHeaderBytes = CasDataReader.readOrignalData(split[0], casBundle.getRes());
 									if (originalHeaderBytes!=null){
 	
 										FileHandler.writeFile("output/debug/originalHeaderBytes", originalHeaderBytes);
@@ -494,57 +507,60 @@ public class ModTools {
 										byte[] blockData = ITextureConverter.getBlockData(ddsFileBytes);
 										casCatEntryChunk = CasManager.extendCAS(blockData, new File(casCatPath), casCatMgr);
 	
-										modifyChunkEntry(casCatEntryChunk, chunkID, blockData.length, newITexture.getNameHash(), currentSBpart, true /*isNew*/);
+										modifyChunkEntry(casCatEntryChunk, chunkID, blockData.length, newITexture.getNameHash(), casBundle, true /*isNew*/);
+										
+										modifyResourceLink(sortedEntry, casCatEntry, originalSize, casBundle.getRes());
 									}else{
 										System.err.println("ITexture could not get applied!");
+									}
+									break;
+								case EDITOR_RESOURCELINK:
+									ResourceLink link =  ResourceLink.importResourceLink(new File(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath()));
+									if (link!=null){
+										if (link.getBundleType()==ResourceBundleType.EBX){
+											casBundle.getEbx().add(link);
+										}else if (link.getBundleType()==ResourceBundleType.RES){
+											casBundle.getRes().add(link);
+										}else{
+											System.err.println("ResourceLink can't be inported to subpackage. Unknown ResourceBundleType!");
+										}
 									}
 									break;
 								default:
 									break;
 							}
-
-							if (sortedEntry.getResType()==ResourceType.EBX){
-								modifyResourceLink(sortedEntry, casCatEntry, originalSize, currentSBpart.getEbx());
-							}else if (sortedEntry.getResType()==ResourceType.ITEXTURE||sortedEntry.getResType()==ResourceType.MESH){
-								modifyResourceLink(sortedEntry, casCatEntry, originalSize, currentSBpart.getRes());
-							}else if (sortedEntry.getResType()==ResourceType.EDITOR_RESOURCELINK){
-								ResourceLink link =  ResourceLink.importResourceLink(new File(currentMod.getPath()+FOLDER_RESOURCE+sortedEntry.getResourcePath()));
-								if (link!=null){
-									if (link.getBundleType()==ResourceBundleType.EBX){
-										currentSBpart.getEbx().add(link);
-									}else if (link.getBundleType()==ResourceBundleType.RES){
-										currentSBpart.getRes().add(link);
-									}else{
-										System.err.println("ResourceLink can't be inported to subpackage. Unknown ResourceBundleType!");
-									}
+							if (isCas){
+								if (casCatEntryChunk!=null){
+									casCatMgr.getEntries().add(casCatEntryChunk);
 								}
-							}else{
-								System.err.println(sortedEntry.getResType()+" isn't defined in (Mod.ModTools.playMod) for modifyResourceL1nk!");
-							}
-							if (casCatEntryChunk!=null){
-								casCatMgr.getEntries().add(casCatEntryChunk);
-							}
-							if (casCatEntry!=null){
-								casCatMgr.getEntries().add(casCatEntry);
+								if (casCatEntry!=null){
+									casCatMgr.getEntries().add(casCatEntry);
+								}
 							}
 						}
 						//TODO convToc.setTotalSize(totalSize);
 						String newPath = ((String) Core.getGame().getCurrentFile()+".sb").replace(Core.gamePath, path);
-						LayoutCreator.createModifiedSBFile(convToc, currentSBpart, false/*TODO*/, newPath, true/*delete first*/);
+						if (isCas){
+							LayoutCreator.createModifiedCasSuperbundle(convToc, casBundle, false/*TODO*/, newPath, true/*delete first*/);
+						}else{
+							LayoutCreator.createModifiedNonCasSuperbundle(convToc, nonCasBundle, false, newPath);
+						}
 						byte[] tocBytes = LayoutCreator.createTocFile(convToc);
 						File newTocFile = new File(((String) Core.getGame().getCurrentFile()+".toc").replace(Core.gamePath, path));
 						FileHandler.writeFile(newTocFile.getAbsolutePath(), tocBytes);
 					}
-					//Create new CasCat
-					byte[] casCatBytes = casCatMgr.getCat();
-					String relPart = null;
-					if (origin==OriginType.BASE){
-						relPart = "";
-					}else if (origin==OriginType.PATCHED){
-						relPart = Core.PATH_UPDATE_PATCH;
+					if (isCas){
+						//Create new CasCat
+						byte[] casCatBytes = casCatMgr.getCat();
+						String relPart = null;
+						if (origin==OriginType.BASE){
+							relPart = "";
+						}else if (origin==OriginType.PATCHED){
+							relPart = Core.PATH_UPDATE_PATCH;
+						}
+						File casCatFile = new File(path+relPart+"/Data/cas.cat");
+						FileHandler.writeFile(casCatFile.getAbsolutePath(), casCatBytes);
 					}
-					File casCatFile = new File(path+relPart+"/Data/cas.cat");
-					FileHandler.writeFile(casCatFile.getAbsolutePath(), casCatBytes);
 				}
 				
 				mod.setCompiled(true);
@@ -589,7 +605,7 @@ public class ModTools {
 			 * The file is bigger as one block. So we have to calculate the
 			 * total number of blocks to get the header size we can add to the
 			 * raw dds block data size.*/
-			int sizeHeaders = CasManager.calculateNumberOfBlocks(chunkSize) * CasManager.blockHeaderNumBytes;
+			int sizeHeaders = Block.calculateNumberOfBlocks(chunkSize) * Block.blockHeaderNumBytes;
 			chunkLink.setSize(sizeHeaders+chunkSize);
 			
 			
@@ -683,9 +699,28 @@ public class ModTools {
 		return false;
 		
 	}
+	public boolean modifyNonCasBundleEntry(PackageEntry packEntry, ArrayList<NonCasBundleEntry> targetList){
+		//NON-CAS
+	/*ALREADY EXISTING*/
+		for (NonCasBundleEntry entry : targetList){
+			String targetObject = packEntry.getTargetPath();//has a special targetPath defined, use this.
+			if (targetObject==null){
+				targetObject = packEntry.getResourcePath();//otherwise use the resourcePath as target.
+			}
+//			System.out.println(entry.getName()+" -- "+targetObject.replace(".", "-").split("-")[0]);
+			if (entry.getName().equals(targetObject.replace(".", "-").split("-")[0])){//asdf/asdf/filename.ebx -> /asdf/asdf/filename
+				entry.setModFilePath(Core.getGame().getCurrentMod().getPath()+"/"+FOLDER_RESOURCE+"/"+targetObject);
+				System.out.println("Linking "+entry.getModFilePath()+" to modified entry!");
+				return true;
+			}
+		}
+		return false;
+		
+	}
 	
 	public boolean modifyResourceLink(PackageEntry packEntry, CasCatEntry casCatEntry, int originalSize, ArrayList<ResourceLink> targetList){
-	/*ALREADY EXIST*/
+		//CAS
+	/*ALREADY EXISTING*/
 		for (ResourceLink link : targetList){
 			String targetObject = packEntry.getTargetPath();//has a special targetPath defined, use this.
 			if (targetObject==null){
@@ -727,23 +762,19 @@ public class ModTools {
 		String currentTocName = Core.getGame().getCurrentToc().getName();
 		Package currentPackage = Core.getModTools().getPackage(currentTocName);
 		if (currentPackage!=null){
-			return extendPackage(bundle, sbPart, type, path, currentPackage);
+			return extendPackage(bundle, sbPart, type, path, null, currentPackage);
 		}
 		return false;
 	}
 	
-	public boolean extendPackage(LinkBundleType bundle, String sbPart, ResourceType type, String path, Package pack){
-		return extendPackage(bundle, sbPart, type, path, null, pack);
-	}
-	
-	public boolean extendPackage(LinkBundleType bundle, String sbPart, ResourceType type, String path, String targetPath, Package pack){
-		PackageEntry entry = new PackageEntry(bundle, sbPart, type, path);
+	public boolean extendPackage(LinkBundleType bundleType, String sbPart, ResourceType type, String path, String targetPath, Package pack){
+		PackageEntry entry = new PackageEntry(bundleType, sbPart, type, path);
 		if (targetPath!=null){
 			/*Additional, if someone whats to have a diffrent resources for a package with the same path.*/
 			entry.setTargetPath(targetPath);
 		}
 		for (PackageEntry pEntry: pack.getEntries()){
-			if (pEntry.getBundleType()==bundle && pEntry.getSubPackage().equals(sbPart) &&
+			if (pEntry.getBundleType()==bundleType && pEntry.getSubPackage().equals(sbPart) &&
 					pEntry.getResourcePath().equals(path) && pEntry.getResType()==type &&
 						pEntry.getTargetPath()==targetPath){
 				//entry does already exist.
@@ -756,15 +787,7 @@ public class ModTools {
 	}
 	
 	
-	public byte[] readOrignalData(String resourceName, ArrayList<ResourceLink> resourceList){
-		for (ResourceLink link : resourceList){
-			if (link.getName().equalsIgnoreCase(resourceName)){
-				return CasDataReader.readCas(link.getBaseSha1(), link.getDeltaSha1(), link.getSha1(), link.getCasPatchType());
-			}
-		}
-		System.err.println("Original Data could not get found for "+resourceName);
-		return null;
-	}
+	
 	
 	//i dont really have to create a function for removing one line from a ".pack" file? huh.
 	

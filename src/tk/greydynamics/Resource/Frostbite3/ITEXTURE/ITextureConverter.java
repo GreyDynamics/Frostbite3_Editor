@@ -3,7 +3,7 @@ package tk.greydynamics.Resource.Frostbite3.ITEXTURE;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.DDS.DDS_HEADER;
 import tk.greydynamics.Resource.DDS.DDS_PIXELFORMAT;
-import tk.greydynamics.Resource.Frostbite3.Cas.CasManager;
+import tk.greydynamics.Resource.Frostbite3.Cas.Data.Block;
 
 public class ITextureConverter {
 	
@@ -265,9 +265,9 @@ public class ITextureConverter {
 		}
 		itexture.setMipSizes(originalITextureHeader.getMipSizes());
 		
-		itexture.setMipOneEndOffset(itexture.getMipSizes()[0] + (CasManager.calculateNumberOfBlocks(itexture.getMipSizes()[0]) * CasManager.blockHeaderNumBytes));
+		itexture.setMipOneEndOffset(itexture.getMipSizes()[0] + (Block.calculateNumberOfBlocks(itexture.getMipSizes()[0]) * Block.blockHeaderNumBytes));
 		if (itexture.getNumSizes()>=2){
-			itexture.setMipTwoEndOffset(itexture.getMipOneEndOffset() + itexture.getMipSizes()[1] + (CasManager.calculateNumberOfBlocks(itexture.getMipSizes()[1]) * CasManager.blockHeaderNumBytes));
+			itexture.setMipTwoEndOffset(itexture.getMipOneEndOffset() + itexture.getMipSizes()[1] + (Block.calculateNumberOfBlocks(itexture.getMipSizes()[1]) * Block.blockHeaderNumBytes));
 		}
 		
 		itexture.setChunkID(FileHandler.hexStringToByteArray(newGUID));

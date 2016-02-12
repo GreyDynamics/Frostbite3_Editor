@@ -1,12 +1,13 @@
 package tk.greydynamics.Resource.Frostbite3.Cas;
 
 import java.io.File;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Random;
 
 import tk.greydynamics.Maths.Hash;
 import tk.greydynamics.Resource.FileHandler;
+import tk.greydynamics.Resource.Frostbite3.Cas.Data.Block;
+import tk.greydynamics.Resource.Frostbite3.Cas.Data.BlockHeader;
 
 public class CasManager {
 	
@@ -15,11 +16,7 @@ public class CasManager {
 		(byte) 0x50, (byte) 0x4C, (byte) 0x45, (byte) 0x58,
 		(byte) 0x58, (byte) 0x5F, (byte) 0x5F, (byte) 0x5F};
 	
-	static byte[] compressionType = new byte[] {(byte) 0x00, (byte) 0x70};
-	static int blockSize = 0x10000;
-	static int blockContent = 0xFAD8&0xFFFF;
 	
-	public static int blockHeaderNumBytes = 8;//4 size, 2 type, 2 compressed size
 	
 	public static boolean createCAS(String path99cas){
 		try{
@@ -43,28 +40,7 @@ public class CasManager {
 		System.err.println("CasManager is extending the CAS using a custom max. block size\n"+
 				"we should change it to the default and set each block compressed size to 0x0!");
 		
-		
-		ArrayList<Byte> procEntries = new ArrayList<Byte>();	
-		
-		/*HANDLE BLOCK LOGIC*/
-		int blocks = calculateNumberOfBlocks(decompressedBytes.length);
-		//System.out.println(blockContent);
-		System.out.println("Building "+(blocks+1)+" blocks in total.");
-		int restLen = decompressedBytes.length - (blocks * blockContent);
-		for (int i=0; i<blocks; i++){
-			FileHandler.addBytes(FileHandler.toBytes(blockSize, ByteOrder.BIG_ENDIAN), procEntries);//int
-			FileHandler.addBytes(compressionType, procEntries);
-			FileHandler.addBytes(FileHandler.toBytes((short) (blockContent&0xFFFF), ByteOrder.BIG_ENDIAN), procEntries);/*short -- this can may be even 0x00, because
-															FrankElster said: "..compressed size (null for type 0071 and type 0000) of the payload .. without the header"*/
-			FileHandler.addBytes(decompressedBytes, procEntries, i*blockContent, blockContent);
-		}
-		
-		/*FILL REST*/
-		FileHandler.addBytes(FileHandler.toBytes(restLen, ByteOrder.BIG_ENDIAN), procEntries);
-		FileHandler.addBytes(compressionType, procEntries); // 0x0070 -- uncompressed || 0x0970 lz4 compressed || 0x0071 -- uncompressed no payload || 0x0000 -- empty payload
-		FileHandler.addBytes(FileHandler.toBytes((short) restLen, ByteOrder.BIG_ENDIAN), procEntries);
-		FileHandler.addBytes(decompressedBytes, procEntries, blocks*blockContent, restLen);
-		
+		ArrayList<Byte> procEntries = Block.compressBlock(decompressedBytes, BlockHeader.BlockType_UnCompressed);
 		/*EXTEND AND RETURN NEW ENTRY!*/
 		int casEntryOffset = (int) cas.length(); //Max file size is anyways less than 2GB's so we can go with integers.
 		if (FileHandler.writeFile(FileHandler.normalizePath(cas.getAbsolutePath()), FileHandler.toByteArray(procEntries), true)){
@@ -75,6 +51,8 @@ public class CasManager {
 		System.err.println("Could not extend CASFile :(");
 		return null;
 	}
+	
+	
 	
 	static String genSHA1(CasCatManager casCatMan){
 		Random random = new Random();
@@ -87,7 +65,5 @@ public class CasManager {
 		return sha1;
 	}
 	
-	public static int calculateNumberOfBlocks(int rawLength){
-		return rawLength / blockContent;
-	}
+	
 }

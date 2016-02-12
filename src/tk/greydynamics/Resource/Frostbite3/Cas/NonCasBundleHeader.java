@@ -9,8 +9,9 @@ import tk.greydynamics.Resource.FileSeeker;
 public class NonCasBundleHeader {
 	public static final int HEADER_BYTESIZE = 32;
 	public static final int FOURCC_BF4 = 0x9D798ED5;
+	public static final int FOURCC_BF3 = 0x970D1C13;
 
-	private int magic = -1; //970d1c13 for bf3, 9D798ED5 for bf4
+	private int magic = -1;
 	private int totalCount = -1; //total entries = ebx + res + chunks
 	private int ebxCount = -1;
 	private int resCount = -1;

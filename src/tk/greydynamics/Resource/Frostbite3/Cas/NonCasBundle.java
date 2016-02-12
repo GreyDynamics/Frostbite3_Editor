@@ -17,12 +17,17 @@ public class NonCasBundle extends Bundle{
 	private NonCasBundleHeader header = null;
 	private ArrayList<String> sha1List = new ArrayList<>();
 	private ArrayList<NonCasBundleEntry> ebx = new ArrayList<>(), res = new ArrayList<>(), entries = new ArrayList<>();
-	private ArrayList<NonCasBundleChunk> chunks = new ArrayList<>();
-	
+	private ArrayList<NonCasBundleChunkEntry> chunks = new ArrayList<>();
+	private byte[] chunkMeta = null;
+	private int originalPayloadOffset = -1;
+	private int originalChunkPayloadOffset = -1;
+	private int originalBundleBaseSize = 0;
+		
 	private boolean halfInitialized = true;
 	
 	public NonCasBundle (String basePath, String deltaPath, String name, int baseOffset, int deltaOffset, byte[] baseBytes, byte[] deltaBytes) {
 		super(BundleType.UNDEFINED, basePath, deltaPath, name, baseOffset, deltaOffset);
+		originalBundleBaseSize = baseBytes.length;
 		ByteOrder order = ByteOrder.BIG_ENDIAN;
 		
 		FileSeeker baseSeeker=new FileSeeker(0);
@@ -31,14 +36,28 @@ public class NonCasBundle extends Bundle{
 		if (deltaBytes==null){//Unpatched
 			boolean success = setupBundle(baseBytes, baseSeeker, order);
 			if (success){
-				//seek trough all Blocks in order EBX, RES, CHUNK to optain the Offset.
+				//seek trough all Blocks in order EBX, RES to optain the Offset.
+				this.originalPayloadOffset = baseSeeker.getOffset();
 				for (NonCasBundleEntry entry : entries){
 					entry.setBaseOffset(baseSeeker.getOffset());
 					int currentSize = 0;
+//		System.err.println("Entry Payload at "+baseSeeker.getOffset());
 					while (currentSize<entry.getOriginalSize()){
 						currentSize += CompressionUtils.seekBlockData(baseBytes, baseSeeker);
 					}
 					entry.setBaseSize(baseSeeker.getOffset()-entry.getBaseOffset());
+				}
+				this.originalChunkPayloadOffset = baseSeeker.getOffset();
+				
+				for (NonCasBundleChunkEntry chunkEntry : chunks){
+					chunkEntry.setRelBundleOffset(baseSeeker.getOffset()-originalChunkPayloadOffset);
+//		System.err.println("Chunk start at "+baseSeeker.getOffset());
+					int absOffset = baseSeeker.getOffset();
+					int currentSize = 0;
+					while (currentSize<chunkEntry.getLogicalSize()){
+						currentSize += CompressionUtils.seekBlockData(baseBytes, baseSeeker);
+					}
+					chunkEntry.setRawPayloadSize(baseSeeker.getOffset()-absOffset);
 				}
 				this.setType(BundleType.NONCAS_UNPATCHED);
 			}else{
@@ -120,10 +139,10 @@ public class NonCasBundle extends Bundle{
 		    if (success){
 		    	int entriesIndex = 0;
 		    	
-		    	baseSeeker.setOffset(baseMetaSize); //go to the base payload section, we use relative bundle data-> so don't add base offset
+		    	baseSeeker.setOffset(baseMetaSize+4); //bundle starts with int (containing metaSize incl. header but not itself) -> offset shifts +4!
 		    	NonCasBundleEntry entry = updateEntryOffset(entriesIndex, baseSeeker, deltaSeeker, baseOffset, deltaOffset);
 		    	
-		    	while (deltaSeeker.getOffset()<deltaEOF&&!deltaSeeker.hasError()&&!baseSeeker.hasError()){
+		    	while (deltaSeeker.getOffset()<(deltaEOF-1)&&!deltaSeeker.hasError()&&!baseSeeker.hasError()){
 		    		Vector2f vec2f = null;
 			    	try{
 			    		vec2f = Bitwise.split1v7(FileHandler.readInt(deltaBytes, deltaSeeker, order));
@@ -210,6 +229,7 @@ public class NonCasBundle extends Bundle{
 		        //all remaining entries go here
 		        while(entry!=null&&!deltaSeeker.hasError()&&!baseSeeker.hasError()){
 		        	entry = next(entriesIndex, baseSeeker, deltaSeeker, baseOffset, deltaOffset);
+//		        	entriesIndex++;
 		        	 while (entry.getCurrentSize()!=entry.getOriginalSize()){
 			                entry.setCurrentSize(entry.getCurrentSize()+CompressionUtils.seekBlockData(baseBytes, baseSeeker));
 		        	 }
@@ -300,7 +320,8 @@ public class NonCasBundle extends Bundle{
 		//resType as ascii: E.g. \IT. for ITexture
 		for (NonCasBundleEntry resEntry : res){
 			int resType = FileHandler.readInt(data, seeker, order);
-			resEntry.setResourceType(TocConverter.toResourceType(resType));
+			resEntry.setResType(TocConverter.toResourceType(resType));
+			resEntry.setResTypeInt(resType);
 			if(seeker.hasError()){return false;}
 		}
 		//resMeta has often 16 nulls (always null for IT)
@@ -315,11 +336,14 @@ public class NonCasBundle extends Bundle{
 		}
 		
 		
-		//Chunks, There is one chunkMeta entry for every chunk (i.e. self.chunks and self.chunkMeta both have the same number of elements).
+		//Chunks, There is one chunkMeta entry for every chunk (i.e. chunks and chunkMeta both have the same number of elements).
 		for (int i=0; i<header.getChunkCount();i++){
-			chunks.add(NonCasBundleChunk.readChunk(data, seeker, order));
+			NonCasBundleChunkEntry chunkEntry = NonCasBundleChunkEntry.readChunkEntry(data, seeker, order);
+			chunks.add(chunkEntry);
 			if(seeker.hasError()){return false;}
 		}
+		//ChunkMeta is is a TOC structure.
+		chunkMeta = FileHandler.readByte(data, seeker, header.getChunkMetaSize());
 		
 		absStringOffset = metaOffset+header.getStringOffset();
 		
@@ -343,14 +367,25 @@ public class NonCasBundle extends Bundle{
 		seeker.setOffset(metaOffset+metaSize);
 		
 		
-		//assign SHA1 Hashes to each Entry (EBX & RES)
+		//assign SHA1 Hashes to each Entry and Chunk (EBX, RES & CHUNK)
 		for (int index=0; index<entries.size(); index++){
-			if (index<=sha1List.size()){
+			if (index<sha1List.size()){
 				entries.get(index).setSha1(sha1List.get(index));
+				//System.out.println(entries.get(index).getSha1()+" "+index);
+			}else{
+				System.out.println("More Entries as Hashes!");
 			}
-			index++;
 		}
-		
+		int absSha1Index = 0;
+		for (int index=0; index<chunks.size(); index++){
+			absSha1Index = index+entries.size();
+			if (absSha1Index<sha1List.size()){
+				//TODO maybe its for chunkMeta ? (TOC)
+				chunks.get(index).setSha1(sha1List.get(absSha1Index));
+			}else{
+				System.out.println("More Chunks as Hashes!");
+			}
+		}
 		return !seeker.hasError();
 	}
 	
@@ -386,11 +421,11 @@ public class NonCasBundle extends Bundle{
 		this.res = res;
 	}
 
-	public ArrayList<NonCasBundleChunk> getChunks() {
+	public ArrayList<NonCasBundleChunkEntry> getChunks() {
 		return chunks;
 	}
 
-	public void setChunks(ArrayList<NonCasBundleChunk> chunks) {
+	public void setChunks(ArrayList<NonCasBundleChunkEntry> chunks) {
 		this.chunks = chunks;
 	}
 
@@ -407,12 +442,30 @@ public class NonCasBundle extends Bundle{
 	public void setHalfInitialized(boolean halfInitialized) {
 		this.halfInitialized = halfInitialized;
 	}
+	public byte[] getChunkMeta() {
+		return chunkMeta;
+	}
+	public void setChunkMeta(byte[] chunkMeta) {
+		this.chunkMeta = chunkMeta;
+	}
+	public int getOriginalChunkPayloadOffset() {
+		return originalChunkPayloadOffset;
+	}
+	public void setOriginalChunkPayloadOffset(int originalChunkPayloadOffset) {
+		this.originalChunkPayloadOffset = originalChunkPayloadOffset;
+	}
+	public int getOriginalPayloadOffset() {
+		return originalPayloadOffset;
+	}
+	public void setOriginalPayloadOffset(int originalPayloadOffset) {
+		this.originalPayloadOffset = originalPayloadOffset;
+	}
+	public int getOriginalBundleBaseSize() {
+		return originalBundleBaseSize;
+	}
+	public void setOriginalBundleBaseSize(int originalBundleBaseSize) {
+		this.originalBundleBaseSize = originalBundleBaseSize;
+	}
 
-	
-	
-	
-	
-	
-	
 	
 }

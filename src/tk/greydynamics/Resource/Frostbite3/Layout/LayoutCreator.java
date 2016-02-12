@@ -3,11 +3,14 @@ package tk.greydynamics.Resource.Frostbite3.Layout;
 import java.io.File;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
 import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleCompiler;
 import tk.greydynamics.Resource.Frostbite3.Toc.ConvertedTocFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocEntry;
@@ -39,7 +42,12 @@ public class LayoutCreator {
 			linkEntry.getFields().add(fieldID);
 			LayoutField fieldOffset = new LayoutField(link.getOffset(), LayoutFieldType.LONG, "offset");
 			linkEntry.getFields().add(fieldOffset);
-			LayoutField fieldSize = new LayoutField(link.getSize(), LayoutFieldType.INTEGER, "size");
+			LayoutField fieldSize = null;
+			if (link.getSize()==-1){
+				fieldSize = new LayoutField(link.getSizeLong(), LayoutFieldType.LONG, "size");
+			}else{
+				fieldSize = new LayoutField(link.getSize(), LayoutFieldType.INTEGER, "size");
+			}
 			linkEntry.getFields().add(fieldSize);
 			
 			if (link.isBase()){
@@ -542,8 +550,79 @@ public class LayoutCreator {
 		}
 		return data;
 	}
+	public static boolean createModifiedNonCasSuperbundle(ConvertedTocFile toc, NonCasBundle newBundle, boolean isNew, String destination){
+		/**NON CAS SUPERBUNDLE!****NON CAS SUPERBUNDLE!****NON CAS SUPERBUNDLE!****NON CAS SUPERBUNDLE!****NON CAS SUPERBUNDLE!**/
+		FileSeeker seeker = new FileSeeker("CreateModifiedNonCasSuperbundle-Seeker");
+		if (new File(destination).exists()){
+			System.err.println("File does already exist!");
+			return false;
+		}
+		for (TocEntry bundle : toc.getBundles()){
+			long currentOffset = seeker.getOffset();
+			if (bundle.getID().equals(newBundle.getName())){
+				System.out.println("Bundle replace/add: "+bundle.getID());
+				File newNonCasBundleFile = new File(NonCasBundleCompiler.compileUnpatchedBundle(newBundle, ByteOrder.BIG_ENDIAN, "temp/nonCasSuperbundleCreator_"+UUID.randomUUID().toString().replace("-", "")));
+				if (!newNonCasBundleFile.exists()){
+					System.err.println("new compiled noncas bundle not found..");
+					return false;
+				}
+				FileHandler.extendFileFromFile(newNonCasBundleFile.getAbsolutePath(), 0, newNonCasBundleFile.length(), destination, new FileSeeker());
+								
+				bundle.setOffset(currentOffset);
+				if (bundle.getSize()==-1){
+					bundle.setSizeLong(newNonCasBundleFile.length());
+				}else{
+					bundle.setSize((int) newNonCasBundleFile.length());
+				}
+				seeker.seek((int) newNonCasBundleFile.length());
+				
+				bundle.setBase(false);
+				//bundle.setDelta(true);
+				//TODO bundle.setDelta(true) only if its patched!;
+				
+			}else{
+				if (bundle.isBase() && !bundle.isDelta()){
+					System.out.println("Bundle link: "+bundle.getID());
+				}else{
+					System.out.println("Bundle copy: "+bundle.getID());
+					long size = bundle.getSize();
+					if (size==-1){
+						size = bundle.getSizeLong();
+					}
+					boolean success = FileHandler.extendFileFromFile(bundle.getBundlePath()/*.replace("/Updata/Patch/", "/")*/, bundle.getOffset(), size, destination, seeker);
+					if (!success){
+						System.err.println("Abort: something went wrong while creating new NON-CAS Superbundle!");
+						return false;
+					}else{
+						bundle.setOffset(currentOffset);
+					}
+				}
+			}
+		}
+		
+		for (TocEntry chunk : toc.getChunks()){
+			long currentOffset = seeker.getOffset();
+			if (chunk.isBase() && !chunk.isDelta()){
+				System.out.println("Chunk link: "+chunk.getID());
+			}else{
+				System.out.println("Chunk copy: "+chunk.getID());
+				boolean success = FileHandler.extendFileFromFile(chunk.getBundlePath(), chunk.getOffset(), chunk.getSizeLong(), destination, seeker);
+				if (!success){
+					System.err.println("Abort: something went wrong while creating modified sb file :( (CHUNKS)");
+					return false;
+				}else{
+					chunk.setOffset(currentOffset);
+				}
+			}
+		}
+		for(int i=0;i<444;i++){
+			FileHandler.extendFileFromFile("res/filler/zero", 0, 1, destination, seeker);
+		}
+		return true;
+	}
 
-	public static boolean createModifiedSBFile(ConvertedTocFile toc, CasBundle newBundlePart, boolean isNew, String destination, boolean override){
+	public static boolean createModifiedCasSuperbundle(ConvertedTocFile toc, CasBundle newBundle, boolean isNew, String destination, boolean override){
+		//**CAS SUPERBUNDLE!****CAS SUPERBUNDLE!****CAS SUPERBUNDLE!****CAS SUPERBUNDLE!****CAS SUPERBUNDLE!****CAS SUPERBUNDLE!**//
 		//creates modi. sb file and updates toc file for that.
 		byte[] header2 = new byte[]{0x53, 0x70, 0x6C, 0x65, 0x78, 0x58, 0x5F,
 				0x4D, 0x6F, 0x64, 0x5F, 0x46, 0x69, 0x6C,
@@ -565,7 +644,7 @@ public class LayoutCreator {
 
 		if (isNew){
 			TocEntry link = new TocEntry();
-			link.setID(newBundlePart.getBasePath());
+			link.setID(newBundle.getBasePath());
 			link.setType(LinkBundleType.BUNDLES);
 			toc.getBundles().add(link);
 		}
@@ -573,9 +652,9 @@ public class LayoutCreator {
 		seeker.seek(header2.length);
 		for (TocEntry bundle : toc.getBundles()){
 			long currentOffset = seeker.getOffset();
-			if (bundle.getID().equals(newBundlePart.getBasePath())){
+			if (bundle.getID().equals(newBundle.getBasePath())){
 				System.out.println("Bundle replace/add: "+bundle.getID());
-				byte[] newBundleBytes = createSBpart(newBundlePart);
+				byte[] newBundleBytes = createSBpart(newBundle);
 				if (newBundleBytes.length == 0){
 					System.err.println("zero length");
 				}

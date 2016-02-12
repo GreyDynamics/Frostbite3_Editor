@@ -1,0 +1,12 @@
+Battlefield Servers are doing SanityChecks!
+The file Data/sanity.toc contains all SHA1-Filehashes.
+Doing a quick fix will help.
+	In Win32Game.cfg:
+	-BFServer.DataSanityCheckEnabled false
+
+
+XP7_Valley.sb = SHA1,9f5e6ab3b1ab948ce7c8dea42d44bed3552382b9
+XP7_Valley.toc = SHA1,51b64af3846c2d2d6c5f08efa22429cd3bbb3018
+
+[UTC 02/11/2016 17:15:42.178] Engine\Core\QuitShield.cpp(22): "GameLoop": Warning: Quitting. Reason: Unable to verify /native_data/Data/DedicatedServer/XP7/Levels/MP_Valley/XP7_Valley.toc , sanity check failed. (location: Z:\Build\WarsawY205RetailPc.Server\TnT\Code\BF\BF\Server\DataSanityCheck\DataSanityCheck.cpp(59), function: fb::DataSanityCheck::verifyDataSanity)
+30:28.106] Engine\Core\QuitShield.cpp(22): "GameLoop": Warning: Quitting. Reason: Unable to open /native_data/Data/sanity.toc , sanity check failed. (location: Z:\Build\WarsawY205RetailPc.Server\TnT\Code\BF\BF\Server\DataSanityCheck\DataSanityCheck.cpp(40), function: fb::DataSanityCheck::verifyDataSanity)

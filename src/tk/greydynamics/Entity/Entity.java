@@ -8,7 +8,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Model.RawModel;
-import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureEntry;
 
 public abstract class Entity {
 	
@@ -19,7 +18,7 @@ public abstract class Entity {
 
 	public String name;
 	public Type type;
-	public EBXStructureEntry structEntry;
+	public Object entityObject;
 
 	public Vector3f position = new Vector3f(0.0f, 0.0f, 0.0f);
 	public Vector3f rotation = new Vector3f(0.0f, 0.0f, 0.0f);
@@ -44,16 +43,16 @@ public abstract class Entity {
 	public Matrix4f relMatrix = null;
 	public boolean recalculateAbs = true;
 
-	public Entity(String name, Type type, EBXStructureEntry structEntry, Entity parent, RawModel[] rawModels) {
+	public Entity(String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels) {
 		this.name = name;
 		this.type = type;
 		this.parent = parent;
 		this.rawModels = rawModels;
-		this.structEntry = structEntry;
+		this.entityObject = entityObject;
 		recalculateRelMatrix();
 	}
 
-	public Entity(String name, Type type, EBXStructureEntry structEntry, Entity parent, RawModel[] rawModels,
+	public Entity(String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels,
 			Vector3f minCoords, Vector3f maxCoords) {		
 		this.name = name;
 		this.type = type;
@@ -61,7 +60,7 @@ public abstract class Entity {
 		this.rawModels = rawModels;
 		this.minCoords = minCoords;
 		this.maxCoords = maxCoords;
-		this.structEntry = structEntry;
+		this.entityObject = entityObject;
 		recalculateRelMatrix();
 	}
 
@@ -282,8 +281,13 @@ public abstract class Entity {
 	}
 
 
-	public EBXStructureEntry getStructEntry() {
-		return structEntry;
+
+	public Object getEntityObject() {
+		return entityObject;
+	}
+
+	public void setEntityObject(Object entityObject) {
+		this.entityObject = entityObject;
 	}
 
 	public Type getType() {

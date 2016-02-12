@@ -64,29 +64,30 @@ public class JavaFXlayerTCF extends TreeCell<Entity> {
 			setText("Layers");
 		} 
 		else {
-			tmpEntry = item.getStructEntry();
+//			tmpEntry = item.getStructEntry();
 			contextMenu.getItems().clear();
-			if (tmpEntry!=null){
-				String[] instanaceGUID = item.getName().split("/");
-				if (instanaceGUID.length==2){
-					setText(item.getStructEntry().getType().toString()+" "+instanaceGUID[1]);
-				}else{
-					setText(item.getStructEntry().getType().toString()+" "+item.getName());
-				}
+//			if (tmpEntry!=null){
+//				String[] instanaceGUID = item.getName().split("/");
+//				if (instanaceGUID.length==2){
+//					setText(item.getStructEntry().getType().toString()+" "+instanaceGUID[1]);
+//				}else{
+//					setText(item.getStructEntry().getType().toString()+" "+item.getName());
+//				}
 				if (!item.getIsVisible()){
 					contextMenu.getItems().add(show);
 					setStyle("-fx-background-color: red");
 				}else if(item.getIsVisible()){
 					contextMenu.getItems().add(hide);
+					setStyle("-fx-background-color: lightgrey");
 				}/*else if (item.getTexturedModelNames()!=null){
-					setStyle("-fx-background-color: green");
-				}*/
-			}else{
+//					setStyle("-fx-background-color: green");
+//				}*/
+//			}else{
 				setText(item.getName());
-				setStyle("-fx-background-color: lightgrey");
-			}
+//				setStyle("-fx-background-color: lightgrey");
+//			}
 			setGraphic(getTreeItem().getGraphic());
-			contextMenu.getItems().add(remove);
+//			contextMenu.getItems().add(remove);
 			setContextMenu(contextMenu);
 		}
 

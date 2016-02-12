@@ -1,7 +1,6 @@
 package tk.greydynamics.JavaFX.CellFactories;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -28,7 +27,6 @@ import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasDataReader;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
-import tk.greydynamics.Resource.Frostbite3.EBX.Component.EBXComponentComplex;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITexture;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ITextureHandler;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter;
@@ -117,9 +115,9 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 									NonCasBundleEntry entry = (NonCasBundleEntry) i.getValue().getValue();
 									NonCasBundle nonCasBundle = (NonCasBundle) Core.getGame().getCurrentBundle();
 									data = NonCasDataReader.readNonCasBundleData(nonCasBundle, entry);
-									name = nonCasBundle.getName();
+									name = entry.getName();
 									bundleType = entry.getBundleType();
-									resType = entry.getResourceType();
+									resType = entry.getResType();
 								}else{
 									System.err.println("NO ResLink or NonCasBundleEntry!");
 								}
@@ -134,11 +132,11 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 											FileHandler.writeFile("temp/debug/orig.ebx", data);
 											
 //											System.out.println("DEBUG: COMPONENT VALIDATION TEST!");
-											Core.getGame().getResourceHandler().getEBXComponentHandler().reset(Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponentsPath());
-//											
-											Core.getGame().getResourceHandler().getEBXComponentHandler().addKnownComponent(ebxFile);
-											ArrayList<EBXComponentComplex> comp = Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponents();
-											Core.getGame().getResourceHandler().getEBXComponentHandler().saveKnownComponents();
+//											Core.getGame().getResourceHandler().getEBXComponentHandler().reset(Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponentsPath());
+////											
+//											Core.getGame().getResourceHandler().getEBXComponentHandler().addKnownComponent(ebxFile);
+//											ArrayList<EBXComponentComplex> comp = Core.getGame().getResourceHandler().getEBXComponentHandler().getKnownComponents();
+//											Core.getGame().getResourceHandler().getEBXComponentHandler().saveKnownComponents();
 //											Core.getGame().getResourceHandler().getEBXComponentHandler().readKnownComponents();
 //											System.out.println("END OF DEBUG!");
 											

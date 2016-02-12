@@ -14,4 +14,15 @@ public class NonCasDataReader {
 		}
 		return null;
 	}
+	
+	public static byte[] readRawNonCasBundleChunk(NonCasBundle nonCasBundle, NonCasBundleChunkEntry bundleChunkEntry){
+		if (bundleChunkEntry!=null&&nonCasBundle!=null){
+			byte[] blocks = FileHandler.readFile(nonCasBundle.getBasePath(),
+					nonCasBundle.getBaseOffset()+nonCasBundle.getOriginalChunkPayloadOffset()+
+						bundleChunkEntry.getRelBundleOffset(),
+					bundleChunkEntry.getRawPayloadSize());
+			return blocks;
+		}
+		return null;
+	}
 }

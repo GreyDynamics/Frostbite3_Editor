@@ -50,6 +50,7 @@ public class ImagePreviewWindowController {
 							Core.getGame().getCurrentBundle().getBasePath(), 
 							ResourceType.ITEXTURE,
 							resPath,
+							null,
 							pack
 					);
 					if (succ){

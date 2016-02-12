@@ -6,6 +6,8 @@ import java.util.HashMap;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
+import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundleEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.Modify.EBXModifyHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureFile;
@@ -172,17 +174,34 @@ public class EBXHandler {
 						break;
 					}
 				}else{
-					System.err.println(ebxLink.getName()+" could not be read!");
+					//System.err.println(ebxLink.getName()+" could not be read!");
 				}
 			}
 			if (targetLink==null){
-				System.err.println("EBXFile not found. No ResourceLink with FileGUID "+fileGUID+" does exist.");
+				System.err.println("EBXFile not found. No ResourceLink with FileGUID "+fileGUID+" found.");
 				return null;
 			}
 			byte[] data = Core.getGame().getResourceHandler().readResourceLink(targetLink, loadOriginal);
 			return data;
 		}else{
-			return null;
+			NonCasBundleEntry ebxTarget = null;
+			NonCasBundle nonCasBundle = (NonCasBundle) Core.getGame().getCurrentBundle();
+			for (NonCasBundleEntry ebxEntry : nonCasBundle.getEbx()){
+				if (ebxEntry.getEbxFileGUID()!=null){
+					if (ebxEntry.getEbxFileGUID().equalsIgnoreCase(fileGUID)){
+						ebxTarget = ebxEntry;
+						break;
+					}
+				}else{
+					//System.err.println(ebxEntry.getName()+" could not be read!");
+				}
+			}
+			if (ebxTarget==null){
+				System.err.println("EBXFile not found. No NonCasBundleEntry with FileGUID "+fileGUID+" found.");
+				return null;
+			}
+			byte[] data = Core.getGame().getResourceHandler().readNonCasBundleEntry(ebxTarget);
+			return data;
 		}
 	}
 	

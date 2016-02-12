@@ -2,7 +2,6 @@ package tk.greydynamics.JavaFX.CellFactories;
 
 import java.util.ArrayList;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
@@ -476,20 +475,20 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 			case String:
 				return (String)value;
 			case ExternalGuid:
-				String[] externalGUIDSplit = ((String) value).split(" ");
+				EBXExternalGUID externalGUID = (EBXExternalGUID) value;
 				EBXHandler ebxHandler = Core.getGame().getResourceHandler().getEBXHandler();
-				if (ebxHandler.getEBXFiles()!=null&&externalGUIDSplit.length==2){//DEBUG-
-					EBXFile file = ebxHandler.getEBXFileByGUID(externalGUIDSplit[0], false/*aka. don't try to load*/, false);
+				if (ebxHandler.getEBXFiles()!=null){//DEBUG-
+					EBXFile file = ebxHandler.getEBXFileByGUID(externalGUID.getFileGUID(), false/*aka. don't try to load*/, false);
 					if (file!=null){//Table with EBXFile
-						return file.getTruePath()+" "+externalGUIDSplit[1];
+						return file.getTruePath()+" "+externalGUID.getInstanceGUID();
 					}else{//Table with ResourceLink's Name
-						ResourceLink resLink = Core.getGame().getResourceHandler().getResourceLinkByEBXGUID(externalGUIDSplit[0]);
+						ResourceLink resLink = Core.getGame().getResourceHandler().getResourceLinkByEBXGUID(externalGUID.getFileGUID());
 						if (resLink!=null){
-							return resLink.getName()+" "+externalGUIDSplit[1];
+							return resLink.getName()+" "+externalGUID.getInstanceGUID();
 						}
 					}
 				}
-				return (String)value;
+				return externalGUID.getFileGUID()+" "+externalGUID.getInstanceGUID();
 			case Float:
 				return ((Float)value).toString()+"f";
 			case Short:
@@ -609,14 +608,19 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 							}else{
 								String guid = ebxHandler.getEBXGUIDByResourceName(split[0]);
 								if (guid!=null){
-									return (guid+" "+split[1]);
+									//return (guid+" "+split[1]);
+									return new EBXExternalGUID(guid, split[1]);
 								}
 							}
 						}
 						System.err.println("EXTERNAL GUID PATH COULD NOT BE FOUND IN DATABASE. NO CONVERTION TO FILEGUID POSSIBLE!");
 						return(null);
 					}else{
-						return(value);
+						String[] split = value.split(" ");			    				
+						if (split.length==2){
+							return new EBXExternalGUID(split[0], split[1]);
+						}
+						return null;
 					}
 				case ChunkGuid:
 					return(value);

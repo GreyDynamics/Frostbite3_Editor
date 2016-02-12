@@ -6,6 +6,7 @@ import java.util.ConcurrentModificationException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
+import tk.greydynamics.Messages;
 import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Entity.Layer.EntityLayerConverter;
@@ -17,7 +18,6 @@ import tk.greydynamics.Model.RawModel;
 import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXExternalGUID;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
-import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureEntry;
 import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureFile;
 import tk.greydynamics.Resource.Frostbite3.MESH.MeshChunkLoader;
 
@@ -82,7 +82,7 @@ public class EntityHandler {
 	}
 	
 	public void destroyEntity(Entity e){
-		System.err.println("Destroy Entity and clean resources if not needed anymore, not done!");
+		System.err.println(Messages.getString("EntityHandler.0")); //$NON-NLS-1$
 	}
 	
 	public void clear(){
@@ -100,7 +100,7 @@ public class EntityHandler {
 	}
 	
 	public Entity getFocussedEntity(Vector3f position, Vector3f direction, int maxChecks, float checkDistance){
-		System.err.println("Raycasting has a big, A REALLY BIG performance problem! We have to thing about something else!");
+		System.err.println(Messages.getString("EntityHandler.1")); //$NON-NLS-1$
 		this.ray = new Vector3f(position.x, position.y, position.z);
 		Vector3f origin = new Vector3f(position.x, position.y, position.z);
 		Vector3f absMinCoords = null;
@@ -138,7 +138,7 @@ public class EntityHandler {
 	}
 	
 	
-	public Entity createEntity(byte[] mesh, Type type, EBXStructureEntry structEntry, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
+	public Entity createEntity(byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
 		try{
 			MeshChunkLoader msl = resourceHandler.getMeshChunkLoader();
 			msl.loadFile(mesh, Core.getGame().getCurrentBundle());
@@ -169,10 +169,10 @@ public class EntityHandler {
 			Entity en = null;
 			switch (type){
 				case Object:
-					en = new ObjectEntity(msl.getName(), structEntry, parent, rawModels, new EntityTextureData(meshInstanceGUID, null));
+					en = new ObjectEntity(msl.getName(), entityData, parent, rawModels, new EntityTextureData(meshInstanceGUID, null));
 					break;
 				case Light:
-					en = new LightEntity(msl.getName(), structEntry, parent, rawModels);
+					en = new LightEntity(msl.getName(), entityData, parent, rawModels);
 					break;
 			}
 			
@@ -184,14 +184,14 @@ public class EntityHandler {
 			return en;
 		}catch(Exception e){
 			e.printStackTrace();
-			System.err.println("Could not create entitiy: "+loaderErrorDesc);
+			System.err.println(Messages.getString("EntityHandler.2")+loaderErrorDesc); //$NON-NLS-1$
 			return null;
 		}
 	}
 	
 	public void updateLayer(EntityLayer layer, EBXStructureFile meshVariationDatabase){
 		updateEntities(layer.getEntities(), meshVariationDatabase);
-		Core.getJavaFXHandler().getDialogBuilder().showInfo("UPDATED", "The layer got updated by the Meshvariation Database!");
+		Core.getJavaFXHandler().getDialogBuilder().showInfo(Messages.getString("EntityHandler.3"), Messages.getString("EntityHandler.4")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	private void updateEntity(Entity e, EBXStructureFile meshVariationDatabase){

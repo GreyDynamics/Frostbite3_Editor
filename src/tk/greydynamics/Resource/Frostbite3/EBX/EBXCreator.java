@@ -389,7 +389,14 @@ public class EBXCreator {
 			}
 		}else if(h==(short)0x0035){//___________________________________________________________________________________________GUID
 			if (ebxField.getValue()!=null){
-				String val = (String) ebxField.getValue();
+				String val = null;
+				if (ebxField.getValue() instanceof EBXExternalGUID){
+					EBXExternalGUID guid = (EBXExternalGUID) ebxField.getValue();
+					val = guid.getFileGUID()+" "+guid.getInstanceGUID();
+				}else{
+					val = (String) ebxField.getValue();
+				}
+				
 				if (val.contains("null")){
 					data = new byte[] {0x00, 0x00, 0x00, 0x00};
 				}else if (val.contains(" ")){//External GUID
