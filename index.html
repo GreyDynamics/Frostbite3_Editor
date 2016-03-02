@@ -12,11 +12,11 @@
   <body>
     <section class="page-header">
       <h1 class="project-name">FrostBite3 Editor Tools</h1>
-      <h2 class="project-tagline">ZLOEmu: Origin Emulator + Battlefield 4 works. <a href="http://zlogames.ru/index.php?/topic/5187/">Closed Beta Giveaway!</a></h2>
+      <h2 class="project-tagline"><a href="http://zloemu.org">ZLOEmu: Origin Emulator + Battlefield 4 works. </a></h2>
       <a href="https://github.com/GreyDynamics/FrostBite3_Editor" class="btn">View on GitHub</a>
       <a href="#download" class="btn">Download .zip</a>
       <a href="#help-development" class="btn">Support Development</a>
-      <div align="right"><b>all rights belong to their respective owners</b><br>Battlefield 4, Battlefield Hardline, Dragon Age: Inquisition, Plants vs. Zombies, Star Wars: Battlefront, Need for Speed<br><i>Mass Effect: Andromeda, Mirror's Edge Catalyst</i></div>
+      <div align="center"><b>all rights belong to their respective owners</b><br>Battlefield 4, Battlefield Hardline, Dragon Age: Inquisition, Plants vs. Zombies, Star Wars: Battlefront, Need for Speed<br><i>Mass Effect: Andromeda, Mirror's Edge Catalyst</i></div>
     </section>
     <section class="main-content" style="max-width:970px; margin:0 auto;">
       <h1>
@@ -81,40 +81,45 @@ And if anyone who is talented would contribute,
 we will have a working editor with a bunch of features soon!</pre>
           
           </p>
-    </tr>
-    <tr>
-      <td width="800px"><b>Latest changelog:</b><br>
-                            -Map Editor loading (10-Feb-16)<br>
-                            -Mod loader changed (08-Feb-16)<br>
-                            -Bf4 server support (07-Feb-16)<br>
-                            -Recompile NON-CAS implementation (05-Feb-16)<br>
-                            -EBXCreator returns working EBXFile (16-Jan-16)<br>
-                            -Bugfix (10-Jan-16)<br>
-                            -EBXCreator preparations (24-Dec-15)<br>
-                            -Visual, Cas + NonCas Support update (14-Dec-15)</td>
-    </tr>
-    <tr>
-     <td width="800px"><b>ZLOEmu:</b><br>
-      BF4 Private Servers coming soon! <a href="https://www.youtube.com/watch?v=KcD3nBofSPY">http://youtube.com/...</a><br>
-	  Don't ask how to join Beta! You will be choosen.<br>
-	  <a href="http://zlogames.ru/index.php?/topic/5187/">Take the chance in our closed beta giveaway!</a><br>
-	  </td>
-    </tr>
-    
+    </tr> 
   </tbody>
 </table>
 <br>
 <table>
   <tbody>
     <tr>
-      <td width="800px"><b>No full NON-CAS implementation yet!</b><br>Convertion from NON-CAS to CAS and PATCHED NON-CAS TO BASE NON-CAS possible in the future!</td>
+      <td width="800px"><b>Latest changelog:</b><br>
+                            <a class="anchor" href="#poc" aria-hidden="true"><span class="octicon octicon-link"></span>Progress February (YT-Video)</a><br>
+                            -EBX Editor (tmp, until fix) (29-Feb-16)<br>
+                            -Implementation for NON-CAS patched to base. (20-Feb-16)<br>
+                            -Bugfix (18-Feb-16)<br>
+                            -Full BF4 Server support (17-Feb-16)<br>
+                            -Per Pixel Object Selection (16-Feb-16)<br>
+                            -Map Editor loading (10-Feb-16)<br>
+                            -Mod loader changed (08-Feb-16)<br>
+                            -Core BF4 server support (07-Feb-16)<br>
+                            -Recompile NON-CAS implementation (05-Feb-16)<br>
+							<a id="pocJan" class="anchor" href="https://www.youtube.com/watch?v=P_qxIZzI3lo" aria-hidden="true"><span class="octicon octicon-link"></span>Progress January (YT-Video)</a><br>
+                            -EBXCreator returns working EBXFile (16-Jan-16)<br>
+                            -Bugfix (10-Jan-16)<br>
+                            -EBXCreator preparations (24-Dec-15)<br>
+                            -Visual, Cas + NonCas Support update (14-Dec-15)</td>
+    </tr>    
+  </tbody>
+</table>
+<br>
+<table>
+  <tbody>
+    <tr>
+	  <td width="800px"><b>ZLOEmu:</b><br>
+      BF4 Private Servers coming soon! <a href="https://www.youtube.com/watch?v=KcD3nBofSPY">http://youtube.com/...</a><br>
+	  Don't ask how to join Beta! You will be choosen.<br>
+	  <strike><a href="http://zlogames.ru/index.php?/topic/5187/">Take the chance in our closed beta giveaway!</a></strike><br>
+	  </td>
     </tr>
   </tbody>
 </table>
-
-
-<p><br></p>
-
+<br>
 <table>
   <tbody>
     <tr>
@@ -125,7 +130,7 @@ we will have a working editor with a bunch of features soon!</pre>
         -Loading General Content (CAS) 95% ✓<br>
         -Extract EBX Files 99.9% ✓<br>
         -Modify EBX Files 95% ✓<br>
-        -EBX Editor 80% ✗<br>
+        -EBX Editor 90% ✗<br>
         -Extract ITexture Files to DDS 100% ✓<br>
         -Modify DDS and recompile to ITexture 99.8% ✓<br>
         -Extract MESH Files Geometry + UVs 90% ✓<br>
@@ -134,9 +139,9 @@ we will have a working editor with a bunch of features soon!</pre>
         -Convert Mesh,UVs and Normals to Wavefront OBJ 99% ✓<br>
         -Recompile Mesh from OBJ 0% ✗<br>
         -Extract Sound Files 0% ✗<br>
-        -Mod Loader 80.0% ✗<br>
+        -Mod Loader 90.0% ✗<br>
         -New Version Alert 100% ✓<br>
-        <strike>-Clone client using Hardlinks 100% ✓</strike><br>
+        <i><strike>-Clone client using Hardlinks 100% ✓</strike></i><br>
         -Apply Modified EBX 100% ✓<br>
         -Apply Mesh 0% ✗<br>
         -Apply ITexture 90% (CAS-Only) ✓<br>
@@ -147,10 +152,11 @@ we will have a working editor with a bunch of features soon!</pre>
     <tr>
       <td width="800px"><b>Editor-Pipeline:</b><br>
        <div align="center">
-        <strike>-Axis Aligned Raycasting 100% ✓<br></strike>
-        -Axis Aligned Bouding Boxes 100% ✓<br>
-        -Advanced Raycasting 0% ✗<br>
-        -Advanced Hit Boxes 0% ✗<br>
+        <strike><i>-Axis Aligned Raycasting 100% ✓</i><br></strike>
+        <strike><i>-Axis Aligned Bouding Boxes 100% ✓</i><br></strike>
+        -Per Pixel Object Picking 100% ✓<br>
+        <strike><i>-Advanced Raycasting 0% ✗</i><br></strike>
+        <strike><i>-Advanced Hit Boxes 0% ✗</i><br></strike>
         -Change Lightning 0% ✗<br>
         -Change MouseSpeed 100% ✓<br>
         -Object Selection 99.9% ✓<br>
@@ -160,7 +166,7 @@ we will have a working editor with a bunch of features soon!</pre>
         -Modify EBX Structure from Map Editor 0% ✗<br>
         -Light support 0% ✗<br>
         -Advanced Shading 0% ✗<br>
-        -Efficient gpu memory management 0% ✗
+        -Efficient gpu memory management 60% ✗
         </div>
       </td>
     </tr>
@@ -180,13 +186,24 @@ we will have a working editor with a bunch of features soon!</pre>
 </table>
 
 <p><br></p>
+<table>
+  <tbody>
+    <tr>
+      <td width="800px"><h1>Project Goal</h1>A working Editor, that allows to modify Frostbite 3 Games as you like.<img src="images/frosted.jpg"></img><i>Source: FrostED (Official Frostbite 3 Editor)</i></td>
+    </tr>
+  </tbody>
+</table>
 
 <h1>
-<a id="poc" class="anchor" href="#poc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Progress January</h1>
-<p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/P_qxIZzI3lo" frameborder="0" allowfullscreen></iframe></p>
+<a id="poc" class="anchor" href="#poc" aria-hidden="true"><span class="octicon octicon-link"></span></a>Progress February</h1>
+<p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/Opnxa3YD9MQ" frameborder="0" allowfullscreen></iframe></p>
+<p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/t5IbEE0sXyM" frameborder="0" allowfullscreen></iframe></p>
 <h1>
 <a id="bots" class="anchor" href="#bots" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bots on ZLOBf4</h1>
 <p align="center"><iframe width="560" height="315" src="https://www.youtube.com/embed/dFPM1aLx06I" frameborder="0" allowfullscreen></iframe></p>
+<h1>
+<a id="linux_server" class="anchor" href="#linux_server" aria-hidden="true"><span class="octicon octicon-link"></span></a>BF4 Server on Linux</h1>
+<p align="center"><img width="560" height="315" src="images/linux_r56.JPG"></img></p>
 
 
 <h1>
@@ -199,7 +216,7 @@ we will have a working editor with a bunch of features soon!</pre>
       <td><a href="https://www.youtube.com/channel/UCIUZVqKXJcSoHEesEtIAXKg">https://www.youtu.be/..</a></td>
     </tr>
     <tr>
-      <td>Twitter</td>
+      <td>Twitter (less active):</td>
       <td><a href="https://twitter.com/GreyDynamics">@GreyDynamics</a></td>
     </tr>
   </tbody>
@@ -244,7 +261,7 @@ So helping this project by contributing would be really nice!</p>
 
 <p>If you’d like to make a donation for all the hard work, I’d appreciate it.</p>
 
-<p><a href="mailto:greydynamics@gmail.com">Send me a mail to greydynamics@gmail.com</a></p>
+<p><a href="mailto:greydynamics@gmail.com">Send me a mail to greydynamics@gmail.com and let me know under one of my youtube videos.</a></p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/GreyDynamics/FrostBite3_Editor">Frostbite 3 Editor</a> is maintained by <a href="https://github.com/GreyDynamics">GreyDynamics</a>.</span>
