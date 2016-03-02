@@ -6,7 +6,14 @@ out vec4 out_Color;
 uniform sampler2D textureSampler;
 uniform float isHighlighted;
 uniform vec3 heighlightedColor;
+uniform float isPicker;
+uniform vec3 pickerColor;
 
 void main(void){
-	out_Color = texture(textureSampler, pass_texCoord) * vec4(1-(isHighlighted*heighlightedColor.x), 1-(isHighlighted*heighlightedColor.y), 1-(isHighlighted*heighlightedColor.z), 1);
+	if(isPicker>0.0) {
+		out_Color = vec4(1-(pickerColor.x), 1-(pickerColor.y), 1-(pickerColor.z), 1);
+	} else {
+		out_Color = texture(textureSampler, pass_texCoord) * vec4(1-(isHighlighted*heighlightedColor.x), 1-(isHighlighted*heighlightedColor.y), 1-(isHighlighted*heighlightedColor.z), 1);
+	}
+	
 }

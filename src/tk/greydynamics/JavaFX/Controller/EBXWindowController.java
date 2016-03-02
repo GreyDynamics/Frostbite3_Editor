@@ -1,6 +1,7 @@
 package tk.greydynamics.JavaFX.Controller;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
@@ -17,9 +18,12 @@ import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
 public class EBXWindowController {
 	@FXML
 	private TreeView<Object> ebxExplorer;
+	@FXML
+	private MenuItem saveEBXMenuItem;
 	
 	private EBXWindow window;
 	private Stage stage;
+	private byte[] originalBytes;
 	
 	
 	public void createLayer(){
@@ -75,34 +79,56 @@ public class EBXWindowController {
 					
 					
 					EBXFile test = Core.getGame().getResourceHandler().getEBXHandler().loadFile(ebxBytes);
-					Core.getJavaFXHandler().getMainWindow().createEBXWindow(test, "recreated ebx test", false);
-					if (test==null){
-						System.err.println("unable to compile a valid ebx.");
+					Core.getJavaFXHandler().getMainWindow().createEBXWindow(null, test, "recreated ebx test", false);
+					if (test==null){						
+						Core.getJavaFXHandler().getDialogBuilder().showAsk("ERROR",
+								"The compiler was unable to compile a new EBXFile.\n"
+							  + "Do you want to save the changed data instead ? \n\n(only considered: Float, Int, UInt, Short, UShort, Byte, Bool)", new Runnable() {	
+									@Override
+									public void run() {
+										saveEBX();
+									}
+								}, null);
 						return false;
+					}else{
+						Core.getJavaFXHandler().getDialogBuilder().showInfo("INFORMATION", "If the test was successful, the game maybe reject the file!");
 					}
-					
-					String resPath = resLinkName+".ebx";
-					
-					String currentToc = FileHandler.normalizePath(Core.getGame().getCurrentFile()).replace(Core.gamePath, "");
-					Package pack = Core.getModTools().getPackage(currentToc);
-					Core.getModTools().extendPackage(
-							LinkBundleType.BUNDLES,
-							Core.getGame().getCurrentBundle().getName(),
-							ResourceType.EBX,
-							resPath,
-							null,
-							pack
-					);
-					
-					FileHandler.writeFile(Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+resPath, ebxBytes);
-					Core.getModTools().writePackages();
-					Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
-					Core.getGame().getResourceHandler().resetEBXRelated();
-					return true;
+					return saveData(resLinkName, ebxBytes, false);
 				}
 			}
 		}
 		return false;
+	}
+	
+	private boolean saveData(String resLinkName, byte[] ebxBytes, boolean isDEBUG){
+		String resPath = resLinkName+".ebx";
+		
+		if (isDEBUG){
+			System.err.println("saveData - DEBUG!");
+			EBXFile test = Core.getGame().getResourceHandler().getEBXHandler().loadFile(ebxBytes);
+			Core.getJavaFXHandler().getMainWindow().createEBXWindow(null, test, "changed ebx test", false);
+			System.out.println("data would be saved to "+Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+resPath);
+			FileHandler.writeFile("temp/debug/saveDataEBX", ebxBytes);
+			
+		}else{
+			String currentToc = FileHandler.normalizePath(Core.getGame().getCurrentFile()).replace(Core.gamePath, "");
+			Package pack = Core.getModTools().getPackage(currentToc);
+			Core.getModTools().extendPackage(
+					LinkBundleType.BUNDLES,
+					Core.getGame().getCurrentBundle().getName(),
+					ResourceType.EBX,
+					resPath,
+					null,
+					pack
+			);
+			
+			FileHandler.writeFile(Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+resPath, ebxBytes);
+			Core.getModTools().writePackages();
+		}
+		
+		Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+		Core.getGame().getResourceHandler().resetEBXRelated();
+		return true;
 	}
 	
 	public void saveEBX(){
@@ -110,29 +136,13 @@ public class EBXWindowController {
 			if (Core.getGame().getCurrentMod()!=null&&!Core.isDEBUG){
 				String resLinkName = window.getStage().getTitle();
 				if (window.getEBXFile()!=null){
-//					Replaced with compile
-					
-					
-					
-					
-//					String resPath = resLinkName+".ebx";
-//					
-//					String test = Core.getGame().getCurrentToc().getName();
-//					Package pack = Core.getModTools().getPackage(test);
-//					Core.getModTools().extendPackage(
-//							LinkBundleType.BUNDLES,
-//							Core.getGame().getCurrentBundle().getBasePath(),//TODO is this basePath ?ß 
-//							ResourceType.EBX,
-//							resPath,
-//							pack
-//					);
-//					
-//					FileHandler.writeFile(Core.getGame().getCurrentMod().getPath()+ModTools.FOLDER_RESOURCE+resPath, new byte[] {0x00});
-//					Core.getModTools().writePackages();
-//					Core.getGame().getResourceHandler().resetEBXRelated();
-//					Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+					if (originalBytes!=null){
+						saveData(resLinkName, originalBytes, false/*debug*/);
+					}
 				}
 			}
+		}else{
+			System.err.println("No data to save :(");
 		}
 	}
 	public void update(EBXFile ebxFile){
@@ -157,6 +167,18 @@ public class EBXWindowController {
 
 	public void setWindow(EBXWindow window) {
 		this.window = window;
+	}
+
+	public byte[] getOriginalBytes() {
+		return originalBytes;
+	}
+
+	public void setOriginalBytes(byte[] originalBytes) {
+		this.originalBytes = originalBytes;
+	}
+
+	public MenuItem getSaveEBXMenuItem() {
+		return saveEBXMenuItem;
 	}
 	
 	

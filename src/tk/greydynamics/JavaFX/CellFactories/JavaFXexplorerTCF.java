@@ -90,6 +90,7 @@ public class JavaFXexplorerTCF extends TreeCell<TreeViewEntry> {
 													baseSize = (int) baseEntry.getSizeLong();
 												}
 												byte[] baseBundleBytes = FileHandler.readFile(baseEntry.getBundlePath(), baseEntry.getOffset(), baseSize);
+												FileHandler.writeFile("temp/baseBundle_nonCas", baseBundleBytes);
 												byte[] deltaBundleBytes = FileHandler.readFile(entry.getBundlePath(), entry.getOffset(), size);
 												if (baseBundleBytes!=null&&deltaBundleBytes!=null){
 													//System.out.println("BASE FOUND! "+base.getAbsolutePath());

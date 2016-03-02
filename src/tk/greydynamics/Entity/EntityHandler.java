@@ -33,10 +33,15 @@ public class EntityHandler {
 	
 	public ModelHandler modelHandler;
 	public ResourceHandler resourceHandler;
+	private EntityPicker entityPicker;
 	
 	public EntityHandler(ModelHandler modelHandler, ResourceHandler resourceHandler) {
 		this.modelHandler = modelHandler;
 		this.resourceHandler = resourceHandler;
+		this.entityPicker = new EntityPicker();
+	}
+	public Entity pickEntity(Vector3f pickingColor){
+		return entityPicker.getPickedEntityFromLayers(pickingColor, layers);
 	}
 	
 	public EntityLayer createEntityLayer(EBXFile ebxFile){
@@ -138,8 +143,10 @@ public class EntityHandler {
 	}
 	
 	
-	public Entity createEntity(byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
+	public Entity createEntity(Vector3f pickerColors, byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
 		try{
+			
+			
 			MeshChunkLoader msl = resourceHandler.getMeshChunkLoader();
 			msl.loadFile(mesh, Core.getGame().getCurrentBundle());
 			RawModel[] rawModels = new RawModel[msl.getSubMeshCount()];
@@ -169,10 +176,10 @@ public class EntityHandler {
 			Entity en = null;
 			switch (type){
 				case Object:
-					en = new ObjectEntity(msl.getName(), entityData, parent, rawModels, new EntityTextureData(meshInstanceGUID, null));
+					en = new ObjectEntity(msl.getName(), entityData, parent, rawModels, new EntityTextureData(meshInstanceGUID, null), pickerColors);
 					break;
 				case Light:
-					en = new LightEntity(msl.getName(), entityData, parent, rawModels);
+					en = new LightEntity(msl.getName(), entityData, parent, rawModels,  pickerColors);
 					break;
 			}
 			
@@ -223,6 +230,10 @@ public class EntityHandler {
 	
 	public ArrayList<EntityLayer> getLayers() {
 		return layers;
+	}
+
+	public EntityPicker getEntityPicker() {
+		return entityPicker;
 	}
 	
 	

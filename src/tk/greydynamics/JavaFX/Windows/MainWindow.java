@@ -75,11 +75,11 @@ public class MainWindow extends Application{
 		Core.getJavaFXHandler().setMainWindow(this);
 	}
 	
-	public boolean createEBXWindow(EBXFile ebxFile, String resName, boolean isOriginal){
+	public boolean createEBXWindow(byte[] originalBytes, EBXFile ebxFile, String resName, boolean isOriginal){
 		try{
 			Platform.runLater(new Runnable() {
 				public void run() {
-					EBXWindow window = new EBXWindow(ebxFile, resName, isOriginal);
+					EBXWindow window = new EBXWindow(originalBytes, ebxFile, resName, isOriginal);
 					ebxWindows.add(window);
 				}
 			});

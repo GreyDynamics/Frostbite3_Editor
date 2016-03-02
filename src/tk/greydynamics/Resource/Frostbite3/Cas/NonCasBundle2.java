@@ -8,13 +8,11 @@ import org.lwjgl.util.vector.Vector2f;
 import tk.greydynamics.Maths.Bitwise;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
-import tk.greydynamics.Resource.Frostbite3.Cas.Data.Block;
-import tk.greydynamics.Resource.Frostbite3.Cas.Data.BlockHeader;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter.ResourceBundleType;
 
-public class NonCasBundle extends Bundle{
+public class NonCasBundle2 extends Bundle{
 	
 	private NonCasBundleHeader header = null;
 	private ArrayList<String> sha1List = new ArrayList<>();
@@ -30,7 +28,7 @@ public class NonCasBundle extends Bundle{
 	
 	private int entriesIndex = 0;
 	
-	public NonCasBundle (String basePath, String deltaPath, String name, int baseOffset, int deltaOffset, byte[] baseBytes, byte[] deltaBytes) {
+	public NonCasBundle2 (String basePath, String deltaPath, String name, int baseOffset, int deltaOffset, byte[] baseBytes, byte[] deltaBytes) {
 		super(BundleType.UNDEFINED, basePath, deltaPath, name, baseOffset, deltaOffset);
 		originalBundleBaseSize = baseBytes.length;
 		ByteOrder order = ByteOrder.BIG_ENDIAN;
@@ -140,19 +138,15 @@ public class NonCasBundle extends Bundle{
 		    		deltaSeeker.setOffset(deltaPayloadOffset+199999);
 		    	}
 		    }
-		    ArrayList<Byte> entryBlockData = new ArrayList<Byte>();
-		    String target = "temp/patchedNONCAS.tmp";
-		    FileHandler.writeFile(target, patchedMeta, false, true);
-		    byte[] data = null;
+		    
 		    //the metadata is patched, now read it in to get the entries
 		    boolean success = setupBundle(FileHandler.toByteArray(patchedMeta), new FileSeeker(), order);
-		    int patchedOffset = 0;
 		    if (success){
 		    	int entriesIndex = 0;
 		    	
 		    	baseSeeker.setOffset(baseMetaSize+4); //bundle starts with int (containing metaSize incl. header but not itself) -> offset shifts +4!
 		    	NonCasBundleEntry entry = updateEntryOffset(baseSeeker, deltaSeeker, baseOffset, deltaOffset);
-		    	short compression = BlockHeader.BlockType_UnCompressed;
+		    	
 		    	while (deltaSeeker.getOffset()<(deltaEOF-1)&&!deltaSeeker.hasError()&&!baseSeeker.hasError()){
 		    		Vector2f vec2f = null;
 			    	try{
@@ -163,36 +157,23 @@ public class NonCasBundle extends Bundle{
 				    	switch (instructionType) {
 							case 0: //add base blocks without modification
 								for(int i=0; i<instructionSize;i++){
-									data = CompressionUtils.readBlock(baseBytes, baseSeeker);
-									FileHandler.addBytes(data, entryBlockData);
-									
-					                entry.setCurrentSize(entry.getCurrentSize()+data.length);
+									int fu = CompressionUtils.seekBlockData(baseBytes, baseSeeker);
+					                entry.setCurrentSize(entry.getCurrentSize()+fu);
 					                if (entry.getCurrentSize()==entry.getOriginalSize()){
 					                    entry=next(baseSeeker, deltaSeeker, baseOffset, deltaOffset);//updateSize of current Entry and go to next!
 					                    entry.setMidInstructionSize(instructionSize-i-1); //remaining iterations
 					                    entry.setMidInstructionType(instructionType);
-					                    
-					                    
-					                    FileHandler.writeFile(target, Block.compressBlock(null, entryBlockData, compression), true, true);
-					                    entryBlockData.clear();
 					                }
 								}
 								break;
 							case 1: //make larger fixes in the base block
-								data = CompressionUtils.readBlock(baseBytes, baseSeeker);
-								FileHandler.addBytes(data, entryBlockData);
-								
-								int baseBlock = data.length;
+								int baseBlock = CompressionUtils.seekBlockData(baseBytes, baseSeeker);
 								int prevOffset = 0;
 								for (int i=0; i<instructionSize; i++){
 									int targetOffset = FileHandler.readShort(deltaBytes, deltaSeeker, order)&0xFFFF;
 									int skipSize = FileHandler.readShort(deltaBytes, deltaSeeker, order)&0xFFFF;
 									entry.setCurrentSize(entry.getCurrentSize()+targetOffset+prevOffset);
-									
-									data = CompressionUtils.readBlock(deltaBytes, deltaSeeker);
-									FileHandler.addBytes(data, entryBlockData);
-									
-									entry.setCurrentSize(entry.getCurrentSize()+data.length);
+									entry.setCurrentSize(entry.getCurrentSize()+CompressionUtils.seekBlockData(deltaBytes, deltaSeeker));
 									prevOffset=targetOffset+skipSize;
 									if (entry.getCurrentSize()==entry.getOriginalSize()){
 										if (i!=instructionSize-1){
@@ -206,49 +187,32 @@ public class NonCasBundle extends Bundle{
 									entry.setCurrentSize(entry.getCurrentSize()+baseBlock-prevOffset);
 									if (entry.getCurrentSize()==entry.getOriginalSize()){
 						            	entry=next(baseSeeker, deltaSeeker, baseOffset, deltaOffset);//updateSize of current Entry and go to next!
-						            	
-						            	FileHandler.writeFile(target, Block.compressBlock(null, entryBlockData, compression), true, true);
-					                    entryBlockData.clear();
 						            }
 								}
 								break;
 							case 2: //make tiny fixes in the base block
-								data = CompressionUtils.readBlock(baseBytes, baseSeeker);
-								FileHandler.addBytes(data, entryBlockData);
-								
+								CompressionUtils.seekBlockData(baseBytes, baseSeeker);
 					            entry.setCurrentSize(entry.getCurrentSize()+(FileHandler.readShort(deltaBytes, deltaSeeker, order)&0xFFFF)+1);
 					            deltaSeeker.seek(instructionSize);
 					            if (entry.getCurrentSize()==entry.getOriginalSize()){
 					            	entry=next(baseSeeker, deltaSeeker, baseOffset, deltaOffset);//updateSize of current Entry and go to next!
-					            	
-					            	FileHandler.writeFile(target, Block.compressBlock(null, entryBlockData, compression), true, true);
-				                    entryBlockData.clear();
 					            }
 								break;
 							case 3: //add delta blocks directly to the payload
 								for (int i=0; i<instructionSize; i++){
-									data = CompressionUtils.readBlock(deltaBytes, deltaSeeker);
-									FileHandler.addBytes(data, entryBlockData);
-									
-									entry.setCurrentSize(entry.getCurrentSize()+data.length);
+									entry.setCurrentSize(entry.getCurrentSize()+CompressionUtils.seekBlockData(deltaBytes, deltaSeeker));
 									if (entry.getCurrentSize()>=entry.getOriginalSize()){
 					                    entry=next(baseSeeker, deltaSeeker, baseOffset, deltaOffset);//updateSize of current Entry and go to next!
 					                    entry.setMidInstructionSize(instructionSize-i-1); //remaining iterations
 					                    entry.setMidInstructionType(instructionType);
-					                    
-					                    FileHandler.writeFile(target, Block.compressBlock(null, entryBlockData, compression), true, true);
-					                    entryBlockData.clear();
 					                }
 								}
 								break;
 							case 4: //skip entire blocks, do not increase currentSize at all
 								for (int i=0; i<instructionSize; i++){
-									data = CompressionUtils.readBlock(baseBytes, baseSeeker);
-									FileHandler.addBytes(data, entryBlockData);
+									CompressionUtils.seekBlockData(baseBytes, baseSeeker);
 								}
-								FileHandler.writeFile(target, Block.compressBlock(null, entryBlockData, compression), true, true);
-			                    entryBlockData.clear();
-								break;
+								
 							default:
 								System.err.println("UNKNOWN PATCHED-NON-CAS PATCH TYPE: "+instructionType);
 								break;

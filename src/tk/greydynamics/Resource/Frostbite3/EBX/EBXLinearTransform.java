@@ -2,6 +2,7 @@ package tk.greydynamics.Resource.Frostbite3.EBX;
 
 import java.util.ArrayList;
 
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
 import tk.greydynamics.Maths.Matrices;
@@ -71,8 +72,30 @@ public class EBXLinearTransform {
 	}
 
 	public Vector3f getScaling() {
-		System.err.println("Can't get Scaling from EBXLinearTransform!\n"
-							+ "No function for this implemented yet.");
-		return new Vector3f(this.tranformations.get(0).length(), this.tranformations.get(1).length(), this.tranformations.get(2).length());
+		Matrix4f matrix = new Matrix4f();
+		//Create Transformation Matrix from Data.
+		matrix.m00 = this.tranformations.get(0).getX();
+		matrix.m01 = this.tranformations.get(0).getY();
+		matrix.m02 = this.tranformations.get(0).getZ();
+		
+		matrix.m10 = this.tranformations.get(1).getX();
+		matrix.m11 = this.tranformations.get(1).getY();
+		matrix.m12 = this.tranformations.get(1).getZ();
+		
+		matrix.m20 = this.tranformations.get(2).getX();
+		matrix.m21 = this.tranformations.get(2).getY();
+		matrix.m22 = this.tranformations.get(2).getZ();
+		
+		matrix.m03 = this.tranformations.get(3).getX();
+		matrix.m13 = this.tranformations.get(3).getY();
+		matrix.m23 = this.tranformations.get(3).getZ();
+		
+				
+		Matrix4f invertedRotationMatrix = (Matrix4f) Matrices.createTransformationMatrix(getTranformation(), getRotation(), new Vector3f(1.0f, 1.0f, 1.0f)).invert();
+
+		Matrix4f scaleMatrix = Matrix4f.mul(matrix, invertedRotationMatrix, null);
+//		System.out.println(scaleMatrix);
+				
+		return new Vector3f(scaleMatrix.m00, scaleMatrix.m11, scaleMatrix.m22);
 	}
 }

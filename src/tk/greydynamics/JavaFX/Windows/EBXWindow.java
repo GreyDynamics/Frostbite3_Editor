@@ -27,8 +27,8 @@ public class EBXWindow {
 	private Scene scene;
 	private EBXFile ebxFile;
 	private boolean isOriginalFile;
-
-	public EBXWindow(EBXFile ebxFile, String resLinkName, boolean isOriginal){
+	
+	public EBXWindow(byte[] originalBytes, EBXFile ebxFile, String resLinkName, boolean isOriginal){
 		this.isOriginalFile = isOriginal;
 		this.ebxFile = ebxFile;
 		try {
@@ -74,6 +74,10 @@ public class EBXWindow {
 	    });
 	    
 	    controller.update(ebxFile);
+	    controller.setOriginalBytes(originalBytes);
+	    if (originalBytes==null){
+	    	controller.getSaveEBXMenuItem().setDisable(true);
+	    }
 	}
 
 	public FXMLLoader getEbxWindowLoader() {
@@ -103,7 +107,6 @@ public class EBXWindow {
 	public boolean isOriginalFile() {
 		return isOriginalFile;
 	}
-	
 	
 	
 }

@@ -14,8 +14,8 @@
         <menus>
           <Menu mnemonicParsing="false" text="EBX">
             <items>
-              <MenuItem disable="true" mnemonicParsing="false" onAction="#saveEBX" text="Save to current Mod" />
-                  <MenuItem mnemonicParsing="false" onAction="#compileEBX" text="Compile EBX and save to Mod" />
+              <MenuItem fx:id="saveEBXMenuItem" mnemonicParsing="false" onAction="#saveEBX" text="Save (Float, Int, UInt, Short, UShort, Byte, Bool) to current Mod" />
+                  <MenuItem mnemonicParsing="false" onAction="#compileEBX" text="Compile EBX and save to Mod (EXPERIMENTAL, mostly fails!)" />
                   <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
             </items>
           </Menu>

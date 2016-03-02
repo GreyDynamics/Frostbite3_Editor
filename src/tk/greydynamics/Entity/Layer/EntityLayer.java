@@ -2,7 +2,10 @@ package tk.greydynamics.Entity.Layer;
 
 import java.util.ArrayList;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import tk.greydynamics.Entity.Entity;
+import tk.greydynamics.Entity.EntityPicker;
 
 public class EntityLayer {
 	private String name;
@@ -24,5 +27,4 @@ public class EntityLayer {
 	public void setName(String name) {
 		this.name = name;
 	}
-	
 }

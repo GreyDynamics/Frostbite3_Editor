@@ -20,11 +20,11 @@ import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter.ImageType;
 
 public class Loader {
-	public ArrayList<Integer> vaos = new ArrayList<Integer>();
-	public ArrayList<Integer> vbos = new ArrayList<Integer>();
-	public HashMap<String, Integer> textures = new HashMap<String, Integer>();
-	public int notFoundID;
-	public int crosshairID;
+	private ArrayList<Integer> vaos = new ArrayList<Integer>();
+	private ArrayList<Integer> vbos = new ArrayList<Integer>();
+	private HashMap<String, Integer> textures = new HashMap<String, Integer>();
+	private int notFoundID;
+	private int crosshairID;
 	
 	public RawModel loadVAO(String name, int drawMethod, float[] positions, float[] uvs, int[] indices){
 		int vaoID = createVAO();
@@ -51,13 +51,35 @@ public class Loader {
 	
 	public void cleanUp(){
 		for(int vao: vaos){
-			GL30.glDeleteVertexArrays(vao);
+			cleanVAO(vao, false);
 		}
+		vaos.clear();
 		for(int vbo: vbos){
-			GL15.glDeleteBuffers(vbo);
+			cleanVBO(vbo, false);
 		}
+		vbos.clear();
 		for(int texture: textures.values()){
-			GL11.glDeleteTextures(texture);
+			cleanTexture(texture, false);
+		}
+		textures.clear();
+	}
+	
+	public void cleanVAO(int vaoID, boolean deleteFromList){
+		GL30.glDeleteVertexArrays(vaoID);
+		if (deleteFromList){
+			this.vaos.remove((Object) vaoID);
+		}
+	}
+	public void cleanVBO(int vboID, boolean deleteFromList){
+		GL15.glDeleteBuffers(vboID);
+		if (deleteFromList){
+			this.vbos.remove((Object) vboID);
+		}
+	}
+	public void cleanTexture(int textureID, boolean deleteFromList){
+		GL11.glDeleteTextures(textureID);
+		if (deleteFromList){
+			this.textures.remove((Object) textureID);
 		}
 	}
 	
@@ -154,6 +176,18 @@ public class Loader {
 		buffer.put(data);
 		buffer.flip();
 		return buffer;
+	}
+
+	public ArrayList<Integer> getVaos() {
+		return vaos;
+	}
+
+	public ArrayList<Integer> getVbos() {
+		return vbos;
+	}
+
+	public HashMap<String, Integer> getTextures() {
+		return textures;
 	}
 	
 }

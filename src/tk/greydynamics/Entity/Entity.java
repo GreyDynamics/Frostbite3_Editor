@@ -6,6 +6,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import tk.greydynamics.Game.Core;
 import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Model.RawModel;
 
@@ -16,44 +17,49 @@ public abstract class Entity {
 			Layer
 	};
 
-	public String name;
-	public Type type;
-	public Object entityObject;
+	private String name;
+	private Type type;
+	private Object entityObject;
 
-	public Vector3f position = new Vector3f(0.0f, 0.0f, 0.0f);
-	public Vector3f rotation = new Vector3f(0.0f, 0.0f, 0.0f);
-	public Vector3f scaling = new Vector3f(1.0f, 1.0f, 1.0f);
-	public Vector3f velocity = new Vector3f(0.0f, 0.0f, 0.0f);
+	private Vector3f position = new Vector3f(0.0f, 0.0f, 0.0f);
+	private Vector3f rotation = new Vector3f(0.0f, 0.0f, 0.0f);
+	private Vector3f scaling = new Vector3f(1.0f, 1.0f, 1.0f);
+	private Vector3f velocity = new Vector3f(0.0f, 0.0f, 0.0f);
 
-	public Boolean isVisible = true;
+	private Boolean isVisible = true;
 
-	public Boolean highlighted = false;
-	public Vector3f heighlightedColor = new Vector3f(0.5f, 0.0f, 0.0f);
-
-	public Vector3f minCoords = new Vector3f(0.0f, 0.0f, 0.0f);
-	public Vector3f maxCoords = new Vector3f(0.0f, 0.0f, 0.0f);
-	public boolean showBoundingBox = false;
-
-	public RawModel[] rawModels;
+	private Boolean highlighted = false;
+	private Vector3f heighlightedColor = new Vector3f(0.5f, 0.0f, 0.0f);
 	
-	public ArrayList<Entity> childrens = new ArrayList<>();
-	public Entity parent = null;
-	
-	public Matrix4f absMatrix = null;
-	public Matrix4f relMatrix = null;
-	public boolean recalculateAbs = true;
+	private Vector3f pickerColors = null;
 
-	public Entity(String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels) {
+	private Vector3f minCoords = new Vector3f(0.0f, 0.0f, 0.0f);
+	private Vector3f maxCoords = new Vector3f(0.0f, 0.0f, 0.0f);
+	private boolean showBoundingBox = false;
+
+	private RawModel[] rawModels;
+	
+	private ArrayList<Entity> childrens = new ArrayList<>();
+	private Entity parent = null;
+	
+	private Matrix4f absMatrix = null;
+	private Matrix4f relMatrix = null;
+	private boolean recalculateAbs = true;
+	
+	private int lastPokeTick = 0;
+
+	public Entity(String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels, Vector3f parentPickingColors) {
 		this.name = name;
 		this.type = type;
 		this.parent = parent;
 		this.rawModels = rawModels;
 		this.entityObject = entityObject;
 		recalculateRelMatrix();
+		initPickingColors(parentPickingColors);
 	}
 
 	public Entity(String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels,
-			Vector3f minCoords, Vector3f maxCoords) {		
+			Vector3f minCoords, Vector3f maxCoords, Vector3f parentPickingColors) {		
 		this.name = name;
 		this.type = type;
 		this.parent = parent;
@@ -62,6 +68,7 @@ public abstract class Entity {
 		this.maxCoords = maxCoords;
 		this.entityObject = entityObject;
 		recalculateRelMatrix();
+		initPickingColors(parentPickingColors);
 	}
 
 	public void changePosition(float dx, float dy, float dz) {
@@ -315,10 +322,42 @@ public abstract class Entity {
 	public void recalculateRelMatrix(){
 		this.relMatrix =  Matrices.createTransformationMatrix(position,
 				rotation, scaling);
+		this.recalculateAbs = true;
 	}
 	
 	public void recalculateAbsMatrix(Matrix4f parentMtx){
 		this.absMatrix = Matrix4f.mul(parentMtx, relMatrix, null);
+	}
+	
+	public static Vector3f randomizedPickerColors(){
+		return new Vector3f(Core.random.nextFloat(), Core.random.nextFloat(), Core.random.nextFloat());
+	}
+
+	public Vector3f getPickerColors() {
+		return pickerColors;
+	}
+	public void initPickingColors(Vector3f parentPickingColors){
+		if (parentPickingColors!=null){
+			this.pickerColors = parentPickingColors;
+		}else{
+			this.pickerColors = randomizedPickerColors();
+		}
+	}
+
+	public void setRawModels(RawModel[] rawModels) {
+		this.rawModels = rawModels;
+	}
+	
+	public void pokeRawModels(int currentTick){
+		if (this.lastPokeTick<currentTick){
+			//Only do it, every tick.
+			this.lastPokeTick = currentTick;
+			if (this.rawModels!=null){
+				for (RawModel m : this.rawModels){
+					m.poke();
+				}
+			}
+		}
 	}
 
 	public abstract void update();

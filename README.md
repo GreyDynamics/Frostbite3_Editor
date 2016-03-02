@@ -1,2 +1,3 @@
 <h1>Repository now maintained by GreyDynamics.<h1>
-<a href="http://greydynamics.github.io/Frostbite3_Editor/">Press this text to get on the Website of this Editor.</a>
+<img src="http://greydynamics.github.io/Frostbite3_Editor/images/screencapture-greydynamics-github-io-Frostbite3_Editor.png"></img>
+<a href="http://greydynamics.github.io/Frostbite3_Editor/">Read more.</a>

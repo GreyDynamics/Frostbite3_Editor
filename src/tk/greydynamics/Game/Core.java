@@ -16,12 +16,15 @@ import javax.imageio.ImageIO;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
+import org.lwjgl.util.vector.Vector3f;
 import org.newdawn.slick.opengl.ImageIOImageData;
 
 import tk.greydynamics.Messages;
 import tk.greydynamics.Event.EventHandler;
 import tk.greydynamics.JavaFX.JavaFXHandler;
+import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Mod.ModTools;
 import tk.greydynamics.Render.Render;
 import tk.greydynamics.Render.Gui.GuiTexture;
@@ -87,10 +90,6 @@ public class Core {
 //		System.out.println("Scale Y: "+forward.length());
 //		System.out.println("Scale Z: "+right.length());
 //		System.exit(0);		
-//		
-		
-		
-		
 		
 		
 		String argLine = ""; //$NON-NLS-1$
@@ -183,44 +182,14 @@ public class Core {
 				game.getShaderHandler().init();
 				game.buildExplorerTree();
 				game.getGuis().add(new GuiTexture(game.getModelHandler().getLoader().getCrosshairID(), new Vector2f(0.0f, 0.0f), new Vector2f(0.15f, 0.15f)));
-				render = new Render(game);	
+				render = new Render(game);
 				inputHandler = new InputHandler();
 				
+				//Debug - PickingFrameBufferImage
+				game.getGuis().add(new GuiTexture(render.getFrameBufferHandler().getPickingTexture(), new Vector2f(-0.5f, 0.5f), new Vector2f(0.5f, -0.3f)));
 				
-				
-				
-				
-				
-				
-				/*
-				MeshChunkLoader msl = game.getResourceHandler().getMeshChunkLoader();
-				msl.loadFile(FileHandler.readFile("C:\\Program Files (x86)\\Origin Games\\Battlefield 4\\single_dump_fs_xp7\\bundles\\res\\xp7\\levels\\mp_valley\\objects\\props\\signs\\sign_02_mesh 6d14a9804ba3fcbd 6002000080000000340000007000c000.mesh"), Core.getGame().getCurrentBundle());
-				RawModel[] rawModels = new RawModel[msl.getSubMeshCount()];
-				for (int submesh=0; submesh<msl.getSubMeshCount();submesh++){
-					RawModel model = game.getModelHandler().addRawModel(GL11.GL_TRIANGLES, msl.getName()+submesh, msl.getVertexPositions(submesh), msl.getUVCoords(submesh), msl.getIndices(submesh));
-					
-					int textureID = game.getModelHandler().getLoader().getNotFoundID();
-					rawModels[submesh] = model;
-				}
-				Entity en = new ObjectEntity("test", null, null, rawModels, null);
-				EntityLayer layer = new EntityLayer("testlayer");
-				layer.getEntities().add(en);
-				game.getEntityHandler().getLayers().add(layer);
-				*/
-				
-				
-				
-				
-				
-				
-				
-				/*EntityLayer testLayer = new EntityLayer("test");
-				Entity parentEnt = new ObjectEntity("test", null, null, null);
-				stackEntityTest(0, 15, parentEnt);//15 means ~65.000!!!
-				testLayer.getEntities().add(parentEnt);
-				game.getEntityHandler().getLayers().add(testLayer);*/
 								
-				while(!Display.isCloseRequested() && keepAlive){
+				while(!Display.isCloseRequested() && keepAlive && runEditor){
 					currentTime = (int) (System.currentTimeMillis()%1000/(1000/TICK_RATE));
 					if (currentTime != oldTime){
 						oldTime = currentTime;
@@ -228,8 +197,12 @@ public class Core {
 						
 						//update at rate
 						game.update();
+						game.getModelHandler().addLifeTick();
 						if (currentTick%(TICK_RATE/4)==0){//0.25xTICK_RATE
 							game.lowRateUpdate();
+						}
+						if (currentTick%(TICK_RATE*10)==0){//Every 10 Seconds
+							game.getModelHandler().cleanUnused();
 						}
 						eventHandler.listen();
 					}
@@ -253,8 +226,12 @@ public class Core {
 					
 					
 				}
-				game.getModelHandler().getLoader().cleanUp(); //CleanUp GPU-Memory!
+				//CleanUp GPU-Memory!
+				game.getModelHandler().getLoader().cleanUp();
 				game.getShaderHandler().cleanUpAll();
+				render.getFrameBufferHandler().cleanUp();
+				runEditor = false;
+				keepAlive = false;
 			}
 		}
 		System.out.println(Messages.getString("Core.26") //$NON-NLS-1$

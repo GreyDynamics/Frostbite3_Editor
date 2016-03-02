@@ -12,8 +12,8 @@ public class Block {
 	public static int blockHeaderNumBytes = 8;//4 size, 2 type, 2 compressed size
 	
 	
-	public static ArrayList<Byte> compressBlock(byte[] decompressedBytes, short compression){
-		if (decompressedBytes==null){return null;}
+	public static ArrayList<Byte> compressBlock(byte[] decompressedBytes, ArrayList<Byte> decompressedList, short compression){
+		if (decompressedBytes==null&&decompressedList==null){return null;}
 		ArrayList<Byte> procEntries = new ArrayList<Byte>();
 		if (compression == BlockHeader.BlockType_Compressed_LZ4||compression == BlockHeader.BlockType_Compressed_DAI){
 			System.err.println("Compression for "+compression+" not implemented yet.");
@@ -23,22 +23,37 @@ public class Block {
 		byte[] compressionType = FileHandler.toBytes((short) compression, ByteOrder.BIG_ENDIAN);
 		
 		/*HANDLE BLOCK LOGIC*/
-		int blocks = calculateNumberOfBlocks(decompressedBytes.length);
+		int decompressedSize = 0;
+		if (decompressedBytes!=null){
+			decompressedSize = decompressedBytes.length;
+		}else{
+			decompressedSize = decompressedList.size();
+		}
+		int blocks = calculateNumberOfBlocks(decompressedSize);
 		//System.out.println(blockContent);
 		System.out.println("Building "+(blocks+1)+" blocks in total.");
-		int restLen = decompressedBytes.length - (blocks * blockContent);
+		int restLen = decompressedSize - (blocks * blockContent);
 		for (int i=0; i<blocks; i++){
 			FileHandler.addBytes(FileHandler.toBytes(blockSize, ByteOrder.BIG_ENDIAN), procEntries);//int
 			FileHandler.addBytes(compressionType, procEntries);
 			FileHandler.addBytes(FileHandler.toBytes((short) (blockContent&0xFFFF), ByteOrder.BIG_ENDIAN), procEntries);
-			FileHandler.addBytes(decompressedBytes, procEntries, i*blockContent, blockContent);
+			if (decompressedBytes!=null){
+				FileHandler.addBytes(decompressedBytes, procEntries, i*blockContent, blockContent);
+			}else{
+				FileHandler.addBytes(decompressedList, procEntries, i*blockContent, blockContent);
+			}
 		}
 		
 		/*FILL REST*/
 		FileHandler.addBytes(FileHandler.toBytes(restLen, ByteOrder.BIG_ENDIAN), procEntries);
 		FileHandler.addBytes(compressionType, procEntries); // 0x0070 -- uncompressed || 0x0970 lz4 compressed || 0x0071 -- uncompressed no payload || 0x0000 -- empty payload
 		FileHandler.addBytes(FileHandler.toBytes((short) restLen, ByteOrder.BIG_ENDIAN), procEntries);
-		FileHandler.addBytes(decompressedBytes, procEntries, blocks*blockContent, restLen);
+		
+		if (decompressedBytes!=null){
+			FileHandler.addBytes(decompressedBytes, procEntries, blocks*blockContent, restLen);
+		}else{
+			FileHandler.addBytes(decompressedList, procEntries, blocks*blockContent, restLen);
+		}
 		
 		return procEntries;
 	}

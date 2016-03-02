@@ -566,8 +566,22 @@ public class FileHandler {
 			return false;
 		}
 	}
+	public static boolean addBytes(ArrayList<Byte> sourceList, ArrayList<Byte> targetList, int startIdx, int length){
+		try{
+			for (int i=startIdx; i<(startIdx+length);i++){
+				targetList.add(sourceList.get(i));
+			}
+			return true;
+		}catch (Exception e){
+			System.err.println("Something wrent wrong while adding byte's from list to list.");
+			return false;
+		}
+	}
 	public static boolean addBytes(byte[] sourceArr, byte[] targetArr, FileSeeker seeker){
 		return addBytes(sourceArr, 0, sourceArr.length, targetArr, seeker);
+	}
+	public static boolean addBytes(byte[] sourceArr, byte[] targetArr, int targetOffset){
+		return addBytes(sourceArr, 0, sourceArr.length, targetArr, new FileSeeker(targetOffset));
 	}
 	
 	public static boolean overrideBytes(byte[] sourceArr, byte[] targetArr, int targetOffset){
@@ -754,6 +768,7 @@ public class FileHandler {
 		}
 		return true;
 	}
+	
 	
 //	static void listfdir(String directoryName, ArrayList<File> files , String contains) {
 //	    File directory = new File(directoryName);

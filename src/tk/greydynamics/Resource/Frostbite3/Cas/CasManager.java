@@ -40,7 +40,7 @@ public class CasManager {
 		System.err.println("CasManager is extending the CAS using a custom max. block size\n"+
 				"we should change it to the default and set each block compressed size to 0x0!");
 		
-		ArrayList<Byte> procEntries = Block.compressBlock(decompressedBytes, BlockHeader.BlockType_UnCompressed);
+		ArrayList<Byte> procEntries = Block.compressBlock(decompressedBytes, null, BlockHeader.BlockType_UnCompressed);
 		/*EXTEND AND RETURN NEW ENTRY!*/
 		int casEntryOffset = (int) cas.length(); //Max file size is anyways less than 2GB's so we can go with integers.
 		if (FileHandler.writeFile(FileHandler.normalizePath(cas.getAbsolutePath()), FileHandler.toByteArray(procEntries), true)){

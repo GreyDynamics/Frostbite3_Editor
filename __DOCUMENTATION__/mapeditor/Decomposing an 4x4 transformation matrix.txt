@@ -1,0 +1,13 @@
+Vector3f orgLoc = new Vector3f(0.0f, 0.0f, 0.0f);
+Vector3f orgRot = new Vector3f(-5.0f, 1.0f, 0.0f);
+Vector3f orgScale = new Vector3f(5.0f, 5.0f, 5.0f);
+		
+Matrix4f matrix = Matrices.createTransformationMatrix(new Vector3f(orgLoc), orgRot, new Vector3f(orgScale));
+System.out.println(matrix);
+		
+Matrix4f invertedRotationMatrix = (Matrix4f) Matrices.createTransformationMatrix(new Vector3f(orgLoc), new Vector3f(orgRot), new Vector3f(1.0f, 1.0f, 1.0f)).invert();
+System.out.println(invertedRotationMatrix);
+
+Matrix4f scaleMatrix = Matrix4f.mul(matrix, invertedRotationMatrix, null);
+System.out.println(scaleMatrix);
+		

@@ -1,22 +1,25 @@
-package tk.greydynamics.Maths;
+package tk.greydynamics.Resource.Frostbite3;
 
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 
+import org.lwjgl.util.vector.Vector2f;
+
+import tk.greydynamics.Maths.Bitwise;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
 
 public class Patcher {
-	public static byte[] getPatchedData(byte[] decompressedBase, byte[] delta){
-		ArrayList<Byte> patchedData = getPatchedData(null, decompressedBase, delta, new FileSeeker("BASE in PATCHER"), new FileSeeker("DELTA in PATCHER"), false);
+	public static byte[] getPatchedCASData(byte[] decompressedBase, byte[] delta){
+		ArrayList<Byte> patchedData = getPatchedCASData(null, decompressedBase, delta, new FileSeeker("BASE in PATCHER"), new FileSeeker("DELTA in PATCHER"), false);
 		if (patchedData!=null){
 			return FileHandler.toByteArray(patchedData);
 		}
 		return null;
 	}
 	
-	private static ArrayList<Byte> getPatchedData(ArrayList<Byte> patchedData, byte[] decompressedBase, byte[] delta, FileSeeker baseSeeker, FileSeeker deltaSeeker, boolean isSubordinated){
+	private static ArrayList<Byte> getPatchedCASData(ArrayList<Byte> patchedData, byte[] decompressedBase, byte[] delta, FileSeeker baseSeeker, FileSeeker deltaSeeker, boolean isSubordinated){
 		if (decompressedBase.length == 0 || delta.length == 0){
 			System.err.println("Could not patch data, because of 0 length.");
 			return null;
@@ -231,12 +234,92 @@ public class Patcher {
 			pass same delta and base but calculate new base offset for relative offsets!
 			*/
 			//System.out.println("BASE CHANGE: "+(baseSeeker.getOffset()-newBaseOffset));
-			return getPatchedData(patchedData, decompressedBase, delta, baseSeeker, deltaSeeker, true);
+			return getPatchedCASData(patchedData, decompressedBase, delta, baseSeeker, deltaSeeker, true);
 			
 		}
 		if (!patchedData.isEmpty()){
 			//return FileHandler.convertFromList(patchedData);
 			return patchedData;
+		}
+		return null;
+	}
+	
+	public static byte[] getPatchedNONCASData(byte[] baseBytes, byte[] deltaBytes, ByteOrder order){
+		String desc = "getPatchedNONCASData - ";
+		Vector2f vec2f = null;
+		int instructionType = 0;
+		int instructionSize = 0;
+		FileSeeker baseSeeker = new FileSeeker(desc+"BaseSeeker");
+		FileSeeker deltaSeeker = new FileSeeker(desc+"DeltaSeeker");
+		ArrayList<Byte> patchedData = new ArrayList<>();
+		try{
+			vec2f = Bitwise.split1v7(FileHandler.readInt(deltaBytes, deltaSeeker, order));
+			instructionType = (int) vec2f.x;
+	    	instructionSize = (int) vec2f.y;
+//	    	System.out.println("instructionType: "+instructionType+" instructionSize: "+instructionSize);
+	    	switch (instructionType) {
+				case 0: //add base blocks without modification
+					for(int i=0; i<instructionSize;i++){
+						byte[] instructionData0 = CompressionUtils.readBlock(baseBytes, baseSeeker);
+						if (instructionData0==null){
+							System.err.println(desc+"failed to read InstructionData (0)");
+							return null;
+						}else{
+							FileHandler.addBytes(instructionData0, patchedData);
+						}
+					}
+					break;
+				case 1: //make larger fixes in the base block
+					int baseBlock = CompressionUtils.seekBlockData(baseBytes, baseSeeker);
+					int prevOffset = 0;
+					for (int i=0; i<instructionSize; i++){
+						int targetOffset = FileHandler.readShort(deltaBytes, deltaSeeker, order)&0xFFFF;
+						int skipSize = FileHandler.readShort(deltaBytes, deltaSeeker, order)&0xFFFF;
+						byte[] instructionData1 = CompressionUtils.readBlock(deltaBytes, deltaSeeker);
+						if (instructionData1==null){
+							System.err.println(desc+"failed to read InstructionData (1)");
+							return null;
+						}else{
+							FileHandler.addBytes(instructionData1, patchedData);
+						}
+					}
+					break;
+				case 2: //make tiny fixes in the base block
+					byte[] instructionData2 = CompressionUtils.readBlock(baseBytes, baseSeeker);
+					if (instructionData2==null){
+						System.err.println(desc+"failed to read InstructionData (2)");
+						return null;
+					}else{
+						FileHandler.addBytes(instructionData2, patchedData);
+					}
+		            FileHandler.readShort(deltaBytes, deltaSeeker, order);
+		            deltaSeeker.seek(instructionSize);
+					break;
+				case 3: //add delta blocks directly to the payload
+					for (int i=0; i<instructionSize; i++){
+						byte[] instructionData3 = CompressionUtils.readBlock(deltaBytes, deltaSeeker);
+						if (instructionData3==null){
+							System.err.println(desc+"failed to read InstructionData (2)");
+							return null;
+						}else{
+							FileHandler.addBytes(instructionData3, patchedData);
+						}
+					}
+					break;
+				case 4: //skip entire blocks, do not increase currentSize at all
+					for (int i=0; i<instructionSize; i++){
+						CompressionUtils.seekBlockData(baseBytes, baseSeeker);
+					}
+				default:
+					System.err.println("UNKNOWN PATCHED-NON-CAS PATCH TYPE: "+instructionType);
+					instructionSize = 0;
+					instructionType = 0;
+					break;
+			}
+	    	System.out.println("Successfully patched Base from Delta (Patched Size: "+patchedData.size()+").");
+	    	return FileHandler.toByteArray(patchedData);
+		}catch (NullPointerException e){
+			e.printStackTrace();
 		}
 		return null;
 	}

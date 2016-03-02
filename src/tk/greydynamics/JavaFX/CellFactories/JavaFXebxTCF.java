@@ -42,6 +42,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 	private EBXFile ebxFile;
 	private boolean isOriginal;
 	private EBXWindowController controller;
+	
 	public JavaFXebxTCF(EBXWindowController controller, EBXFile ebxFile, boolean isOriginal) {
 		this.ebxFile = ebxFile;
 		this.isOriginal = isOriginal;
@@ -213,7 +214,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 												ebxField.setValue(split[0], ebxField.getType());
 											}else if (split.length==3&&split[2].contains("(")){
 												//External
-												String externalGUID = (String) convertToObject(split[0]+" "+split[1], FieldValueType.ExternalGuid);
+												String externalGUID = (String) convertToObject(split[0]+" "+split[1], ebxField);
 												if (externalGUID!=null){
 													ebxField.setValue(externalGUID, ebxField.getType());
 												}else{
@@ -315,7 +316,13 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 						if (getTreeItem().getValue() instanceof EBXField){
 							EBXField ebxField = (EBXField) getTreeItem().getValue();
 							if (ebxField.getType()==FieldValueType.ExternalGuid||ebxField.getType()==FieldValueType.Guid){
-								String target = (String) (ebxField.getValue());
+								String target = null;
+								if (ebxField.getValue() instanceof EBXExternalGUID){
+									EBXExternalGUID externalGUID = (EBXExternalGUID) ebxField.getValue();
+									target = externalGUID.getFileGUID()+" "+externalGUID.getInstanceGUID();
+								}else{
+									target = (String) (ebxField.getValue());
+								}
 								if (target!=null){
 									String[] targetArr = target.split(" ");
 									if (targetArr.length==2){//guid has a file guid and instance guid
@@ -326,7 +333,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 										EBXFile file = eh.getEBXFileByGUID(targetArr[0], true/*tryLoad*/, readOriginal);
 										ResourceLink resLink = rs.getResourceLinkByEBXGUID(targetArr[0]);
 										if (file!=null&&resLink!=null){
-											Core.getJavaFXHandler().getMainWindow().createEBXWindow(file, resLink.getName(), readOriginal);
+											Core.getJavaFXHandler().getMainWindow().createEBXWindow(null, file, resLink.getName(), readOriginal);
 										}else{
 											System.err.println("Link can't be followed, cuz off missing data or link.");
 										}
@@ -361,7 +368,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 			if (getTreeItem().getValue()!=null){
 				if (getTreeItem().getValue() instanceof EBXField){
 					EBXField ebxField = (EBXField) getTreeItem().getValue();
-					Object newFieldValue = convertToObject(newValue, ebxField.getType());
+					Object newFieldValue = convertToObject(newValue, ebxField);
 					if (newFieldValue!=null){
 						ebxField.setValue(newFieldValue, ebxField.getType());
 					}else{
@@ -542,13 +549,14 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 		return null;
 	}
 
-	public Object convertToObject(String value, FieldValueType type){
+	public Object convertToObject(String value, EBXField field){
 		try{
 			EBXHandler ebxHandler = Core.getGame().getResourceHandler().getEBXHandler();
 			if (value.equals("null")){//hasNoPayloadData! aka. undefined null
 				return null;
 			}else{
-				switch(type){
+				byte[] tempValue = null;
+				switch(field.getType()){
 				case String:
 					return(value);
 					//			    		case Enum:
@@ -562,16 +570,28 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 				case Float:
 					float f = Float.valueOf(value);
 					//ebxHandler.getModifyHandler().addChange(ebxFile.getGuid(), ebxFile.getByteOrder(), isOriginal, item.getOffset(), f, EntryType.FLOAT);
+					
+					tempValue = FileHandler.toBytes((float) f);
+					FileHandler.addBytes(tempValue, controller.getOriginalBytes(), field.getOffset());
+					
 					return(f);
 					//			    		case DOUBLE:
 					//			    			return(Double.valueOf(value));
 				case Short:
 					short sh = Short.valueOf(value);
 					//ebxHandler.getModifyHandler().addChange(ebxFile.getGuid(), ebxFile.getByteOrder(), isOriginal, item.getOffset(), sh, EntryType.SHORT);
+
+					tempValue = FileHandler.toBytes((short) sh, ebxFile.getByteOrder());
+					FileHandler.addBytes(tempValue, controller.getOriginalBytes(), field.getOffset());
+					
 					return(sh);
 				case Integer:
 					Integer i = Integer.valueOf(value);
 					//ebxHandler.getModifyHandler().addChange(ebxFile.getGuid(), ebxFile.getByteOrder(), isOriginal, item.getOffset(), i, EntryType.INTEGER);
+					
+					tempValue = FileHandler.toBytes((int) i, ebxFile.getByteOrder());
+					FileHandler.addBytes(tempValue, controller.getOriginalBytes(), field.getOffset());
+					
 					return(i);
 					//			    		case LONG:
 					//			    			Long lon = Long.valueOf(value);
@@ -580,20 +600,32 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 				case UInteger:
 					long l = (Long.valueOf(value))& 0xffffffffL;
 					Integer ui = Integer.valueOf((int) (l&0xFFFFFFFF));
+					
+					tempValue = FileHandler.toBytes((int) ui, ebxFile.getByteOrder());
+					FileHandler.addBytes(tempValue, controller.getOriginalBytes(), field.getOffset());
+					
 					//ebxHandler.getModifyHandler().addChange(ebxFile.getGuid(), ebxFile.getByteOrder(), isOriginal, item.getOffset(), ui, EntryType.UINTEGER);
 					return(l);
 				case Byte:
 					byte b = FileHandler.hexToByte(value);
 					//ebxHandler.getModifyHandler().addChange(ebxFile.getGuid(), ebxFile.getByteOrder(), isOriginal, item.getOffset(), b, EntryType.BYTE);
+
+					FileHandler.addBytes(new byte[]{b}, controller.getOriginalBytes(), field.getOffset());
+					
 					return(b);
 					//			    		case RAW:
 					//			    			return(FileHandler.hexStringToByteArray(value));
 				case Bool:
 					if (value.equals("TRUE")){
 						//ebxHandler.getModifyHandler().addChange(ebxFile.getGuid(), ebxFile.getByteOrder(), isOriginal, item.getOffset(), (byte) 0x1, EntryType.BOOL);
+
+						FileHandler.addBytes(new byte[]{0x01}, controller.getOriginalBytes(), field.getOffset());
+						
 						return true;
 					}else{
 						//ebxHandler.getModifyHandler().addChange(ebxFile.getGuid(), ebxFile.getByteOrder(), isOriginal, item.getOffset(), (byte) 0x0, EntryType.BOOL);
+						
+						FileHandler.addBytes(new byte[]{0x00}, controller.getOriginalBytes(), field.getOffset());
 						return false;
 					}
 					//			    		case NULL:
@@ -627,7 +659,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 				case Guid:
 					return(value);
 				default:
-					System.out.println("EBX TreeCellFactory does not know what to do with "+type+" in toObject function.");
+					System.out.println("EBX TreeCellFactory does not know what to do with "+field.getType()+" in toObject function.");
 					return null; //UNDEFINED NULL ("null")
 				}
 			}

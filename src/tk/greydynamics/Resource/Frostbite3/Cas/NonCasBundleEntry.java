@@ -22,10 +22,10 @@ public class NonCasBundleEntry {
 	private int deltaOffset = -1;
 	private int deltaSize = -1;
 	
-	private int midInstructionSize = -1;
-	private int midInstructionType = -1;
+	private int midInstructionSize = 0;
+	private int midInstructionType = 0;
 	
-	private int currentSize = -1;
+	private int currentSize = 0;
 	
 	private ResourceBundleType bundleType = null;
 	

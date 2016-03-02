@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Game.Game;
-import tk.greydynamics.Maths.Patcher;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
+import tk.greydynamics.Resource.Frostbite3.Patcher;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 
@@ -50,7 +50,7 @@ public class CasDataReader { //casPath == folderPath
 				return null;
 			}
 			
-			byte[] data = Patcher.getPatchedData(base, delta);
+			byte[] data = Patcher.getPatchedCASData(base, delta);
 //			FileHandler.writeFile("output/debug/patcher_data", data);
 //			FileHandler.writeFile("output/debug/patcher_base", base);
 //			FileHandler.writeFile("output/debug/patcher_delta", delta);

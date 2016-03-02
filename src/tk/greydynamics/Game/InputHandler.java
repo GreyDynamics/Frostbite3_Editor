@@ -14,7 +14,7 @@ public class InputHandler {
 	public float speedMultipShift = 1f;
 	
 	public void listen() {		
-		Entity en = Core.getGame().getEntityHandler().getFocussedEntity();
+		Entity en = Core.getGame().getEntityHandler().getEntityPicker().getEntityPICKED();
 		speedMultipShift += (Mouse.getDWheel()/50);
 		if (speedMultipShift<=0){
 	    	speedMultipShift = 1;

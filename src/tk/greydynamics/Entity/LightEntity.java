@@ -7,11 +7,11 @@ import tk.greydynamics.Model.RawModel;
 public class LightEntity extends Entity{
 
 	public LightEntity(String name, Object entityObject, Entity parent, RawModel[] rawModels,
-			Vector3f minCoords, Vector3f maxCoords) {
-		super(name, Type.Light, entityObject, parent, rawModels, minCoords, maxCoords);
+			Vector3f minCoords, Vector3f maxCoords, Vector3f parentPickingColors) {
+		super(name, Type.Light, entityObject, parent, rawModels, minCoords, maxCoords, parentPickingColors);
 	}
-	public LightEntity(String name, Object entityObject, Entity parent, RawModel[] rawModels) {
-		super(name, Type.Light, entityObject, parent, rawModels);
+	public LightEntity(String name, Object entityObject, Entity parent, RawModel[] rawModels, Vector3f parentPickingColors) {
+		super(name, Type.Light, entityObject, parent, rawModels, parentPickingColors);
 	}
 	
 	@Override

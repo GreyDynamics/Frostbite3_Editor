@@ -111,7 +111,7 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 									resType = link.getType();
 									name = link.getName();
 								}else if (i.getValue().getValue() instanceof NonCasBundleEntry){
-									Core.getJavaFXHandler().getDialogBuilder().showWarning("WARNING", "NON CAS not fully implemented yet!", null);
+									System.err.println("WARNING: NON CAS not fully implemented yet!");
 									NonCasBundleEntry entry = (NonCasBundleEntry) i.getValue().getValue();
 									NonCasBundle nonCasBundle = (NonCasBundle) Core.getGame().getCurrentBundle();
 									data = NonCasDataReader.readNonCasBundleData(nonCasBundle, entry);
@@ -143,7 +143,7 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 											
 											TreeItem<Object> ebx = TreeViewConverter.getTreeView(ebxFile);
 
-											Core.getJavaFXHandler().getMainWindow().createEBXWindow(ebxFile, name, loadOriginal);
+											Core.getJavaFXHandler().getMainWindow().createEBXWindow(data, ebxFile, name, loadOriginal);
 										}
 										
 									}else if (bundleType == ResourceBundleType.RES){
@@ -217,6 +217,8 @@ public class JavaFXexplorer1TCF extends TreeCell<TreeViewEntry> {
 		    	}else{
 		    		contextMenu.getItems().addAll(rename, remove);
 		    	}
+		    }else{
+		    	System.err.println("No context menu for NON-Cas ??");
 		    }
 	    }
 //	    if (!empty&&item.getBackgroundColor()!=null){

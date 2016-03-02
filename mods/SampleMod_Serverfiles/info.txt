@@ -1,5 +1,5 @@
 Server Mod!
 GreyDynamics
 Battlefield 4 Server
-BF4_R55
+BF4_PC_Server_R56
 This mod is only for servers!

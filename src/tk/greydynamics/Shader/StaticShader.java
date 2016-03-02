@@ -5,11 +5,13 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class StaticShader extends ShaderProgram{
 	
-	public int transMatrixID;
-	public int projeMatrixID;
-	public int viewMatrixID;
-	public int highlightedID;
-	public int heighlightedColorID;
+	private int transMatrixID;
+	private int projeMatrixID;
+	private int viewMatrixID;
+	private int highlightedID;
+	private int heighlightedColorID;
+	private int pickerColorID;
+	private int pickerID;
 
 	public StaticShader() {
 		super("res/shader/StaticShader.vert", "res/shader/StaticShader.frag");
@@ -28,6 +30,8 @@ public class StaticShader extends ShaderProgram{
 		viewMatrixID = super.getUniformLocation("viewMatrix");
 		highlightedID = super.getUniformLocation("isHighlighted");
 		heighlightedColorID = super.getUniformLocation("heighlightedColor");
+		pickerID = super.getUniformLocation("isPicker");
+		pickerColorID = super.getUniformLocation("pickerColor");
 	}
 	
 	public void loadTransformationMatrix(Matrix4f mtx){
@@ -48,5 +52,13 @@ public class StaticShader extends ShaderProgram{
 	
 	public void loadHeighlightedColor(Vector3f vec3){
 		super.loadVector(heighlightedColorID, vec3);
+	}
+	
+	public void loadPicker(boolean bool){
+		super.loadBoolean(pickerID, bool);
+	}
+	
+	public void loadPickerColor(Vector3f vec3){
+		super.loadVector(pickerColorID, vec3);
 	}
 }

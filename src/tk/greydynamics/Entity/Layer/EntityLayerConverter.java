@@ -9,6 +9,7 @@ import tk.greydynamics.Entity.EntityHandler;
 import tk.greydynamics.Entity.ObjectEntity;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Maths.VectorMath;
+import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle.BundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
 import tk.greydynamics.Resource.Frostbite3.Cas.NonCasBundle;
@@ -34,12 +35,12 @@ public class EntityLayerConverter {
 		EBXHandler ebxHandler = Core.getGame().getResourceHandler().getEBXHandler();
 		
 		if (ebxFile!=null){
-			String[] strArray = ebxFile.getTruePath().split(Messages.getString("EntityLayerConverter.0"));		 //$NON-NLS-1$
+			String[] strArray = ebxFile.getTruePath().split("/");		 
 			//EntityLayer layer = new EntityLayer(strArray[strArray.length-1]+" "+ebxFile.getGuid());
-			EntityLayer layer = new EntityLayer(ebxFile.getTruePath()+Messages.getString("EntityLayerConverter.1")+ebxFile.getGuid()); //$NON-NLS-1$
+			EntityLayer layer = new EntityLayer(ebxFile.getTruePath()+" "+ebxFile.getGuid()); 
 			
 			for (EBXInstance instance : ebxFile.getInstances()){
-				Entity en = getEntity(instance, null, new EBXExternalGUID(ebxFile.getGuid(), instance.getGuid()), loadOriginal);	
+				Entity en = getEntity(true, null, instance, null, new EBXExternalGUID(ebxFile.getGuid(), instance.getGuid()), loadOriginal);	
 				if (en!=null){
 					layer.getEntities().add(en);
 				}
@@ -50,12 +51,15 @@ public class EntityLayerConverter {
 		System.err.println(Messages.getString("EntityLayerConverter.2")); //$NON-NLS-1$
 		return null;
 	}
-	private static Entity getEntity(EBXFile file, Entity parentEntity, boolean loadOriginal){
+	private static Entity getEntity(boolean isMaster, Vector3f pickingColors, EBXFile file, Entity parentEntity, boolean loadOriginal){
 		//EBXFile
+		if (isMaster){
+			pickingColors = Entity.randomizedPickerColors();
+		}
 		if (file==null){return null;}
-		Entity en = new ObjectEntity(file.getTruePath(), file, parentEntity, null, null);
+		Entity en = new ObjectEntity(file.getTruePath(), file, parentEntity, null, null, pickingColors);
 		for (EBXInstance instance : file.getInstances()){
-			Entity child = getEntity(instance, en, new EBXExternalGUID(file.getGuid(), instance.getGuid()), loadOriginal);
+			Entity child = getEntity(isMaster, pickingColors, instance, en, new EBXExternalGUID(file.getGuid(), instance.getGuid()), loadOriginal);
 			if (child!=null){
 				en.getChildrens().add(child);
 			}
@@ -64,30 +68,40 @@ public class EntityLayerConverter {
 		if (en.getChildrens().isEmpty()){
 			return null;
 		}
-		calculateNewBoxSize(parentEntity, en);
+//		if (!isMaster){
+//			calculateNewBoxSize(parentEntity, en);
+//		}
 		return en;
 	}
-	private static Entity getEntity(EBXInstance instance, Entity parentEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
+	private static Entity getEntity(boolean isMaster, Vector3f pickingColors, EBXInstance instance, Entity parentEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
 		//INSTANCE
+		if (isMaster){
+			pickingColors = Entity.randomizedPickerColors();
+		}
 		if (instance==null){return null;}
-		Entity en = new ObjectEntity(instance.getGuid(), instance, parentEntity, null, null);
-		Entity child = getEntity(instance.getComplex(), en, en, parentInstance, loadOriginal);
+		Entity en = new ObjectEntity(instance.getGuid(), instance, parentEntity, null, null, pickingColors);
+		Entity child = getEntity(isMaster, pickingColors, instance.getComplex(), en, en, parentInstance, loadOriginal);
 		if (child!=null){
 			en.getChildrens().add(child);
 		}
 		if (en.getChildrens().isEmpty()){
 			return null;
 		}
-		calculateNewBoxSize(parentEntity, en);
+//		if (!isMaster){
+//			calculateNewBoxSize(parentEntity, en);
+//		}
 		return en;
 	}
-	private static Entity getEntity(EBXComplex complex, Entity parentEntity, Entity instanceEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
+	private static Entity getEntity(boolean isMaster, Vector3f pickingColors, EBXComplex complex, Entity parentEntity, Entity instanceEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
 		//COMPLEX
+		if (isMaster){
+			pickingColors = Entity.randomizedPickerColors();
+		}
 		if (complex==null){return null;}
-		Entity en = new ObjectEntity(complex.getComplexDescriptor().getName(), complex, parentEntity, null, null);
+		Entity en = new ObjectEntity(complex.getComplexDescriptor().getName(), complex, parentEntity, null, null, pickingColors);
 //		int test = 0;
 		for (EBXField field : complex.getFields()){
-			Entity child = getEntity(field, en, instanceEntity, parentInstance, loadOriginal);
+			Entity child = getEntity(isMaster, pickingColors, field, en, instanceEntity, parentInstance, loadOriginal);
 			if (child!=null){
 //				child.setPosition(new Vector3f(test*100f, 0f, 0f));
 				en.getChildrens().add(child);
@@ -97,42 +111,47 @@ public class EntityLayerConverter {
 		if (en.getChildrens().isEmpty()){
 			return null;
 		}
-		calculateNewBoxSize(parentEntity, en);
+//		if (!isMaster){
+//			calculateNewBoxSize(parentEntity, en);
+//		}
 		return en;
 	}
-	private static Entity getEntity(EBXField field, Entity parentEntity, Entity instanceEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
+	private static Entity getEntity(boolean isMaster, Vector3f pickingColors, EBXField field, Entity parentEntity, Entity instanceEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
 		//FIELD
+		if (isMaster){
+			pickingColors = Entity.randomizedPickerColors();
+		}
 		if (field==null){return null;}
-		Entity en = new ObjectEntity(field.getFieldDescritor().getName(), field, parentEntity, null, null);
+		Entity en = new ObjectEntity(field.getFieldDescritor().getName(), field, parentEntity, null, null, pickingColors);
 		if (field.getValue() instanceof EBXComplex){
-			if (field.getValueAsComplex().getComplexDescriptor().getName().equals(Messages.getString("EntityLayerConverter.3"))){ //$NON-NLS-1$
+			if (field.getValueAsComplex().getComplexDescriptor().getName().equals("LinearTransform")){ 
 				EBXLinearTransform linearTransform = new EBXLinearTransform(field.getValueAsComplex());
 				instanceEntity.setPosition(VectorMath.multiply(linearTransform.getTranformation(), new Vector3f(scaleMultiplier, scaleMultiplier, scaleMultiplier), null));
 				instanceEntity.setRotation(linearTransform.getRotation());
-				instanceEntity.setScaling(linearTransform.getScaling());
+				//instanceEntity.setScaling(linearTransform.getScaling());
 				//TODO scaling!
-			}else if (field.getFieldDescritor().getName().equals(Messages.getString("EntityLayerConverter.4"))){ //$NON-NLS-1$
-				System.out.println(Messages.getString("EntityLayerConverter.5")); //$NON-NLS-1$
+			}else if (field.getFieldDescritor().getName().equals("Materials")){ 
+				System.out.println("MATERIAL!"); 
 			}else{
-				Entity child = getEntity(field.getValueAsComplex(), en, instanceEntity, parentInstance, loadOriginal);
+				Entity child = getEntity(isMaster, pickingColors, field.getValueAsComplex(), en, instanceEntity, parentInstance, loadOriginal);
 				if (child!=null){
 					en.getChildrens().add(child);
 				}
 			}
 		}else if (field.getValue() instanceof EBXField){
-			Entity child = getEntity((EBXField) field.getValue(), en, instanceEntity, parentInstance, loadOriginal);
+			Entity child = getEntity(isMaster, pickingColors, (EBXField) field.getValue(), en, instanceEntity, parentInstance, loadOriginal);
 			if (child!=null){
 				en.getChildrens().add(child);
 			}
 		}else if (field.getValue() instanceof EBXExternalGUID){
-			Entity child = getEntity((EBXExternalGUID) field.getValue(), en, parentInstance, loadOriginal);
+			Entity child = getEntity(false, pickingColors, (EBXExternalGUID) field.getValue(), en, parentInstance, loadOriginal);
 			if (child!=null){
 				en.getChildrens().add(child);
 			}
 		}else if (field.getType()==FieldValueType.Guid){
 //			System.err.println("DEBUG: "+field.getFieldDescritor().getName()+" "+field.getType());
-			if (field.getFieldDescritor().getName().equals(Messages.getString("EntityLayerConverter.6"))||field.getFieldDescritor().getName().equalsIgnoreCase(Messages.getString("EntityLayerConverter.7"))){ //$NON-NLS-1$ //$NON-NLS-2$
-				Entity child = getEntity(new EBXExternalGUID(parentInstance.getFileGUID(), (String) field.getValue()), en, parentInstance, loadOriginal);
+			if (field.getFieldDescritor().getName().equals("member")||field.getFieldDescritor().getName().equalsIgnoreCase("Object")){  
+				Entity child = getEntity(false, pickingColors, new EBXExternalGUID(parentInstance.getFileGUID(), (String) field.getValue()), en, parentInstance, loadOriginal);
 				if (child!=null){
 					en.getChildrens().add(child);
 				}
@@ -149,12 +168,17 @@ public class EntityLayerConverter {
 		if (en.getChildrens().isEmpty()){
 			return null;
 		}
-		calculateNewBoxSize(parentEntity, en);
+//		if (!isMaster){
+//			calculateNewBoxSize(parentEntity, en);
+//		}
 		return en;
 	}
-	private static Entity getEntity(EBXExternalGUID externalGUID, Entity parentEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
-		Entity en = new ObjectEntity(externalGUID.getBothGUIDs(), externalGUID, parentEntity, null, null);
-		Entity meshEntity = getEntity(externalGUID, en, Type.Object, externalGUID);
+	private static Entity getEntity(boolean isMaster, Vector3f pickingColors, EBXExternalGUID externalGUID, Entity parentEntity, EBXExternalGUID parentInstance, boolean loadOriginal){
+		if (isMaster){
+			pickingColors = Entity.randomizedPickerColors();
+		}
+		Entity en = new ObjectEntity(externalGUID.getBothGUIDs(), externalGUID, parentEntity, null, null, pickingColors);
+		Entity meshEntity = getEntity(false, pickingColors, externalGUID, en, Type.Object, externalGUID);
 		if (meshEntity!=null){
 			en.getChildrens().add(meshEntity);
 		}
@@ -163,7 +187,7 @@ public class EntityLayerConverter {
 			boolean found = false;
 			for (EBXInstance instance : targetFile.getInstances()){
 				if (instance.getGuid().equalsIgnoreCase(externalGUID.getInstanceGUID())){
-					Entity child = getEntity(instance, en, externalGUID, loadOriginal);
+					Entity child = getEntity(false, pickingColors, instance, en, externalGUID, loadOriginal);
 					if (child!=null){
 						en.getChildrens().add(child);
 					}
@@ -183,7 +207,7 @@ public class EntityLayerConverter {
 		return en;
 	}
 	
-	private static Entity getEntity(EBXExternalGUID externalGUID, Entity parentEntity, Type type, Object entityData){
+	private static Entity getEntity(boolean isMaster, Vector3f pickingColors, EBXExternalGUID externalGUID, Entity parentEntity, Type type, Object entityData){
 		if (externalGUID==null){return null;};
 		if (Core.getGame().getCurrentBundle().getType()==BundleType.CAS){
 			//CAS
@@ -193,9 +217,13 @@ public class EntityLayerConverter {
 				CasBundle casBundle = (CasBundle) Core.getGame().getCurrentBundle();
 				for (ResourceLink resLink : casBundle.getRes()){
 					if (resLink.getName().equalsIgnoreCase(resLinkname)){
-						byte[] meshData = Core.getGame().getResourceHandler().readResourceLink(resLink);
-						if (meshData!=null){
-							return Core.getGame().getEntityHandler().createEntity(meshData, type, entityData, externalGUID, parentEntity, Messages.getString("EntityLayerConverter.8")); //$NON-NLS-1$
+						if (resLink.getType()==ResourceType.MESH||resLink.getType()==ResourceType.OCCLUSIONMESH){
+							byte[] meshData = Core.getGame().getResourceHandler().readResourceLink(resLink);
+							if (meshData!=null){
+								return Core.getGame().getEntityHandler().createEntity(pickingColors, meshData, type, entityData, externalGUID, parentEntity, Messages.getString("EntityLayerConverter.8")); //$NON-NLS-1$
+							}
+						}else{
+							System.err.println("Found resource with same name, but its not an mesh. "+resLink.getName());
 						}
 					}
 				}
@@ -211,7 +239,7 @@ public class EntityLayerConverter {
 						byte[] meshData = Core.getGame().getResourceHandler().readNonCasBundleEntry(resEntry);
 						if (meshData!=null){
 							System.err.println(Messages.getString("EntityLayerConverter.9")); //$NON-NLS-1$
-							return Core.getGame().getEntityHandler().createEntity(meshData, type, entityData, externalGUID, parentEntity, Messages.getString("EntityLayerConverter.10")); //$NON-NLS-1$
+							return Core.getGame().getEntityHandler().createEntity(pickingColors, meshData, type, entityData, externalGUID, parentEntity, Messages.getString("EntityLayerConverter.10")); //$NON-NLS-1$
 						}
 					}
 				}

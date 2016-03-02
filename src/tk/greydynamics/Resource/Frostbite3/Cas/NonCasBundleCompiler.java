@@ -185,7 +185,7 @@ public class NonCasBundleCompiler {
 			if (entry.getModFilePath()!=null){
 			   //Modded Entry
 				byte[] uncompressedEntryData = FileHandler.readFile(entry.getModFilePath());//uncompressed
-				entryData = FileHandler.toByteArray(Block.compressBlock(uncompressedEntryData, BlockHeader.BlockType_UnCompressed));				
+				entryData = FileHandler.toByteArray(Block.compressBlock(uncompressedEntryData, null, BlockHeader.BlockType_UnCompressed));				
 			}else{
 			   //Original UNCHANGED Entry				
 				entryData = FileHandler.readFile(
@@ -197,13 +197,13 @@ public class NonCasBundleCompiler {
 			FileHandler.writeFile(targetPath, payload, true, false);//write payload to file.
 			payload.clear();
 		}
-		System.out.println("CompileUnpatchedBundle: Append ChunkPayload to Bundle.");
-		FileHandler.extendFileFromFile(chunkPayloadtempFilePath, 0, chunkPayloadSize, targetPath, new FileSeeker());
-
-		
-		
-		System.out.println("CompileUnpatchedBundle: Cleaning temporary data.");
-		new File(chunkPayloadtempFilePath).delete();
+		if (chunkPayloadSize>0){
+			System.out.println("CompileUnpatchedBundle: Append ChunkPayload to Bundle.");
+			FileHandler.extendFileFromFile(chunkPayloadtempFilePath, 0, chunkPayloadSize, targetPath, new FileSeeker());
+			System.out.println("CompileUnpatchedBundle: Cleaning temporary data. (Chunks)");
+			new File(chunkPayloadtempFilePath).delete();
+		}
+		System.out.println("CompileUnpatchedBundle: Cleaning temporary data. (SHA1)");
 		new File(sha1tempFilePath).delete();
 		System.out.println("CompileUnpatchedBundle: DONE!");
 		return targetPath;
