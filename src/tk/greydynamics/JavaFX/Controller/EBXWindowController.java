@@ -5,6 +5,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
+import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.TreeViewConverter;
 import tk.greydynamics.JavaFX.Windows.EBXWindow;
@@ -30,8 +31,13 @@ public class EBXWindowController {
 		Core.runOnMainThread(new Runnable() {
 			@Override
 			public void run() {
-				Core.getGame().getEntityHandler().createEntityLayer(window.getEBXFile());
-				System.err.println("--------------Layer creation done!!------------------");
+				if (window.getEntityLayer()!=null){
+					System.err.println("EntityLayer does already exists!");
+				}else{
+					window.setEntityLayer(new EntityLayer("dummy", window));//bypass, that the user can't close the window while in progress.
+					window.setEntityLayer(Core.getGame().getEntityHandler().createEntityLayer(window.getEBXFile(), window));
+					System.err.println("--------------Layer creation done!!------------------");
+				}
 			}
 		});
 	}
@@ -71,7 +77,7 @@ public class EBXWindowController {
 		System.err.println("(EXPERIMENTAL)");
 		if (ebxExplorer.getRoot() != null){
 			if (Core.getGame().getCurrentMod()!=null&&!Core.isDEBUG){
-				String resLinkName = window.getStage().getTitle();
+				String resLinkName = window.getName();
 				if (window.getEBXFile()!=null){
 					EBXFile ebxFile = window.getEBXFile();
 					byte[] ebxBytes = Core.getGame().getResourceHandler().getEBXHandler().createEBX(ebxFile);
@@ -113,6 +119,7 @@ public class EBXWindowController {
 		}else{
 			String currentToc = FileHandler.normalizePath(Core.getGame().getCurrentFile()).replace(Core.gamePath, "");
 			Package pack = Core.getModTools().getPackage(currentToc);
+			System.out.println("Extend Current Bundle: "+Core.getGame().getCurrentBundle().getName());
 			Core.getModTools().extendPackage(
 					LinkBundleType.BUNDLES,
 					Core.getGame().getCurrentBundle().getName(),
@@ -134,7 +141,7 @@ public class EBXWindowController {
 	public void saveEBX(){
 		if (ebxExplorer.getRoot() != null){
 			if (Core.getGame().getCurrentMod()!=null&&!Core.isDEBUG){
-				String resLinkName = window.getStage().getTitle();
+				String resLinkName = window.getName();
 				if (window.getEBXFile()!=null){
 					if (originalBytes!=null){
 						saveData(resLinkName, originalBytes, false/*debug*/);
@@ -155,6 +162,7 @@ public class EBXWindowController {
 	    }
 	    ebxExplorer.setRoot(ebxTreeView);
 	}
+
 	
 	public TreeView<Object> getEBXExplorer() {
 		return ebxExplorer;

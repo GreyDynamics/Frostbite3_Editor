@@ -83,7 +83,7 @@ public class JavaFXlayerTCF extends TreeCell<Entity> {
 //					setStyle("-fx-background-color: green");
 //				}*/
 //			}else{
-				setText(item.getName());
+				setText(item.getName()+" P:"+item.getPosition()+" C:"+item.getPickerColors());
 //				setStyle("-fx-background-color: lightgrey");
 //			}
 			setGraphic(getTreeItem().getGraphic());

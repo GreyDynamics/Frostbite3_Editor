@@ -11,6 +11,7 @@ import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Entity.Layer.EntityLayerConverter;
 import tk.greydynamics.Game.Core;
+import tk.greydynamics.JavaFX.Windows.EBXWindow;
 import tk.greydynamics.Maths.RayCasting;
 import tk.greydynamics.Maths.VectorMath;
 import tk.greydynamics.Model.ModelHandler;
@@ -44,8 +45,8 @@ public class EntityHandler {
 		return entityPicker.getPickedEntityFromLayers(pickingColor, layers);
 	}
 	
-	public EntityLayer createEntityLayer(EBXFile ebxFile){
-		EntityLayer layer = EntityLayerConverter.getEntityLayer(ebxFile);
+	public EntityLayer createEntityLayer(EBXFile ebxFile, EBXWindow ebxWindow){
+		EntityLayer layer = EntityLayerConverter.getEntityLayer(ebxFile, ebxWindow);
 		if (layer!=null){
 			layers.add(layer);
 			Core.getJavaFXHandler().getMainWindow().updateLayers(Core.getGame().getEntityHandler().getLayers());
@@ -143,7 +144,7 @@ public class EntityHandler {
 	}
 	
 	
-	public Entity createEntity(Vector3f pickerColors, byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
+	public Entity createEntity(EntityLayer layer, Vector3f pickerColors, byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
 		try{
 			
 			
@@ -176,10 +177,10 @@ public class EntityHandler {
 			Entity en = null;
 			switch (type){
 				case Object:
-					en = new ObjectEntity(msl.getName(), entityData, parent, rawModels, new EntityTextureData(meshInstanceGUID, null), pickerColors);
+					en = new ObjectEntity(layer, msl.getName(), entityData, parent, rawModels, new EntityTextureData(meshInstanceGUID, null), pickerColors);
 					break;
 				case Light:
-					en = new LightEntity(msl.getName(), entityData, parent, rawModels,  pickerColors);
+					en = new LightEntity(layer, msl.getName(), entityData, parent, rawModels,  pickerColors);
 					break;
 			}
 			

@@ -6,6 +6,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Model.RawModel;
@@ -14,7 +15,7 @@ public abstract class Entity {
 	
 	public static enum Type{
 			Object, Light,
-			Layer
+			Layer, Instance
 	};
 
 	private String name;
@@ -47,8 +48,11 @@ public abstract class Entity {
 	private boolean recalculateAbs = true;
 	
 	private int lastPokeTick = 0;
+	
+	private EntityLayer layer;
 
-	public Entity(String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels, Vector3f parentPickingColors) {
+	public Entity(EntityLayer layer, String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels, Vector3f parentPickingColors) {
+		this.layer = layer;
 		this.name = name;
 		this.type = type;
 		this.parent = parent;
@@ -58,8 +62,9 @@ public abstract class Entity {
 		initPickingColors(parentPickingColors);
 	}
 
-	public Entity(String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels,
+	public Entity(EntityLayer layer, String name, Type type, Object entityObject, Entity parent, RawModel[] rawModels,
 			Vector3f minCoords, Vector3f maxCoords, Vector3f parentPickingColors) {		
+		this.layer = layer;
 		this.name = name;
 		this.type = type;
 		this.parent = parent;
@@ -72,30 +77,30 @@ public abstract class Entity {
 	}
 
 	public void changePosition(float dx, float dy, float dz) {
-		position.x += dx;
-		position.y += dy;
-		position.z += dz;
+		this.position.x += dx;
+		this.position.y += dy;
+		this.position.z += dz;
 		recalculateRelMatrix();
 	}
 
 	public void changePosition(Vector3f relPos) {
-		position.x += relPos.x;
-		position.y += relPos.y;
-		position.z += relPos.z;
+		this.position.x += relPos.x;
+		this.position.y += relPos.y;
+		this.position.z += relPos.z;
 		recalculateRelMatrix();
 	}
 
 	public void changeRotation(float dx, float dy, float dz) {
-		rotation.x += dx;
-		rotation.y += dy;
-		rotation.z += dz;
+		this.rotation.x += dx;
+		this.rotation.y += dy;
+		this.rotation.z += dz;
 		recalculateRelMatrix();
 	}
 
 	public void changeScaling(float dx, float dy, float dz) {
-		scaling.x += dx;
-		scaling.y += dy;
-		scaling.z += dz;
+		this.scaling.x += dx;
+		this.scaling.y += dy;
+		this.scaling.z += dz;
 		recalculateRelMatrix();
 	}
 
@@ -167,8 +172,8 @@ public abstract class Entity {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y)));
-		position.x -= vec.x;
-		position.z += vec.y;
+		this.position.x -= vec.x;
+		this.position.z += vec.y;
 		recalculateRelMatrix();
 		return vec;
 	}
@@ -177,8 +182,8 @@ public abstract class Entity {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y)));
-		position.x += vec.x;
-		position.z -= vec.y;
+		this.position.x += vec.x;
+		this.position.z -= vec.y;
 		recalculateRelMatrix();
 		return vec;
 	}
@@ -187,8 +192,8 @@ public abstract class Entity {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y - 90)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y - 90)));
-		position.x += vec.x;
-		position.z -= vec.y;
+		this.position.x += vec.x;
+		this.position.z -= vec.y;
 		recalculateRelMatrix();
 		return vec;
 	}
@@ -197,8 +202,8 @@ public abstract class Entity {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y + 90)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y + 90)));
-		position.x += vec.x;
-		position.z -= vec.y;
+		this.position.x += vec.x;
+		this.position.z -= vec.y;
 		recalculateRelMatrix();
 		return vec;
 	}
@@ -348,6 +353,18 @@ public abstract class Entity {
 		this.rawModels = rawModels;
 	}
 	
+	public void setPickerColors(Vector3f pickerColors) {
+		this.pickerColors = pickerColors;
+	}
+
+	public EntityLayer getLayer() {
+		return layer;
+	}
+
+	public void setLayer(EntityLayer layer) {
+		this.layer = layer;
+	}
+
 	public void pokeRawModels(int currentTick){
 		if (this.lastPokeTick<currentTick){
 			//Only do it, every tick.

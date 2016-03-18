@@ -116,6 +116,7 @@ public class Loader {
 				textures.put(path, texture.getTextureID());
 				return texture.getTextureID();
 			} catch (IOException e) {
+				e.printStackTrace();
 				System.err.println("Unable to load Texture - FILE NOT FOUND! "+path);
 				return notFoundID;
 			}	

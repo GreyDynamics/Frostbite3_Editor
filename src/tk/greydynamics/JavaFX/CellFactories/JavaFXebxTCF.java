@@ -168,7 +168,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 													if (ebxFile!=ebxWindow.getEBXFile()){
 														EBXFile ebxFileFromWindow = ebxWindow.getEBXFile();
 														for (EBXInstance ebxInstance : ebxFileFromWindow.getInstances()){
-															values.add(ebxWindow.getStage().getTitle()+" "+ebxInstance.getGuid()+" ("+ebxInstance.getComplex().getComplexDescriptor().getName()+")");
+															values.add(ebxWindow.getName()+" "+ebxInstance.getGuid()+" ("+ebxInstance.getComplex().getComplexDescriptor().getName()+")");
 														}
 													}
 												}

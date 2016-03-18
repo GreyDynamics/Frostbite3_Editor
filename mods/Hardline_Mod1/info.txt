@@ -1,0 +1,4 @@
+Hardline Mod
+~\(*_*)/~
+Battlefield Hardline
+{"sku":"origin","build":"1337BFH"}

@@ -4,15 +4,18 @@ import java.io.IOException;
 
 import org.lwjgl.opengl.Display;
 
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
+import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.JavaFX.CellFactories.JavaFXebxTCF;
@@ -28,7 +31,12 @@ public class EBXWindow {
 	private EBXFile ebxFile;
 	private boolean isOriginalFile;
 	
+	private String name;
+	
+	private EntityLayer entityLayer;
+	
 	public EBXWindow(byte[] originalBytes, EBXFile ebxFile, String resLinkName, boolean isOriginal){
+		this.name = resLinkName;
 		this.isOriginalFile = isOriginal;
 		this.ebxFile = ebxFile;
 		try {
@@ -57,7 +65,20 @@ public class EBXWindow {
 	    stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent e) {
-				Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+				if (entityLayer==null){
+					Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+				}else{
+					Core.getJavaFXHandler().getDialogBuilder().showAsk("DO YOU REALLY WANT TO CONTINUE?",
+							"This EBX Window is linked to an EntityLayer,\n"+
+							"that will destroy itself when this window closes.\n\n"+
+							"DO YOU REALLY WANT TO CONTINUE?"
+							, new Runnable() {
+						public void run() {
+							Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+						}
+					}, null);
+				}
+				e.consume();
 			}
 		});
 	    controller.setWindow(this);
@@ -78,6 +99,25 @@ public class EBXWindow {
 	    if (originalBytes==null){
 	    	controller.getSaveEBXMenuItem().setDisable(true);
 	    }
+	}
+	public void refresh(){
+		Platform.runLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				//Tested, its working and all is necessary to work!!
+				TreeItem<Object> root = controller.getEBXExplorer().getRoot();
+				int selectedItem = controller.getEBXExplorer().getSelectionModel().getSelectedIndex();
+//				System.out.println(selectedItem);
+				
+				controller.getEBXExplorer().setRoot(null);
+				controller.getEBXExplorer().setRoot(root);
+				controller.getEBXExplorer().getSelectionModel().select(selectedItem);
+				if (selectedItem>0){
+					controller.getEBXExplorer().scrollTo(selectedItem);
+				}
+			}
+		});
 	}
 
 	public FXMLLoader getEbxWindowLoader() {
@@ -106,6 +146,22 @@ public class EBXWindow {
 
 	public boolean isOriginalFile() {
 		return isOriginalFile;
+	}
+
+	public EntityLayer getEntityLayer() {
+		return entityLayer;
+	}
+
+	public void setEntityLayer(EntityLayer entityLayer) {
+		this.entityLayer = entityLayer;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	

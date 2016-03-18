@@ -363,7 +363,7 @@ public class ModTools {
 								
 								if (isCas){
 									LayoutFile casBundleLayout = link.getLayout();
-									casBundle = TocConverter.convertCASBundle(casBundleLayout, false);
+									casBundle = TocConverter.convertCASBundle(casBundleLayout, link.getID(), false);
 								}else{
 									int size = link.getSize();
 									if (size==-1){

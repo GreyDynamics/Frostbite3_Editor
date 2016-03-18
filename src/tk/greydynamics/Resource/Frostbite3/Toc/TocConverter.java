@@ -94,9 +94,9 @@ public class TocConverter {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static CasBundle convertCASBundle(LayoutFile casBundleLayout, boolean findEBXid){
+	public static CasBundle convertCASBundle(LayoutFile casBundleLayout, String name, boolean findEBXid){
 		try{
-			CasBundle casBundle = new CasBundle(casBundleLayout.getSBPath(), null, null, 0, 0);
+			CasBundle casBundle = new CasBundle(casBundleLayout.getSBPath(), null, name, 0, 0);
 			LayoutEntry masterEntry = casBundleLayout.getEntries().get(0);
 			for (LayoutField field :  masterEntry.getFields()){
 				if (field.getName().toLowerCase().equals("path") && field.getType() == LayoutFieldType.STRING){
@@ -153,6 +153,7 @@ public class TocConverter {
 					System.err.println("TocConverter found an unhandled field: "+field.getName()+" as "+field.getType());
 				}
 			}
+			casBundle.setName(casBundle.getBasePath());
 			return casBundle;
 		}catch (Exception e){
 			//e.printStackTrace();

@@ -78,7 +78,12 @@ public class EBXField{
 					}
 					break;
 				case ExternalGuid:
-					newValue = String.valueOf(((String) (ebxField.getValue())).toCharArray());
+					if (ebxField.getValue() instanceof String){
+						newValue = String.valueOf(((String) (ebxField.getValue())).toCharArray());
+					}else{
+						EBXExternalGUID exGUID = (EBXExternalGUID) ebxField.getValue();
+						newValue = new EBXExternalGUID(exGUID.getFileGUID(), exGUID.getInstanceGUID());
+					}
 					break;
 				case Float:
 					newValue = Float.valueOf((Float) ebxField.getValue());

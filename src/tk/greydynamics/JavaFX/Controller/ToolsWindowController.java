@@ -22,8 +22,6 @@ public class ToolsWindowController {
 	@FXML
 	public Label lodLabel;
 	@FXML
-	public ComboBox<String> layer;
-	@FXML
 	public ComboBox<String> variationDatabase;
 	@FXML
 	public ComboBox<String> lightning;
@@ -36,8 +34,6 @@ public class ToolsWindowController {
 	@FXML
 	public TextField filter;
 	@FXML
-	public Button destroyLayerButton;
-	@FXML
 	public Button importButton;
 	@FXML
 	public TreeView<Entity> layerTreeView;
@@ -46,9 +42,6 @@ public class ToolsWindowController {
 		
 	}
 	
-	public void destroyLayer(){
-		Core.getGame().getEntityHandler().destroyEntityLayer(layer.getValue());
-	}
 	
 	public void search(){
 		if (filter.getText().equals("")){
@@ -97,12 +90,6 @@ public class ToolsWindowController {
 	public TreeView<TreeViewEntry> getExplorer1() {
 		return explorer1;
 	}
-
-
-	public ComboBox<String> getLayer() {
-		return layer;
-	}
-
 	public ComboBox<String> getLightning() {
 		return lightning;
 	}
@@ -121,10 +108,6 @@ public class ToolsWindowController {
 
 	public TextField getFilter() {
 		return filter;
-	}
-
-	public Button getDestroyLayerButton() {
-		return destroyLayerButton;
 	}
 
 	public TreeView<Entity> getLayerTreeView() {

@@ -86,12 +86,12 @@ public class ToolsWindow {
         controller.getExplorer1().setPrefHeight(Display.getDesktopDisplayMode().getHeight());
         
         //controller.getLayer().getItems().addAll("Test","Testsss","Testtssst");
-        controller.getLayer().valueProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-				System.err.println("Old: "+oldValue+" New: "+newValue);
-			}
-		});
+//        controller.getLayer().valueProperty().addListener(new ChangeListener<String>() {
+//			@Override
+//			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+//				System.err.println("Old: "+oldValue+" New: "+newValue);
+//			}
+//		});
         
         controller.getVariationDatabase().valueProperty().addListener(new ChangeListener<String>() {
 			@Override
@@ -139,41 +139,42 @@ public class ToolsWindow {
 	}
 	
 	private void handleVariationDatabaseChange(String newValue){
-		if (controller.getLayer().getValue()!=""&&controller.getLayer().getValue()!=null){
-			String currentLayerName = controller.getLayer().getValue().split(" ")[0];
-			String currentDatabaseName = controller.getVariationDatabase().getValue().split(" ")[0];
-			Core.getJavaFXHandler().getDialogBuilder().showAsk("Question", "Do you want to assign "+currentDatabaseName+" to the current layer ?", new Runnable() {
-				public void run() {
-					//Pressed YES
-					EntityLayer layer = Core.getGame().getEntityHandler().getEntityLayer(currentLayerName);
-					EBXStructureFile variationDB = Core.getGame().getResourceHandler().getMeshVariationDatabaseHandler().getDatabaseByName(currentDatabaseName);
-					if (layer==null||variationDB==null){
-						Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Something went wrong!", null);
-					}else{
-						Core.runOnMainThread(new Runnable() {
-							
-							@Override
-							public void run() {
-								Core.getGame().getEntityHandler().updateLayer(layer, variationDB);
-							}
-						});
-						
-					}
-				}
-			}, new Runnable() {
-				//Pressed NO
-				@Override
-				public void run() {
-					Core.getJavaFXHandler().getDialogBuilder().showAsk("Question", "Do you want to DELETE "+currentDatabaseName+" then ?", new Runnable() {
-						@Override
-						public void run() {
-							//Pressed YES
-							Core.getGame().getResourceHandler().getMeshVariationDatabaseHandler().deleteDatabase(currentDatabaseName);
-						}
-					}, null);
-				}
-			});
-		}
+		System.err.println("handleVariationDatabaseChange not implemented anymore!");
+//		if (controller.getLayer().getValue()!=""&&controller.getLayer().getValue()!=null){
+//			String currentLayerName = controller.getLayer().getValue().split(" ")[0];
+//			String currentDatabaseName = controller.getVariationDatabase().getValue().split(" ")[0];
+//			Core.getJavaFXHandler().getDialogBuilder().showAsk("Question", "Do you want to assign "+currentDatabaseName+" to the current layer ?", new Runnable() {
+//				public void run() {
+//					//Pressed YES
+//					EntityLayer layer = Core.getGame().getEntityHandler().getEntityLayer(currentLayerName);
+//					EBXStructureFile variationDB = Core.getGame().getResourceHandler().getMeshVariationDatabaseHandler().getDatabaseByName(currentDatabaseName);
+//					if (layer==null||variationDB==null){
+//						Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Something went wrong!", null);
+//					}else{
+//						Core.runOnMainThread(new Runnable() {
+//							
+//							@Override
+//							public void run() {
+//								Core.getGame().getEntityHandler().updateLayer(layer, variationDB);
+//							}
+//						});
+//						
+//					}
+//				}
+//			}, new Runnable() {
+//				//Pressed NO
+//				@Override
+//				public void run() {
+//					Core.getJavaFXHandler().getDialogBuilder().showAsk("Question", "Do you want to DELETE "+currentDatabaseName+" then ?", new Runnable() {
+//						@Override
+//						public void run() {
+//							//Pressed YES
+//							Core.getGame().getResourceHandler().getMeshVariationDatabaseHandler().deleteDatabase(currentDatabaseName);
+//						}
+//					}, null);
+//				}
+//			});
+//		}
 	}
 	
 	public void setExplorer1(TreeItem<TreeViewEntry> root, String str){

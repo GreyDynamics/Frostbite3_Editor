@@ -182,19 +182,19 @@
                      <content>
                         <VBox>
                            <children>
-                              <HBox alignment="TOP_RIGHT">
+                              <HBox alignment="TOP_RIGHT" disable="true">
                                  <children>
                                     <Label alignment="TOP_CENTER" text="Layer">
                                        <padding>
                                           <Insets bottom="2.0" left="2.0" right="2.0" top="6.0" />
                                        </padding>
                                     </Label>
-                                    <Button fx:id="destroyLayerButton" disable="true" mnemonicParsing="false" onAction="#destroyLayer" text="X">
+                                    <Button disable="true" mnemonicParsing="false" text="X">
                                        <HBox.margin>
                                           <Insets bottom="2.0" left="2.0" right="4.0" top="2.0" />
                                        </HBox.margin>
                                     </Button>
-                                    <ComboBox fx:id="layer" prefWidth="150.0">
+                                    <ComboBox prefWidth="150.0">
                                        <padding>
                                           <Insets bottom="2.0" left="2.0" right="2.0" top="2.0" />
                                        </padding>

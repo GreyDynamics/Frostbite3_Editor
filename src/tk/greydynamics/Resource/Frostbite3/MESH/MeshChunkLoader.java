@@ -27,7 +27,7 @@ public class MeshChunkLoader {
 	private int Submesh_Mat_Name_Offset;
 	private long FaceIndiceOffset=0;
 	private int submesh_vert_count=0;
-	private float Model_Scale = 4f;
+	private float Model_Scale = 1f;
 	private String Submesh_Material_Name="";
 	private long Submesh_Face_Indice_Count = 0;
 	private int Submesh_Face_Indice_lastOffset = 0;

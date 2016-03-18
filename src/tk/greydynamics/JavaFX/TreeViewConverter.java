@@ -630,7 +630,7 @@ public class TreeViewConverter {
 		
 	}
 	public static TreeItem<Entity> getTreeView(EntityLayer layer){
-		TreeItem<Entity> layerRoot = new TreeItem<Entity>(new LayerEntity(layer.getName()));
+		TreeItem<Entity> layerRoot = new TreeItem<Entity>(new LayerEntity(layer, layer.getName()));
 		layerRoot.setGraphic(new ImageView(JavaFXHandler.ICON_STRUCTURE));
 		for (Entity e : layer.getEntities()){
 			TreeItem<Entity> et = getTreeView(e);

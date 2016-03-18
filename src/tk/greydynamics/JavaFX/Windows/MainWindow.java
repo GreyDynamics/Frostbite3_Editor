@@ -98,6 +98,9 @@ public class MainWindow extends Application{
 			public void run() {
 				for (EBXWindow window : ebxWindows){
 					if (window.getStage()==stage){
+						if (window.getEntityLayer()!=null){
+							Core.getGame().getEntityHandler().destroyEntityLayer(window.getEntityLayer());
+						}
 						stage.close();
 						ebxWindows.remove(window);
 						break;
@@ -347,14 +350,14 @@ public class MainWindow extends Application{
 		Platform.runLater(new Runnable() {
 			@Override
 			public void run() {
-				ObservableList<String> list = toolsWindow.getController().getLayer().getItems();
-				list.clear();
-				for (EntityLayer layer : layers){
-					list.add(layer.getName());
-				}
-				toolsWindow.getController().getDestroyLayerButton().setDisable(layers.isEmpty());
-				
-				
+//				ObservableList<String> list = toolsWindow.getController().getLayer().getItems();
+//				list.clear();
+//				for (EntityLayer layer : layers){
+//					list.add(layer.getName());
+//				}
+//				toolsWindow.getController().getDestroyLayerButton().setDisable(layers.isEmpty());
+//				
+//				
 				
 				
 				

@@ -29,6 +29,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import tk.greydynamics.Messages;
 import tk.greydynamics.Camera.FPCameraController;
 import tk.greydynamics.Entity.Entity;
 import tk.greydynamics.Entity.Entity.Type;
@@ -229,13 +230,16 @@ public class Render {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			RenderEntityLayers(game.getEntityHandler().getLayers(), identityMatrix, shader, true, false, false);
 			
-			Vector2f size = frameBufferHandler.getPickingSize();
-			GL11.glReadPixels((int)size.x/2, (int)size.y/2, 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, frameBufferHandler.getRGBAPickingBuffer());
-			Vector3f pickingColor = new Vector3f(frameBufferHandler.getRGBAPickingBuffer().get(0), frameBufferHandler.getRGBAPickingBuffer().get(1), frameBufferHandler.getRGBAPickingBuffer().get(2));
-			Entity test = game.getEntityHandler().pickEntity(pickingColor);
-			if (test!=null){
-//				System.out.println("found!");
-				test.setHighlighted(true);
+			if (!Mouse.isGrabbed()){
+				GL11.glReadPixels(Mouse.getX(), Mouse.getY(), 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, frameBufferHandler.getRGBAPickingBuffer());
+				Vector3f pickingColor = new Vector3f(frameBufferHandler.getRGBAPickingBuffer().get(0), frameBufferHandler.getRGBAPickingBuffer().get(1), frameBufferHandler.getRGBAPickingBuffer().get(2));
+				Entity picked = game.getEntityHandler().pickEntity(pickingColor);
+				if (picked!=null){
+					Display.setTitle(Messages.getString("Core.23")+" ["+picked.getName()+"]");
+					picked.setHighlighted(true);
+				}else{
+					Display.setTitle(Messages.getString("Core.23")+" [NO SELECTION]");
+				}
 			}
 			frameBufferHandler.unbindCurrentFrameBuffer();
 		}

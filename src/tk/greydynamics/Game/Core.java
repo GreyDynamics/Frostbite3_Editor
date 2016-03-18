@@ -181,7 +181,7 @@ public class Core {
 				game.getModelHandler().getLoader().init();
 				game.getShaderHandler().init();
 				game.buildExplorerTree();
-				game.getGuis().add(new GuiTexture(game.getModelHandler().getLoader().getCrosshairID(), new Vector2f(0.0f, 0.0f), new Vector2f(0.15f, 0.15f)));
+				game.getGuis().add(new GuiTexture(game.getModelHandler().getLoader().getCrosshairID(), new Vector2f(0.0375f, -0.0375f), new Vector2f(0.15f, 0.15f)));
 				render = new Render(game);
 				inputHandler = new InputHandler();
 				
