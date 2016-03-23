@@ -351,10 +351,13 @@ public class ModTools {
 					}
 
 					//PROCC
+					System.err.println("[COMPILER-INFO]Preparing paths");
+					LayoutFile toc = TocManager.readToc(Core.getGame().getCurrentFile());
+					ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
+					
+					ArrayList<CasBundle> modifiedCASBundles = new ArrayList<>();
+					ArrayList<NonCasBundle> modifiedNONCASBundles = new ArrayList<>();
 					for (String subPackageName : sorted.keySet()){
-						LayoutFile toc = TocManager.readToc(Core.getGame().getCurrentFile());
-						ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
-
 						CasBundle casBundle = null;
 						NonCasBundle nonCasBundle = null;
 						for (TocEntry link : convToc.getBundles()){
@@ -538,17 +541,26 @@ public class ModTools {
 								}
 							}
 						}
-						//TODO convToc.setTotalSize(totalSize);
-						String newPath = ((String) Core.getGame().getCurrentFile()+".sb").replace(Core.gamePath, path);
-						if (isCas){
-							LayoutCreator.createModifiedCasSuperbundle(convToc, casBundle, false/*TODO*/, newPath, true/*delete first*/);
+						if (casBundle!=null){
+							modifiedCASBundles.add(casBundle);
+						}else if (nonCasBundle!=null){
+							modifiedNONCASBundles.add(nonCasBundle);
 						}else{
-							LayoutCreator.createModifiedNonCasSuperbundle(convToc, nonCasBundle, false, newPath);
+							System.err.println("[ModTools] Error: 'unknown' bundle.");
+							return false;
 						}
-						byte[] tocBytes = LayoutCreator.createTocFile(convToc);
-						File newTocFile = new File(((String) Core.getGame().getCurrentFile()+".toc").replace(Core.gamePath, path));
-						FileHandler.writeFile(newTocFile.getAbsolutePath(), tocBytes);
 					}
+					//TODO convToc.setTotalSize(totalSize);
+					String newPath = ((String) Core.getGame().getCurrentFile()+".sb").replace(Core.gamePath, path);
+					if (isCas){
+						LayoutCreator.createModifiedCasSuperbundle(convToc, modifiedCASBundles, newPath, true/*delete first*/);
+					}else{
+						LayoutCreator.createModifiedNonCasSuperbundle(convToc, modifiedNONCASBundles, newPath);
+					}
+					byte[] tocBytes = LayoutCreator.createTocFile(convToc);
+					File newTocFile = new File(((String) Core.getGame().getCurrentFile()+".toc").replace(Core.gamePath, path));
+					FileHandler.writeFile(newTocFile.getAbsolutePath(), tocBytes);	
+					
 					if (isCas){
 						//Create new CasCat
 						byte[] casCatBytes = casCatMgr.getCat();

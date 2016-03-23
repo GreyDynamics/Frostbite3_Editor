@@ -8,7 +8,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.LayerEntity;
+import tk.greydynamics.Entity.Entities.LayerEntity;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.Windows.MainWindow.EntryType;

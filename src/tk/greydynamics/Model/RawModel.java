@@ -1,7 +1,5 @@
 package tk.greydynamics.Model;
 
-import java.util.ArrayList;
-
 import tk.greydynamics.Game.Core;
 
 public class RawModel {
@@ -12,6 +10,7 @@ public class RawModel {
 	
 	private int lifeTicks = 0;
 	public static int LIFETIME = Core.TICK_RATE*10;
+	public static int LIFETIME_INFINITE = -123456789;
 	
 	public RawModel(String name, int vaoID, int vertexCount, int drawMethod) {
 		this.name = name;
@@ -48,11 +47,15 @@ public class RawModel {
 	}
 	
 	public void addLifeTick(){
-		this.lifeTicks += 1;
+		if (this.lifeTicks!=LIFETIME_INFINITE){
+			this.lifeTicks += 1;
+		}
 	}
 	
 	public void poke(){
-		this.lifeTicks = 0;
+		if (this.lifeTicks!=LIFETIME_INFINITE){
+			this.lifeTicks = 0;
+		}
 	}
 
 	public void setLifeTicks(int lifeTicks) {

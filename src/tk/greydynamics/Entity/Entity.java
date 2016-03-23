@@ -2,20 +2,23 @@ package tk.greydynamics.Entity;
 
 import java.util.ArrayList;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
+import tk.greydynamics.Entity.Entities.InstanceEntity;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Model.RawModel;
+import tk.greydynamics.Resource.Frostbite3.EBX.EBXLinearTransform;
 
 public abstract class Entity {
 	
 	public static enum Type{
 			Object, Light,
-			Layer, Instance
+			Layer, Instance, Gizmo
 	};
 
 	private String name;
@@ -23,7 +26,7 @@ public abstract class Entity {
 	private Object entityObject;
 
 	private Vector3f position = new Vector3f(0.0f, 0.0f, 0.0f);
-	private Vector3f rotation = new Vector3f(0.0f, 0.0f, 0.0f);
+	private Vector3f rotation = new Vector3f(0.0f, 0.0f, 0.0f);// stores value as radians (Math.toRadians(degrees));
 	private Vector3f scaling = new Vector3f(1.0f, 1.0f, 1.0f);
 	private Vector3f velocity = new Vector3f(0.0f, 0.0f, 0.0f);
 
@@ -328,6 +331,16 @@ public abstract class Entity {
 		this.relMatrix =  Matrices.createTransformationMatrix(position,
 				rotation, scaling);
 		this.recalculateAbs = true;
+		
+		//Apply Transformation Data.
+	    if (this instanceof InstanceEntity){
+	        System.out.println("Applying Transformation to EBX: "+name);// "from "+layer.getName());
+	        InstanceEntity instanceEntity = (InstanceEntity) this;
+	        if (instanceEntity.getLinearTransformField()!=null){
+//	        	System.out.println("DEBUG Entity Picking: "+instanceEntity.getLinearTransformField().getValueAsComplex().getComplexDescriptor().getName());
+	        	EBXLinearTransform.setTransformation(this.getRelMatrix(), instanceEntity.getLinearTransformField().getValueAsComplex(), layer.getEBXWindow(), true/*tmp*/);
+	        }
+	    }
 	}
 	
 	public void recalculateAbsMatrix(Matrix4f parentMtx){

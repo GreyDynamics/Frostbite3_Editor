@@ -2,10 +2,7 @@ package tk.greydynamics.Entity.Layer;
 
 import java.util.ArrayList;
 
-import org.lwjgl.util.vector.Vector3f;
-
 import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.EntityPicker;
 import tk.greydynamics.JavaFX.Windows.EBXWindow;
 
 public class EntityLayer {

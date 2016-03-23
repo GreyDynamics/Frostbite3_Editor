@@ -2,15 +2,13 @@ package tk.greydynamics.Entity.Layer;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import tk.greydynamics.Messages;
 import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Entity.EntityHandler;
-import tk.greydynamics.Entity.InstanceEntity;
-import tk.greydynamics.Entity.ObjectEntity;
+import tk.greydynamics.Entity.Entities.InstanceEntity;
+import tk.greydynamics.Entity.Entities.ObjectEntity;
+import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.Windows.EBXWindow;
-import tk.greydynamics.Maths.VectorMath;
 import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle.BundleType;
 import tk.greydynamics.Resource.Frostbite3.Cas.CasBundle;
@@ -50,7 +48,7 @@ public class EntityLayerConverter {
 			}
 			return layer;
 		}
-		System.err.println(Messages.getString("EntityLayerConverter.2")); //$NON-NLS-1$
+		System.err.println("Can not create EntityLayer in EntityLayerConverter from EBXFile!");
 		return null;
 	}
 	private static Entity getEntity(EntityLayer layer, boolean isMaster, Vector3f pickingColors, EBXFile file, Entity parentEntity, boolean loadOriginal){
@@ -228,7 +226,7 @@ public class EntityLayerConverter {
 						if (resLink.getType()==ResourceType.MESH||resLink.getType()==ResourceType.OCCLUSIONMESH){
 							byte[] meshData = Core.getGame().getResourceHandler().readResourceLink(resLink);
 							if (meshData!=null){
-								return Core.getGame().getEntityHandler().createEntity(layer, pickingColors, meshData, type, entityData, externalGUID, parentEntity, Messages.getString("EntityLayerConverter.8")); //$NON-NLS-1$
+								return Core.getGame().getEntityHandler().createEntity(layer, pickingColors, meshData, type, entityData, externalGUID, parentEntity, "EntityLayerConverter's getEntity-Method!"); //$NON-NLS-1$
 							}
 						}else{
 							System.err.println("Found resource with same name, but its not an mesh. "+resLink.getName());
@@ -246,8 +244,8 @@ public class EntityLayerConverter {
 					if (resEntry.getName().equalsIgnoreCase(resLinkname)){
 						byte[] meshData = Core.getGame().getResourceHandler().readNonCasBundleEntry(resEntry);
 						if (meshData!=null){
-							System.err.println(Messages.getString("EntityLayerConverter.9")); //$NON-NLS-1$
-							return Core.getGame().getEntityHandler().createEntity(layer, pickingColors, meshData, type, entityData, externalGUID, parentEntity, Messages.getString("EntityLayerConverter.10")); //$NON-NLS-1$
+							System.err.println("Can't create mesh! Mesh Loader can't handle non-cas chunks!");
+							return Core.getGame().getEntityHandler().createEntity(layer, pickingColors, meshData, type, entityData, externalGUID, parentEntity, "EntityLayerConverter's getEntity-Method!"); //$NON-NLS-1$
 						}
 					}
 				}

@@ -6,16 +6,19 @@ import java.util.ConcurrentModificationException;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector3f;
 
-import tk.greydynamics.Messages;
+import tk.greydynamics.Entity.Entities.LightEntity;
+import tk.greydynamics.Entity.Entities.ObjectEntity;
 import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Entity.Layer.EntityLayerConverter;
+import tk.greydynamics.Entity.Picker.ObjectEntityPicker;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.Windows.EBXWindow;
 import tk.greydynamics.Maths.RayCasting;
 import tk.greydynamics.Maths.VectorMath;
 import tk.greydynamics.Model.ModelHandler;
 import tk.greydynamics.Model.RawModel;
+import tk.greydynamics.Render.GizmoHandler;
 import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXExternalGUID;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
@@ -25,8 +28,8 @@ import tk.greydynamics.Resource.Frostbite3.MESH.MeshChunkLoader;
 public class EntityHandler {
 		
 	ArrayList <EntityLayer> layers = new ArrayList <>();
-	Vector3f ray = null;
-	Entity focussedEntity = null;
+//	Vector3f ray = null;
+//	Entity focussedEntity = null;
 	
 	public int MAX_TEXTURES = 1000;
 	public int MAX_RAY_CHECKS = 10000;
@@ -34,16 +37,18 @@ public class EntityHandler {
 	
 	public ModelHandler modelHandler;
 	public ResourceHandler resourceHandler;
-	private EntityPicker entityPicker;
+	private ObjectEntityPicker objectEntityPicker;
+	private GizmoHandler gizmoHandler;
 	
 	public EntityHandler(ModelHandler modelHandler, ResourceHandler resourceHandler) {
 		this.modelHandler = modelHandler;
 		this.resourceHandler = resourceHandler;
-		this.entityPicker = new EntityPicker();
+		this.objectEntityPicker = new ObjectEntityPicker();
+		
+		this.gizmoHandler = new GizmoHandler();
 	}
 	public Entity pickEntity(Vector3f pickingColor){
-		return entityPicker.getPickedEntityFromLayers(pickingColor, layers);
-	}
+		return objectEntityPicker.getPickedEntityFromLayers(pickingColor, layers);	}
 	
 	public EntityLayer createEntityLayer(EBXFile ebxFile, EBXWindow ebxWindow){
 		EntityLayer layer = EntityLayerConverter.getEntityLayer(ebxFile, ebxWindow);
@@ -88,7 +93,7 @@ public class EntityHandler {
 	}
 	
 	public void destroyEntity(Entity e){
-		System.err.println(Messages.getString("EntityHandler.0")); //$NON-NLS-1$
+		System.err.println("Destroy Entity and clean resources if not needed anymore, not done!"); 
 	}
 	
 	public void clear(){
@@ -101,47 +106,47 @@ public class EntityHandler {
 	}
 
 	
-	public Entity getFocussedEntity(Vector3f position, Vector3f direction){
-		return getFocussedEntity(position, direction, MAX_RAY_CHECKS, RAY_CHECK_DISTANCE);
-	}
+//	public Entity getFocussedEntity(Vector3f position, Vector3f direction){
+//		return getFocussedEntity(position, direction, MAX_RAY_CHECKS, RAY_CHECK_DISTANCE);
+//	}
 	
-	public Entity getFocussedEntity(Vector3f position, Vector3f direction, int maxChecks, float checkDistance){
-		System.err.println(Messages.getString("EntityHandler.1")); //$NON-NLS-1$
-		this.ray = new Vector3f(position.x, position.y, position.z);
-		Vector3f origin = new Vector3f(position.x, position.y, position.z);
-		Vector3f absMinCoords = null;
-		Vector3f absMaxCoords = null;
-		for (int check=1; check<=maxChecks; check++){
-			this.ray = RayCasting.getRayPosition(ray, direction, checkDistance, null);
-			try{
-				for (EntityLayer layer : layers){
-					for (Entity e : layer.getEntities()){
-						e.setShowBoundingBox(false);
-						absMinCoords = Vector3f.add(e.getPosition(), VectorMath.multiply(e.getMinCoords(), e.getScaling(), null), null);//pos+(minCoords*Scaling)
-						absMaxCoords = Vector3f.add(e.getPosition(), VectorMath.multiply(e.getMaxCoords(), e.getScaling(), null), null);
-						if (ray.x >= absMinCoords.x && ray.x <= absMaxCoords.x && ray.y >= absMinCoords.y
-								&& ray.y <= absMaxCoords.y&& ray.z >= absMinCoords.z && ray.z <= absMaxCoords.z){ //Entity covers area of RayPoint
-							
-							
-							if (origin.x >= absMinCoords.x && origin.x <= absMaxCoords.x &&
-									origin.y >= absMinCoords.y && origin.y <= absMaxCoords.y&& origin.z >= absMinCoords.z && origin.z <= absMaxCoords.z){
-								//Origin point isn't allowed to be inside of entity!
-								continue;
-							}
-							
-							e.setShowBoundingBox(true);
-							focussedEntity = e;
-							return e;//entity found!
-						}
-					}
-				}
-			}catch(ConcurrentModificationException e){
-				//null
-			}
-		}
-		focussedEntity = null;
-		return null;//nothing found!
-	}
+//	public Entity getFocussedEntity(Vector3f position, Vector3f direction, int maxChecks, float checkDistance){
+//		System.err.println("Raycasting has a big, A REALLY BIG performance problem! We have to thing about something else!"); 
+//		this.ray = new Vector3f(position.x, position.y, position.z);
+//		Vector3f origin = new Vector3f(position.x, position.y, position.z);
+//		Vector3f absMinCoords = null;
+//		Vector3f absMaxCoords = null;
+//		for (int check=1; check<=maxChecks; check++){
+//			this.ray = RayCasting.getRayPosition(ray, direction, checkDistance, null);
+//			try{
+//				for (EntityLayer layer : layers){
+//					for (Entity e : layer.getEntities()){
+//						e.setShowBoundingBox(false);
+//						absMinCoords = Vector3f.add(e.getPosition(), VectorMath.multiply(e.getMinCoords(), e.getScaling(), null), null);//pos+(minCoords*Scaling)
+//						absMaxCoords = Vector3f.add(e.getPosition(), VectorMath.multiply(e.getMaxCoords(), e.getScaling(), null), null);
+//						if (ray.x >= absMinCoords.x && ray.x <= absMaxCoords.x && ray.y >= absMinCoords.y
+//								&& ray.y <= absMaxCoords.y&& ray.z >= absMinCoords.z && ray.z <= absMaxCoords.z){ //Entity covers area of RayPoint
+//							
+//							
+//							if (origin.x >= absMinCoords.x && origin.x <= absMaxCoords.x &&
+//									origin.y >= absMinCoords.y && origin.y <= absMaxCoords.y&& origin.z >= absMinCoords.z && origin.z <= absMaxCoords.z){
+//								//Origin point isn't allowed to be inside of entity!
+//								continue;
+//							}
+//							
+//							e.setShowBoundingBox(true);
+//							focussedEntity = e;
+//							return e;//entity found!
+//						}
+//					}
+//				}
+//			}catch(ConcurrentModificationException e){
+//				//null
+//			}
+//		}
+//		focussedEntity = null;
+//		return null;//nothing found!
+//	}
 	
 	
 	public Entity createEntity(EntityLayer layer, Vector3f pickerColors, byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
@@ -192,14 +197,14 @@ public class EntityHandler {
 			return en;
 		}catch(Exception e){
 			e.printStackTrace();
-			System.err.println(Messages.getString("EntityHandler.2")+loaderErrorDesc); //$NON-NLS-1$
+			System.err.println("Could not create entitiy: "+loaderErrorDesc); 
 			return null;
 		}
 	}
 	
 	public void updateLayer(EntityLayer layer, EBXStructureFile meshVariationDatabase){
 		updateEntities(layer.getEntities(), meshVariationDatabase);
-		Core.getJavaFXHandler().getDialogBuilder().showInfo(Messages.getString("EntityHandler.3"), Messages.getString("EntityHandler.4")); //$NON-NLS-1$ //$NON-NLS-2$
+		Core.getJavaFXHandler().getDialogBuilder().showInfo("UPDATED", "The layer got updated by the Meshvariation Database!");  
 	}
 	
 	private void updateEntity(Entity e, EBXStructureFile meshVariationDatabase){
@@ -220,21 +225,24 @@ public class EntityHandler {
 	}
 
 
-	public Vector3f getRay() {
-		return ray;
-	}
+//	public Vector3f getRay() {
+//		return ray;
+//	}
 
 
-	public Entity getFocussedEntity() {
-		return focussedEntity;
-	}
+//	public Entity getFocussedEntity() {
+//		return focussedEntity;
+//	}
 	
 	public ArrayList<EntityLayer> getLayers() {
 		return layers;
 	}
 
-	public EntityPicker getEntityPicker() {
-		return entityPicker;
+	public ObjectEntityPicker getObjectEntityPicker() {
+		return objectEntityPicker;
+	}
+	public GizmoHandler getGizmoHandler() {
+		return gizmoHandler;
 	}
 	
 	

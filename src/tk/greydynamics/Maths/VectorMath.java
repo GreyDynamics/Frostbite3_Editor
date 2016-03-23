@@ -34,4 +34,12 @@ public class VectorMath {
 		return vec;
 	}
 	
+	public static float getDistance(Vector3f pos1, Vector3f pos2){
+		//http://freespace.virgin.net/hugo.elias/routines/r_dist.htm
+		float xd = pos2.x-pos1.x;
+		float yd = pos2.y-pos1.y;
+		float zd = pos2.z-pos1.z;
+		return (float) Math.sqrt(xd*xd + yd*yd + zd*zd);
+	}
+	
 }

@@ -12,6 +12,7 @@ import tk.greydynamics.Game.Core;
 import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Model.Loader;
 import tk.greydynamics.Model.RawModel;
+import tk.greydynamics.Render.Shader.GuiShader;
 
 public class GuiRenderer {
 	private final RawModel quad;

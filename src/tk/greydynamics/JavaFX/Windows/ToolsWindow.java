@@ -19,7 +19,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.JavaFX.TreeViewEntry;
@@ -28,7 +27,6 @@ import tk.greydynamics.JavaFX.CellFactories.JavaFXexplorer1TCF;
 import tk.greydynamics.JavaFX.CellFactories.JavaFXexplorerTCF;
 import tk.greydynamics.JavaFX.CellFactories.JavaFXlayerTCF;
 import tk.greydynamics.JavaFX.Controller.ToolsWindowController;
-import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureFile;
 
 public class ToolsWindow {
 	private Stage stage;

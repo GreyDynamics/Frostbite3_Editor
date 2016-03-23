@@ -10,7 +10,6 @@ import java.util.HashMap;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
-import tk.greydynamics.Messages;
 import tk.greydynamics.Entity.EntityHandler;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.JavaFX.TreeViewConverter;
@@ -21,6 +20,7 @@ import tk.greydynamics.Model.ModelHandler;
 import tk.greydynamics.Player.PlayerEntity;
 import tk.greydynamics.Player.PlayerHandler;
 import tk.greydynamics.Render.Gui.GuiTexture;
+import tk.greydynamics.Render.Shader.ShaderHandler;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler;
 import tk.greydynamics.Resource.Frostbite3.Cas.Bundle;
@@ -30,7 +30,6 @@ import tk.greydynamics.Resource.Frostbite3.Layout.LayoutFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.ConvertedTocFile;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocConverter;
 import tk.greydynamics.Resource.Frostbite3.Toc.TocManager;
-import tk.greydynamics.Shader.ShaderHandler;
 import tk.greydynamics.Terrain.TerrainHandler;
 
 public class Game {
@@ -78,7 +77,7 @@ public class Game {
 		guis = new ArrayList<>();
 		
 		if (!Core.isDEBUG){
-			System.out.println(Messages.getString("Game.0")); //$NON-NLS-1$
+			System.out.println("Please select a game root directory like this one: 'C:/Program Files (x86)/Origin Games/Battlefield 4'!"); 
 			Core.getJavaFXHandler().getMainWindow().selectGamePath();
 		}else{
 			
@@ -93,7 +92,7 @@ public class Game {
 		
 		while (Core.keepAlive){
 			//wait
-			System.out.print(""); //$NON-NLS-1$
+			System.out.print(""); 
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e1) {
@@ -107,13 +106,13 @@ public class Game {
 		checkGameVersion();
 		Core.getJavaFXHandler().getMainWindow().getModLoaderWindow().getController().setGamepath(FileHandler.normalizePath(Core.gamePath));
 		Core.getJavaFXHandler().getMainWindow().toggleModLoaderVisibility();
-		File cascat = new File(Core.gamePath+Core.PATH_DATA+"cas.cat"); //$NON-NLS-1$
+		File cascat = new File(Core.gamePath+Core.PATH_DATA+"cas.cat"); 
 //		if (!cascat.exists()){
 //			//System.err.println("Invalid gamepath selected.");
 //			Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Invalid gamepath selected.", null);
 //			Core.keepAlive(false);
 //		}else{
-			System.out.println(Messages.getString("Game.1")); //$NON-NLS-1$
+			System.out.println("Building up FrostBite Editor!"); 
 			buildEditor();
 			
 			if (Core.isDEBUG){//EBX-DEBUG
@@ -137,20 +136,20 @@ public class Game {
 			//{"sku":"origin","build":"923305"}
 			//TODO just grep game version.
 			try{
-				FileReader fr = new FileReader(Core.gamePath+"/version.json"); //$NON-NLS-1$
+				FileReader fr = new FileReader(Core.gamePath+"/version.json"); 
 				BufferedReader br = new BufferedReader(fr);
 			    String line = br.readLine();
 			    Core.gameVersion = line;
-			    Core.getJavaFXHandler().getMainWindow().getModLoaderWindow().getController().getGameVersionLabel().setText(Messages.getString("Game.4")+Core.gameVersion); //$NON-NLS-1$
+			    Core.getJavaFXHandler().getMainWindow().getModLoaderWindow().getController().getGameVersionLabel().setText("Version: "+Core.gameVersion); 
 			    br.close();
 			    fr.close();
 			}catch (FileNotFoundException e){
-				Core.getJavaFXHandler().getDialogBuilder().showError(Messages.getString("Game.3"), Messages.getString("Game.2"), null); //$NON-NLS-1$ //$NON-NLS-2$
-				Core.gameVersion = "not found"; //$NON-NLS-1$
+				Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Please make sure a \"version.json\" file exists in the game root directory.", null);  
+				Core.gameVersion = "not found"; 
 			}catch (Exception e){
 				e.printStackTrace();
-				Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", Messages.getString("Game.5"), null); //$NON-NLS-1$ //$NON-NLS-2$
-				Core.gameVersion = "not compatible"; //$NON-NLS-1$
+				Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Please submit your \"version.json\" file. Its not compatible with this editor. Thanks!", null);  
+				Core.gameVersion = "not compatible"; 
 			}
 		}
 		return false;
@@ -158,25 +157,25 @@ public class Game {
 
 
 	public void buildEditor(){
-		File normalCasCat = new File(Core.gamePath+Core.PATH_DATA+"cas.cat"); //$NON-NLS-1$
+		File normalCasCat = new File(Core.gamePath+Core.PATH_DATA+"cas.cat"); 
 		if (normalCasCat.exists()){
-			resourceHandler.getCasCatManager().readCat(FileHandler.readFile(Core.gamePath+Core.PATH_DATA+"cas.cat"), "normal"); //$NON-NLS-1$ //$NON-NLS-2$
-			File patchedCasCat = new File(Core.gamePath+Core.PATH_UPDATE_PATCH+Core.PATH_DATA+"cas.cat"); //$NON-NLS-1$
+			resourceHandler.getCasCatManager().readCat(FileHandler.readFile(Core.gamePath+Core.PATH_DATA+"cas.cat"), "normal");  
+			File patchedCasCat = new File(Core.gamePath+Core.PATH_UPDATE_PATCH+Core.PATH_DATA+"cas.cat"); 
 			if (patchedCasCat.exists()){
-				resourceHandler.getPatchedCasCatManager().readCat(FileHandler.readFile(patchedCasCat.getAbsolutePath()), "patched"); //$NON-NLS-1$
+				resourceHandler.getPatchedCasCatManager().readCat(FileHandler.readFile(patchedCasCat.getAbsolutePath()), "patched"); 
 			}
 		}else{
-			System.err.println(Messages.getString("Game.6")); //$NON-NLS-1$
+			System.err.println("No CASCAT exists!"); 
 		}
 		//ebxFileGUIDs = new HashMap<String, String>();
 		chunkGUIDSHA1 = new HashMap<String, String>();
 		
 		/*Use this to fetch common chunks!*/
 		commonChunks = new ArrayList<ConvertedTocFile>();
-		for (File file : FileHandler.listf(Core.gamePath+"/", "Chunks")){ //$NON-NLS-1$ //$NON-NLS-2$
-			if (file.getAbsolutePath().endsWith(".toc")){ //$NON-NLS-1$
+		for (File file : FileHandler.listf(Core.gamePath+"/", "Chunks")){  
+			if (file.getAbsolutePath().endsWith(".toc")){ 
 				try{
-					String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", "");    
 					LayoutFile toc = TocManager.readToc(relPath);
 					ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
 					commonChunks.add(convToc);
@@ -188,10 +187,10 @@ public class Game {
 		/*End of common chunks!*/
 		
 		/*Battlefield Weapons and Attachments*/
-		for (File file : FileHandler.listf(Core.gamePath+"/", "WeaponsAndAttachments")){ //$NON-NLS-1$ //$NON-NLS-2$
-			if (file.getAbsolutePath().endsWith(".toc")){ //$NON-NLS-1$
+		for (File file : FileHandler.listf(Core.gamePath+"/", "WeaponsAndAttachments")){  
+			if (file.getAbsolutePath().endsWith(".toc")){ 
 				try{
-					String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					String relPath = file.getAbsolutePath().replace("\\", "/").replace(".toc", "");    
 					LayoutFile toc = TocManager.readToc(relPath);
 					ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
 					commonChunks.add(convToc);
@@ -217,9 +216,9 @@ public class Game {
 	public void buildExplorerTree(){		
 		currentToc = null;
 		currentBundle = null;
-		ArrayList<File> patch = FileHandler.listf(Core.gamePath+Core.PATH_UPDATE_PATCH, ".sb"); //$NON-NLS-1$
-		ArrayList<File> data = FileHandler.listf(Core.gamePath+Core.PATH_DATA, ".sb"); //$NON-NLS-1$
-		ArrayList<File> xp = FileHandler.listf(null, Core.gamePath+Core.PATH_UPDATE, ".sb", null, Core.PATH_UPDATE_PATCH);//Just find DLC base //$NON-NLS-1$
+		ArrayList<File> patch = FileHandler.listf(Core.gamePath+Core.PATH_UPDATE_PATCH, ".sb"); 
+		ArrayList<File> data = FileHandler.listf(Core.gamePath+Core.PATH_DATA, ".sb"); 
+		ArrayList<File> xp = FileHandler.listf(null, Core.gamePath+Core.PATH_UPDATE, ".sb", null, Core.PATH_UPDATE_PATCH);//Just find DLC base 
 		
 		TreeItem<TreeViewEntry> explorerTree = new TreeItem<TreeViewEntry>(new TreeViewEntry(Core.gamePath, null, null, EntryType.LIST));
 		
@@ -263,11 +262,11 @@ public class Game {
 		*/
 	}
 	private boolean buildExplorerTreeFile(File file, TreeItem<TreeViewEntry> explorerTree, Color backgroundColor, boolean bundleTypeIcon){
-		String relPath = file.getAbsolutePath().replace("\\", "/").replace(".sb", "").replace(Core.gamePath+"/", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$ //$NON-NLS-6$
+		String relPath = file.getAbsolutePath().replace("\\", "/").replace(".sb", "").replace(Core.gamePath+"/", "");      
 		ImageView icon = null;
 		if (bundleTypeIcon){
 			try{
-				LayoutFile toc = TocManager.readToc(Core.gamePath+"/"+relPath); //$NON-NLS-1$
+				LayoutFile toc = TocManager.readToc(Core.gamePath+"/"+relPath); 
 				ConvertedTocFile convToc = TocConverter.convertTocFile(toc);
 				if (convToc.isCas()){
 					icon = new ImageView(JavaFXHandler.ICON_3_ORANGE);
@@ -280,7 +279,7 @@ public class Game {
 			icon = new ImageView(JavaFXHandler.ICON_DOCUMENT);
 		}
 		
-		String[] fileName = relPath.split("/"); //$NON-NLS-1$
+		String[] fileName = relPath.split("/"); 
 		
 		TreeItem<TreeViewEntry> convTocTree = new TreeItem<TreeViewEntry>(new TreeViewEntry(fileName[fileName.length-1], icon, file, EntryType.LIST)); 
 		TreeViewConverter.pathToTree(explorerTree, relPath, convTocTree, backgroundColor);

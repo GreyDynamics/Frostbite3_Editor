@@ -3,7 +3,6 @@ package tk.greydynamics.Model;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import tk.greydynamics.Entity.Entity;
 import tk.greydynamics.Game.Core;
 
 public class ModelHandler {
@@ -41,7 +40,7 @@ public class ModelHandler {
 	public int cleanUnused(){
 		ArrayList<RawModel> unusedModels = new ArrayList<>();
 		for (RawModel model : rawModels.values()){
-			if (model.getLifeTicks()>RawModel.LIFETIME){
+			if (model.getLifeTicks()!=RawModel.LIFETIME_INFINITE&&model.getLifeTicks()>RawModel.LIFETIME){
 				model.cleanUP(loader);
 				unusedModels.add(model);
 			}

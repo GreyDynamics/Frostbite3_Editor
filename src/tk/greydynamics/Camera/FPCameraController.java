@@ -42,7 +42,13 @@ public class FPCameraController
     public void pitch(float amount)
     {
         //increment the pitch by the amount param
-        pitch += amount;
+    	pitch += amount;
+    	
+    	if (pitch>=90f){
+    		pitch = 90;
+    	}else if (pitch<-90f){
+    		pitch = -90f;
+    	}
     }
     //moves the camera forward relative to its current rotation (yaw|pitch)
     public void walkForward(float distance)

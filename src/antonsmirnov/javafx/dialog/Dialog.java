@@ -29,7 +29,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import tk.greydynamics.Messages;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Resource.FileHandler;
 
@@ -81,7 +80,7 @@ public class Dialog extends Stage {
         protected static final int MESSAGE_MAX_WIDTH = 800;
         protected static final int BUTTON_WIDTH = 60;
         protected static final double MARGIN = 10;
-        protected static final String ICON_PATH = "res/dialog/"; 
+        protected static final String ICON_PATH = "res/dialog/";  
         
         protected Dialog stage;
 
@@ -190,10 +189,10 @@ public class Dialog extends Stage {
         // NOTE: invoke once during Dialog creating
         private Builder setStackTrace(Throwable t) {
             // view button
-            stage.viewStacktraceButton = new ToggleButton(Messages.getString("Dialog.1")); //$NON-NLS-1$
+            stage.viewStacktraceButton = new ToggleButton("View stacktrace"); 
             
             // copy button
-            stage.copyStacktraceButton = new Button(Messages.getString("Dialog.2")); //$NON-NLS-1$
+            stage.copyStacktraceButton = new Button("Copy to clipboard"); 
             HBox.setMargin(stage.copyStacktraceButton, new Insets(0, 0, 0, MARGIN));
             
             stage.stacktraceButtonsPanel = new HBox();
@@ -275,32 +274,32 @@ public class Dialog extends Stage {
         }
         
         protected Builder setWarningIcon() {
-            setIconFromResource(ICON_PATH + "warningIcon.png"); 
+            setIconFromResource(ICON_PATH + "warningIcon.png");  
             return this;
         }
         
         protected Builder setErrorIcon() {
-            setIconFromResource(ICON_PATH + "errorIcon.png"); 
+            setIconFromResource(ICON_PATH + "errorIcon.png");  
             return this;
         }
         
         protected Builder setThrowableIcon() {
-            setIconFromResource(ICON_PATH + "bugIcon.png"); 
+            setIconFromResource(ICON_PATH + "bugIcon.png");  
             return this;
         }
         
         protected Builder setInfoIcon() {
-            setIconFromResource(ICON_PATH + "infoIcon.png"); 
+            setIconFromResource(ICON_PATH + "infoIcon.png");  
             return this;
         }
         
         protected Builder setConfirmationIcon() {
-            setIconFromResource(ICON_PATH + "confirmationIcon.png"); 
+            setIconFromResource(ICON_PATH + "confirmationIcon.png");  
             return this;
         }
                 
         protected Builder addOkButton(Runnable runnableWhenOK) {
-            stage.okButton = new Button(Messages.getString("Dialog.8")); //$NON-NLS-1$
+            stage.okButton = new Button("OK"); 
             stage.okButton.setPrefWidth(BUTTON_WIDTH);
             stage.okButton.setOnAction(new EventHandler<ActionEvent> () {
 
@@ -338,7 +337,7 @@ public class Dialog extends Stage {
          * @return 
          */
         public Builder addYesButton(EventHandler actionHandler) {
-            return addConfirmationButton(Messages.getString("Dialog.9"), actionHandler); //$NON-NLS-1$
+            return addConfirmationButton("YES", actionHandler); 
         }
         
         /**
@@ -348,7 +347,7 @@ public class Dialog extends Stage {
          * @return 
          */
         public Builder addNoButton(EventHandler actionHandler) {
-            return addConfirmationButton(Messages.getString("Dialog.10"), actionHandler); //$NON-NLS-1$
+            return addConfirmationButton("NO", actionHandler); 
         }
         
         /**
@@ -358,7 +357,7 @@ public class Dialog extends Stage {
          * @return 
          */
         public Builder addCancelButton(EventHandler actionHandler) {
-            return addConfirmationButton(Messages.getString("Dialog.11") , actionHandler); //$NON-NLS-1$
+            return addConfirmationButton("CANCEL" , actionHandler); 
         }
         
         /**
@@ -368,7 +367,7 @@ public class Dialog extends Stage {
          */
         public Dialog build() {
             if (stage.buttonsPanel.getChildren().size() == 0)
-                throw new RuntimeException(Messages.getString("Dialog.12")); //$NON-NLS-1$
+                throw new RuntimeException("Add one dialog button at least"); 
             
             stage.buttonsPanel.getChildren().get(0).requestFocus();
             return stage;

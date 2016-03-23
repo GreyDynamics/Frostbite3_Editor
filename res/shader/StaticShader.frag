@@ -11,7 +11,7 @@ uniform vec3 pickerColor;
 
 void main(void){
 	if(isPicker>0.0) {
-		out_Color = vec4(1-(pickerColor.x), 1-(pickerColor.y), 1-(pickerColor.z), 1);
+		out_Color = vec4(pickerColor.x, pickerColor.y, pickerColor.z, 1);
 	} else {
 		out_Color = texture(textureSampler, pass_texCoord) * vec4(1-(isHighlighted*heighlightedColor.x), 1-(isHighlighted*heighlightedColor.y), 1-(isHighlighted*heighlightedColor.z), 1);
 	}

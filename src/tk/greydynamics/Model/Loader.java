@@ -1,7 +1,9 @@
 package tk.greydynamics.Model;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -16,6 +18,7 @@ import org.lwjgl.opengl.GL30;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 
+import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter;
 import tk.greydynamics.Resource.Frostbite3.ITEXTURE.ImageConverter.ImageType;
 
@@ -34,13 +37,20 @@ public class Loader {
 		unbindVAO();
 		return new RawModel(name, vaoID, indices.length, drawMethod);
 	}
+	public RawModel loadVAO(String name, int drawMethod, float[] positions, int[] indices){//untested
+		int vaoID = createVAO();
+		bindIndiciesBuffer(indices);
+		storeDataAsAttr(0, 3, positions);
+		unbindVAO();
+		return new RawModel(name, vaoID, indices.length, drawMethod);
+	}
 	
 	public RawModel loadVAO(String name, int drawMethod, float[] positions){
 		int vaoID = createVAO();
 		storeDataInAttributeList(0, 2, positions);
 		unbindVAO();
 		return new RawModel(name, vaoID, positions.length/2, drawMethod);
-	}
+	}	
 	
 	public int createVAO(){
 		int vaoID = GL30.glGenVertexArrays();
@@ -100,6 +110,67 @@ public class Loader {
 	public int getCrosshairID() {
 		return crosshairID;
 	}
+	
+	public RawModel loadOBJSimple(String f, int drawMethod){
+		try{
+	        BufferedReader reader = new BufferedReader(new FileReader(new File(f)));
+	        String line;
+	        String name = null;
+	        ArrayList<Float> vertices = new ArrayList<>();
+	        ArrayList<Float> normals = new ArrayList<>();
+	        ArrayList<Float> uvs = new ArrayList<>();
+	        ArrayList<Integer> indices = new ArrayList<>();
+	        while ((line = reader.readLine()) != null) {
+	            if (line.startsWith("#")) {
+	                continue;
+	            }
+	            if (line.startsWith("o ")) {
+	            	//o Axis_Base
+	            	String[] words = line.split(" ");
+	            	name = words[1];
+	            	System.out.println("[OBJ] Loading "+name);
+	            } else if (line.startsWith("v ")) {
+	            	//v 0.020400 0.542908 -0.053202
+	                String[] xyz = line.split(" ");
+	                vertices.add(Float.valueOf(xyz[1]));
+	                vertices.add(Float.valueOf(xyz[2]));
+	                vertices.add(Float.valueOf(xyz[3]));
+	            } else if (line.startsWith("vn ")) {
+	            	//v 0.0 1.0 0.0
+	                String[] xyz = line.split(" ");
+	                normals.add(Float.valueOf(xyz[1]));
+	                normals.add(Float.valueOf(xyz[2]));
+	                normals.add(Float.valueOf(xyz[3]));
+	            } else if (line.startsWith("vt ")) {
+	            	//v 0.0 0.0
+	                String[] xyz = line.split(" ");
+	                uvs.add(Float.valueOf(xyz[1]));
+	                uvs.add(Float.valueOf(xyz[2]));
+	            } else if (line.startsWith("f ")) {
+	            	//f 3 2 27
+	                String[] faceIndices = line.split(" ");
+	                indices.add(Integer.valueOf(faceIndices[1])-1);
+	                indices.add(Integer.valueOf(faceIndices[2])-1);
+	                indices.add(Integer.valueOf(faceIndices[3])-1);
+	            } else {
+	                System.err.println("[OBJ] Unknown Line: " + line);
+	            }
+	        }
+	        float[] vertexArr = FileHandler.toFloats(vertices);
+//	        float[] uvArr = FileHandler.toFloats(uvs);
+	        int[] indicesArr = FileHandler.toInts(indices);
+	        reader.close();
+	        RawModel model = loadVAO(name, drawMethod, vertexArr, indicesArr);
+	        model.setLifeTicks(-500);
+	        if (model!=null){
+	        	System.out.println("[OBJ] Model loaded.");
+	        }
+	        return model;
+		}catch(Exception e){
+			e.printStackTrace();
+			return null;
+		}
+    }
 
 	public int loadTexture(String path){
 		Texture texture;

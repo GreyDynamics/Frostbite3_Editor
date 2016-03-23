@@ -166,6 +166,25 @@ public class FileHandler {
 		return arr;
 	}
 	
+	public static float[] toFloats(ArrayList<Float> floatlist){
+		float[] arr = new float[floatlist.size()];
+		int index = 0;
+		for (Float f : floatlist){
+			arr[index] = f; 
+			index++;
+		}
+		return arr;
+	}
+	public static int[] toInts(ArrayList<Integer> intlist){
+		int[] arr = new int[intlist.size()];
+		int index = 0;
+		for (int i : intlist){
+			arr[index] = i; 
+			index++;
+		}
+		return arr;
+	}
+	
 	
 	//WRITE - FileOutputStream
 	public static boolean writeFile(String filepath, byte[] arr, boolean append){

@@ -1,12 +1,6 @@
 package tk.greydynamics.Resource.Frostbite3.Cas;
 
-import java.nio.ByteOrder;
-
-import org.lwjgl.util.vector.Vector2f;
-
-import tk.greydynamics.Maths.Bitwise;
 import tk.greydynamics.Resource.FileHandler;
-import tk.greydynamics.Resource.Frostbite3.Patcher;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
 
 public class NonCasDataReader {

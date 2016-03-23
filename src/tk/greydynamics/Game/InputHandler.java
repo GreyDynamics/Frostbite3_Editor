@@ -2,26 +2,25 @@ package tk.greydynamics.Game;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
-import com.sun.org.apache.xalan.internal.xsltc.compiler.sym;
-
 import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.InstanceEntity;
+import tk.greydynamics.Entity.Entities.InstanceEntity;
 import tk.greydynamics.Player.PlayerEntity;
 import tk.greydynamics.Player.PlayerHandler;
-import tk.greydynamics.Render.Gui.GuiTexture;
+import tk.greydynamics.Render.GizmoHandler;
+import tk.greydynamics.Render.GizmoHandler.GizmoType;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXLinearTransform;
-import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler.FieldValueType;
 
 public class InputHandler {
 	
 	public float speedMultipShift = 1f;
 	
-	public void listen() {		
-		Entity en = Core.getGame().getEntityHandler().getEntityPicker().getEntityPICKED();
+	public void listen() {
+//		System.out.println(speedMultipShift);
+		Entity en = Core.getGame().getEntityHandler().getObjectEntityPicker().getEntityPICKED();
+		GizmoHandler gizmoHandler = Core.getGame().getEntityHandler().getGizmoHandler();
 		speedMultipShift += ((float) Mouse.getDWheel()/1500);
 		if (speedMultipShift<=0.0001f){
 	    	speedMultipShift = 0.0001f;
@@ -32,19 +31,7 @@ public class InputHandler {
 	    }
 		PlayerHandler pl = Core.getGame().getPlayerHandler();
 		PlayerEntity pe = pl.getPlayerEntity();
-		if (Keyboard.isKeyDown(Keyboard.KEY_U))//Apply Transformation Data.
-	    {
-	        if (en!=null){
-	        	System.out.println("Applying Matrix from Selected Model to EBX: "+en.getName()+" from "+en.getLayer().getName());
-	        	if (en instanceof InstanceEntity){
-	        		InstanceEntity instanceEntity = (InstanceEntity) en;
-	        		if (instanceEntity.getLinearTransformField()!=null){
-//	        			System.out.println("DEBUG Entity Picking: "+instanceEntity.getLinearTransformField().getValueAsComplex().getComplexDescriptor().getName());
-	        			EBXLinearTransform.setTransformation(en.getRelMatrix(), instanceEntity.getLinearTransformField().getValueAsComplex(), en.getLayer().getEBXWindow(), true/*tmp*/);
-	        		}
-	        	}
-	        }
-	    }
+		
 		if (Keyboard.isKeyDown(Keyboard.KEY_W))//move forward
 	    {
 	        pe.velZ -= 0.1f*speedMultipShift;
@@ -105,10 +92,12 @@ public class InputHandler {
 	    	Mouse.setGrabbed(false);
 	    	Core.DISPLAY_RATE=24;
 	    }
-	    if (Mouse.isButtonDown(0)){
+	    
+	    if (Mouse.isButtonDown(1)&&!Mouse.isGrabbed()){//Right Mouse
 	    	Core.DISPLAY_RATE=60;
 	    	Mouse.setGrabbed(true);
 	    }
+	    
 	    
 	    if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)&&
 	    		!Keyboard.isKeyDown(Keyboard.KEY_R)&&
@@ -162,6 +151,14 @@ public class InputHandler {
 	    		en.changePosition(rel);
 	    	}
 	    }
+	    if (Keyboard.isKeyDown(Keyboard.KEY_R)){
+	    	gizmoHandler.setCurrentGizmoType(GizmoType.GIZMO_ROTATE);
+	    }else if (Keyboard.isKeyDown(Keyboard.KEY_T)){
+	    	gizmoHandler.setCurrentGizmoType(GizmoType.GIZMO_SCALE);
+	    }else if (Keyboard.isKeyDown(Keyboard.KEY_E)){
+	    	gizmoHandler.setCurrentGizmoType(GizmoType.GIZMO_MOVE);
+	    }
+	    
 	    if (Keyboard.isKeyDown(Keyboard.KEY_R)&&Keyboard.isKeyDown(Keyboard.KEY_DOWN))//Rotate Neg X
 	    {
 	    	if (en!=null){

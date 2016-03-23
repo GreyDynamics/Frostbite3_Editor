@@ -15,7 +15,6 @@ import static org.lwjgl.opengl.GL11.glLoadIdentity;
 import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glVertex3f;
 
-import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 
@@ -26,27 +25,31 @@ import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
-import tk.greydynamics.Messages;
 import tk.greydynamics.Camera.FPCameraController;
 import tk.greydynamics.Entity.Entity;
-import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Entity.EntityTextureData;
-import tk.greydynamics.Entity.ObjectEntity;
+import tk.greydynamics.Entity.Entities.GizmoEntity;
+import tk.greydynamics.Entity.Entities.InstanceEntity;
+import tk.greydynamics.Entity.Entities.ObjectEntity;
+import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Game.Game;
 import tk.greydynamics.Game.Point;
 import tk.greydynamics.Maths.Matrices;
+import tk.greydynamics.Maths.VectorMath;
 import tk.greydynamics.Model.RawModel;
 import tk.greydynamics.Player.PlayerEntity;
 import tk.greydynamics.Render.FrameBuffer.FrameBufferHandler;
+import tk.greydynamics.Render.GizmoHandler.GizmoType;
 import tk.greydynamics.Render.Gui.GuiRenderer;
-import tk.greydynamics.Shader.StaticShader;
+import tk.greydynamics.Render.Shader.Shaders.GizmoShader;
+import tk.greydynamics.Render.Shader.Shaders.StaticShader;
+import tk.greydynamics.Render.Shader.Shaders.TerrainShader;
 import tk.greydynamics.Terrain.Terrain;
-import tk.greydynamics.Terrain.TerrainShader;
 
 public class Render {
 
@@ -59,8 +62,7 @@ public class Render {
 	public Matrix4f projectionMatrix;
 	public Matrix4f transformationMatrix;
 	private GuiRenderer guiRenderer;
-	private int renderCalls = 0;
-	
+	private int renderCalls = 0;	
 	
 	private FrameBufferHandler frameBufferHandler = new FrameBufferHandler();
 	
@@ -72,7 +74,6 @@ public class Render {
 		this.pe = game.getPlayerHandler().getPlayerEntity();
 		this.camera = new FPCameraController(pe);
 		
-
 		updateProjectionMatrix(Core.FOV, Core.DISPLAY_WIDTH,
 				Core.DISPLAY_HEIGHT, Core.zNear, Core.zFar);
 
@@ -215,10 +216,12 @@ public class Render {
 		viewMatrix = Matrices.createViewMatrix(camera.getPosition(),
 				new Vector3f(camera.getPitch(), camera.getYaw(), 0.0f));
 
+		
 		StaticShader shader = game.getShaderHandler().getStaticShader();
 		shader.start();
 		shader.loadProjectionMatrix(projectionMatrix);
 		shader.loadViewMatrix(viewMatrix);
+				
 		renderCalls = 0;
 		RenderEntityLayers(game.getEntityHandler().getLayers(), identityMatrix, shader, false, false, false);
 		//System.out.println("RenderCalls: "+renderCalls);
@@ -230,23 +233,106 @@ public class Render {
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			RenderEntityLayers(game.getEntityHandler().getLayers(), identityMatrix, shader, true, false, false);
 			
-			if (!Mouse.isGrabbed()){
+			if (!Mouse.isGrabbed()&&Mouse.isButtonDown(0)&&game.getEntityHandler().getGizmoHandler().getGizmoPicker().getEntityPICKED()==null){//
 				GL11.glReadPixels(Mouse.getX(), Mouse.getY(), 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, frameBufferHandler.getRGBAPickingBuffer());
 				Vector3f pickingColor = new Vector3f(frameBufferHandler.getRGBAPickingBuffer().get(0), frameBufferHandler.getRGBAPickingBuffer().get(1), frameBufferHandler.getRGBAPickingBuffer().get(2));
 				Entity picked = game.getEntityHandler().pickEntity(pickingColor);
 				if (picked!=null){
-					Display.setTitle(Messages.getString("Core.23")+" ["+picked.getName()+"]");
+					String additional = "";
+					if (picked instanceof InstanceEntity){
+						InstanceEntity en = (InstanceEntity) picked;
+						additional += " from "+en.getLayer().getName()+" ";
+					}
+					Display.setTitle("["+picked.getName()+additional+"]");
 					picked.setHighlighted(true);
 				}else{
-					Display.setTitle(Messages.getString("Core.23")+" [NO SELECTION]");
+					Display.setTitle("[NO SELECTION]");
 				}
 			}
 			frameBufferHandler.unbindCurrentFrameBuffer();
 		}
 		shader.stop();
 		
-		
+		/*Terrains*/
 		RenderTerrains(game.getShaderHandler().getTerrainShader());
+				
+		/*Gizmo*/
+		Entity entityPicked = null;
+		if (false){//debug
+			entityPicked = new ObjectEntity(null, "DEBUG_Gizmo", null, null, null, null, null);
+		}else{
+			entityPicked = game.getEntityHandler().getObjectEntityPicker().getEntityPICKED();
+		}
+		if (entityPicked!=null){
+			GizmoHandler gizmoHandler = game.getEntityHandler().getGizmoHandler();
+			
+			//Calculate Gizmo Scale by distance from Camera to Gizmo.
+			float scale = VectorMath.getDistance(entityPicked.getPosition(), game.getPlayerHandler().getPlayerEntity().getPos())/2f;
+			if (scale>10f){
+				scale = 10;
+			}
+			Vector3f scaleVector = new Vector3f(scale, scale, scale);
+			float mouseSpeed = (scale/100f)*Core.getInputHandler().speedMultipShift;
+			
+			//Render Gizmo
+			RenderGizmo(game.getShaderHandler().getGizmoShader(), entityPicked.getPosition(), scaleVector, false, gizmoHandler.getGizmoEntity(), gizmoHandler.getCurrentGizmoType());
+			if (Core.currentTick%(Core.TICK_RATE/5)==0){
+				frameBufferHandler.bindPickingFrameBuffer();
+				RenderGizmo(game.getShaderHandler().getGizmoShader(), entityPicked.getPosition(), scaleVector, false, gizmoHandler.getGizmoEntity(), gizmoHandler.getCurrentGizmoType());
+				if (!Mouse.isGrabbed()){
+					if (!Mouse.isButtonDown(0)){
+						GL11.glReadPixels(Mouse.getX(), Mouse.getY(), 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, frameBufferHandler.getRGBAPickingBuffer());
+						Vector3f pickingColor = new Vector3f(frameBufferHandler.getRGBAPickingBuffer().get(0), frameBufferHandler.getRGBAPickingBuffer().get(1), frameBufferHandler.getRGBAPickingBuffer().get(2));
+						Entity picked = gizmoHandler.pick(pickingColor);
+						if (picked!=null){
+//							System.out.println("Gizmo -> "+picked.getName());
+							picked.setPickerColors(Entity.randomizedPickerColors());
+							picked.setHighlighted(true);
+						}else{
+							gizmoHandler.getGizmoPicker().newPickedEntity(null);
+	//						System.out.println("Gizmo -> NONE");
+						}
+					}else{
+						if (gizmoHandler.getGizmoPicker().getEntityPICKED()!=null){
+							Entity picked = gizmoHandler.getGizmoPicker().getEntityPICKED();
+							
+							//TODO Move to own function! NOT HERE!
+							if (picked.getName().startsWith(GizmoType.GIZMO_MOVE.toString())){
+								if (picked.getName().equals(GizmoType.GIZMO_MOVE.toString()+"_X")){
+									entityPicked.changePosition(Mouse.getDX() * mouseSpeed, 0f, 0f);
+								}else if (picked.getName().equals(GizmoType.GIZMO_MOVE.toString()+"_Y")){
+									entityPicked.changePosition(0f, Mouse.getDY() * mouseSpeed, 0f);
+								}else if (picked.getName().equals(GizmoType.GIZMO_MOVE.toString()+"_Z")){
+									entityPicked.changePosition(0f, 0f, Mouse.getDX() * mouseSpeed);
+								}
+								System.out.println("[GIZMO] Change Position to "+entityPicked.getPosition());
+							}else if (picked.getName().startsWith(GizmoType.GIZMO_ROTATE.toString())){	
+								if (picked.getName().equals(GizmoType.GIZMO_ROTATE.toString()+"_X")){
+									entityPicked.changeRotation(Mouse.getDY() * mouseSpeed, 0f, 0f);
+								}else if (picked.getName().equals(GizmoType.GIZMO_ROTATE.toString()+"_Y")){
+									entityPicked.changeRotation(0f, Mouse.getDX() * mouseSpeed, 0f);
+								}else if (picked.getName().equals(GizmoType.GIZMO_ROTATE.toString()+"_Z")){
+									entityPicked.changeRotation(0f, 0f, Mouse.getDY() * mouseSpeed);
+								} 
+								System.out.println("[GIZMO] Change Rotation to "+entityPicked.getRotation());
+							}else if (picked.getName().startsWith(GizmoType.GIZMO_SCALE.toString())){	
+								if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_X")){
+									entityPicked.changeScaling(Mouse.getDX() * mouseSpeed, 0f, 0f);
+								}else if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_Y")){
+									entityPicked.changeScaling(0f, Mouse.getDY() * mouseSpeed, 0f);
+								}else if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_Z")){
+									entityPicked.changeScaling(0f, 0f, Mouse.getDX() * mouseSpeed);
+								}
+								System.out.println("[GIZMO] Change Scale to "+entityPicked.getScaling());
+							}
+						}
+					}
+				}
+				frameBufferHandler.unbindCurrentFrameBuffer();
+			}
+		}
+		
+		
 		guiRenderer.update(game.getGuis());
 		
 		Display.update();
@@ -346,6 +432,49 @@ public class Render {
 		for (Entity e : entities) {
 			RenderEntity(visible, e, parentMtx, shader, recalcChilds, renderPickerColor, renderBoxOnly, isHighlighted);
 		}
+	}
+	
+	public void RenderGizmo(GizmoShader gizmoShader, Vector3f pos, Vector3f scale, boolean recalcChilds, Entity gizmoEntity, GizmoHandler.GizmoType axisType){
+		gizmoShader.start();
+		gizmoShader.loadProjectionMatrix(projectionMatrix);
+		gizmoShader.loadViewMatrix(viewMatrix);
+		GL11.glDisable(GL_DEPTH_TEST);
+		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		
+//		if (gizmoEntity.isRecalculateAbs()||gizmoEntity.getAbsMatrix()==null){
+//			gizmoEntity.recalculateAbsMatrix(new Matrix4f());
+//			gizmoEntity.setRecalculateAbs(false);
+//		}
+		
+		for (Entity type : gizmoEntity.getChildrens()){
+			if (type.getName().equals(axisType.toString())){
+				//pick the right type
+				for (Entity part : type.getChildrens()){
+					//render each component
+					part.recalculateAbsMatrix(new Matrix4f().translate(pos).scale(scale));
+					gizmoShader.loadTransformationMatrix(part.getAbsMatrix());
+					gizmoShader.loadColor(new Vector4f(part.getPickerColors().x, part.getPickerColors().y, part.getPickerColors().z, ((GizmoEntity) part).getAlphaColor()));
+					if (((GizmoEntity) part).getAlphaColor()<1.0f){
+						glEnable(GL11.GL_BLEND);	
+//						continue;
+					}
+					for (RawModel m : part.getRawModels()){
+						GL30.glBindVertexArray(m.getVaoID());
+						GL20.glEnableVertexAttribArray(0);
+						GL11.glDrawElements(m.getDrawMethod(), m.getVertexCount(),
+								GL11.GL_UNSIGNED_INT, 0);
+						GL20.glDisableVertexAttribArray(0);
+						GL30.glBindVertexArray(0);
+					}
+					if (((GizmoEntity) part).getAlphaColor()<1.0f){
+						GL11.glDisable(GL11.GL_BLEND);
+					}
+				}
+				break;
+			}
+		}
+		GL11.glEnable(GL_DEPTH_TEST);
+		gizmoShader.stop();
 	}
 	
 	public void RenderTerrains(TerrainShader terrainShader){

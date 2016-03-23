@@ -338,7 +338,8 @@ public class TocConverter {
 	}
 	
 	public static void typeNotHandled(LayoutField entry){
-		System.err.println("TocConverter found a not handled Field. Type: "+entry.getType()+" Name: "+entry.getName());
+		System.err.println("[CRITICAL-ERROR]TocConverter found a not handled Field. Type: "+entry.getType()+" Name: "+entry.getName()+"\n"
+				+ "Folling operations will fail!");
 	}
 	
 	public static ResourceType toResourceType(int resType){
