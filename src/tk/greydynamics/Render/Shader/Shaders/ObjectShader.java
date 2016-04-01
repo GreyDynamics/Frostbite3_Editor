@@ -5,24 +5,25 @@ import org.lwjgl.util.vector.Vector3f;
 
 import tk.greydynamics.Render.Shader.ShaderProgram;
 
-public class StaticShader extends ShaderProgram{
+public class ObjectShader extends ShaderProgram{
 	
 	private int transMatrixID;
 	private int projeMatrixID;
 	private int viewMatrixID;
 	private int highlightedID;
-	private int heighlightedColorID;
-	private int pickerColorID;
-	private int pickerID;
+	private int highlightedColorID;
+	private int lightPositionID;
+	private int isNormalID;
 
-	public StaticShader() {
-		super("res/shader/StaticShader.vert", "res/shader/StaticShader.frag");
+	public ObjectShader() {
+		super("res/shader/ObjectShader.vert", "res/shader/ObjectShader.frag");
 	}
 
 	@Override
 	protected void bindAttributes() {
 		super.bindAttribute(0, "position");
 		super.bindAttribute(1, "texCoord");
+		super.bindAttribute(2, "normal");
 	}
 
 	@Override
@@ -31,9 +32,9 @@ public class StaticShader extends ShaderProgram{
 		projeMatrixID = super.getUniformLocation("projectionMatrix");
 		viewMatrixID = super.getUniformLocation("viewMatrix");
 		highlightedID = super.getUniformLocation("isHighlighted");
-		heighlightedColorID = super.getUniformLocation("heighlightedColor");
-		pickerID = super.getUniformLocation("isPicker");
-		pickerColorID = super.getUniformLocation("pickerColor");
+		highlightedColorID = super.getUniformLocation("highlightedColor");
+		lightPositionID = super.getUniformLocation("lightPosition");
+		isNormalID = super.getUniformLocation("isNormal");
 	}
 	
 	public void loadTransformationMatrix(Matrix4f mtx){
@@ -52,15 +53,15 @@ public class StaticShader extends ShaderProgram{
 		super.loadBoolean(highlightedID, bool);
 	}
 	
-	public void loadHeighlightedColor(Vector3f vec3){
-		super.loadVector(heighlightedColorID, vec3);
+	public void loadHighlightedColor(Vector3f vec3){
+		super.loadVector(highlightedColorID, vec3);
 	}
 	
-	public void loadPicker(boolean bool){
-		super.loadBoolean(pickerID, bool);
+	public void loadLightPosition(Vector3f vec3){
+		super.loadVector(lightPositionID, vec3);
 	}
 	
-	public void loadPickerColor(Vector3f vec3){
-		super.loadVector(pickerColorID, vec3);
+	public void loadIsNormal(boolean b){
+		super.loadBoolean(isNormalID, b);
 	}
 }

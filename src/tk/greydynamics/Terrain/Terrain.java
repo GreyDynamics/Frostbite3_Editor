@@ -20,20 +20,15 @@ public class Terrain {
 		@SuppressWarnings("unused")
 		Random random = new Random();
 		
-		byte[] heightmapdata = FileHandler.readFile("res/playground_terrain4k.streamingtree", 0x0, 0x24000);
-		int[] heights = new int[heightmapdata.length];
-		int length = (int) Math.sqrt(heights.length);
+		int length = (int) Math.sqrt(100);
 		points = new Point[length][length];
-		FileSeeker seeker = new FileSeeker();
-		for (int i=0; i<heights.length; i++){
-			heights[i] = FileHandler.readByte(heightmapdata, seeker)&0xFF;
-		}
 		
 		int index = 0;
         for (int i1 = 0; i1<points.length; i1++){
         	Point[] pointsZ = new Point[points[0].length];
         	for(int i2 = 0; i2 < pointsZ.length; i2++){
-        		pointsZ[i2] = new Point(i1*distance, heights[index], i2*distance, distance, 0.5f, 0.5f, 0.5f);
+        		//pointsZ[i2] = new Point(i1*distance, heights[index], i2*distance, distance, 0.5f, 0.5f, 0.5f);
+        		pointsZ[i2] = new Point(i1*distance, 0.0f, i2*distance, distance, 0.5f, 0.5f, 0.5f);
         		index++;
         		/*
         		//pointsZ[i2] = new Point(i1*distance, i1*i2*0.2f, i2*distance, distance, random.nextFloat(), 0.1f, 0.1f);

@@ -11,12 +11,17 @@ public class ModelHandler {
 	
 	private Loader loader = new Loader();
 	
-	public RawModel addRawModel(int drawMethod, String name, float[] positions, float[] uvs, int[] indices){
+	public RawModel addRawModel(int drawMethod, String name, float[] positions, float[] uvs, float[] normals, int[] indices){
 		RawModel existingRawModel = rawModels.get(name);
 		if (existingRawModel!=null){
 			return existingRawModel;
 		}
-		RawModel model = loader.loadVAO(name, drawMethod, positions, uvs, indices);
+		RawModel model = null;
+		if (normals==null){
+			model = loader.loadVAO(name, drawMethod, positions, uvs, indices);
+		}else{
+			model = loader.loadVAO(name, drawMethod, positions, uvs, normals, indices);
+		}
 		if (model!=null){
 			model.setLifeTicks(0-(Core.TICK_RATE*30));
 			rawModels.put(name, model);

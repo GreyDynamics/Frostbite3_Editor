@@ -2,5 +2,3 @@ Compatible Mod v1.0
 CaptainSpleXx
 Battlefield 4
 {"sku":"origin","build":"176744"}
-C4 and Medicbag initial velocity changed to 2.2
-POC of Multibundles CAS

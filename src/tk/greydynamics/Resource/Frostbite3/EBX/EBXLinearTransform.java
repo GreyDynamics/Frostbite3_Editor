@@ -66,79 +66,159 @@ public class EBXLinearTransform {
 		}
 	}
 	
-	public Vector3f getRotation(){
-		return Matrices.getRotationInEulerAngles(this.tranformations.get(0), this.tranformations.get(1), this.tranformations.get(2));
+	public Vector3f getRotation(boolean isDirect3D){
+		return Matrices.getRotationInEulerAngles(this.tranformations.get(0), this.tranformations.get(1), this.tranformations.get(2), isDirect3D);
 	}
 	
 	public Vector3f getTranformation(){
 		return this.tranformations.get(3);
 	}
-
-	public Vector3f getScaling() {
+	
+	public Matrix4f getMatrix4f(boolean isDirect3D){
 		Matrix4f matrix = new Matrix4f();
 		//Create Transformation Matrix from Data.
-		matrix.m00 = this.tranformations.get(0).getX();
-		matrix.m01 = this.tranformations.get(0).getY();
-		matrix.m02 = this.tranformations.get(0).getZ();
 		
-		matrix.m10 = this.tranformations.get(1).getX();
-		matrix.m11 = this.tranformations.get(1).getY();
-		matrix.m12 = this.tranformations.get(1).getZ();
-		
-		matrix.m20 = this.tranformations.get(2).getX();
-		matrix.m21 = this.tranformations.get(2).getY();
-		matrix.m22 = this.tranformations.get(2).getZ();
-		
-		matrix.m03 = this.tranformations.get(3).getX();
-		matrix.m13 = this.tranformations.get(3).getY();
-		matrix.m23 = this.tranformations.get(3).getZ();
-		
-				
-		Matrix4f invertedRotationMatrix = (Matrix4f) Matrices.createTransformationMatrix(getTranformation(), getRotation(), new Vector3f(1.0f, 1.0f, 1.0f)).invert();
+		if (isDirect3D){
+			/*
+			 Direct3D (DirectX 11)
+			 x1, x2, x3, t1
+			 y1, y2, y3, t2
+			 z1, z2, z3, t3
+			  0,  0,  0,  1
+			  
+			 or
+			 
+			 x1, x2, x3, 0
+			 y1, y2, y3, 0
+			 z1, z2, z3, 0
+			 t1, t2, t3, 1
+			*/
+			matrix.m00 = this.tranformations.get(0).getX();
+			matrix.m01 = this.tranformations.get(0).getY();
+			matrix.m02 = this.tranformations.get(0).getZ();
+			
+			matrix.m10 = this.tranformations.get(1).getX();
+			matrix.m11 = this.tranformations.get(1).getY();
+			matrix.m12 = this.tranformations.get(1).getZ();
+			
+			matrix.m20 = this.tranformations.get(2).getX();
+			matrix.m21 = this.tranformations.get(2).getY();
+			matrix.m22 = this.tranformations.get(2).getZ();
+			
+			matrix.m30 = this.tranformations.get(3).getX();
+			matrix.m31 = this.tranformations.get(3).getY();
+			matrix.m32 = this.tranformations.get(3).getZ();
+		}else{
+			/*  --->OpenGL<--- 
+				 x1, y1, z1, t1
+				 x2, y2, z2, t2
+				 x3, y3, z3, t3
+				  0,  0,  0,  1
+			*/	
+			matrix.m00 = this.tranformations.get(0).getX();
+			matrix.m10 = this.tranformations.get(0).getY();
+			matrix.m20 = this.tranformations.get(0).getZ();
+			
+			matrix.m01 = this.tranformations.get(1).getX();
+			matrix.m11 = this.tranformations.get(1).getY();
+			matrix.m21 = this.tranformations.get(1).getZ();
+			
+			matrix.m02 = this.tranformations.get(2).getX();
+			matrix.m12 = this.tranformations.get(2).getY();
+			matrix.m22 = this.tranformations.get(2).getZ();
+			
+			matrix.m30 = this.tranformations.get(3).getX();
+			matrix.m31 = this.tranformations.get(3).getY();
+			matrix.m32 = this.tranformations.get(3).getZ();
+		}
+		return matrix;
+	}
 
-		Matrix4f scaleMatrix = Matrix4f.mul(matrix, invertedRotationMatrix, null);
+	public Vector3f getScaling(boolean isDirect3D) {				
+		Matrix4f invertedRotationMatrix = (Matrix4f) Matrices.createTransformationMatrix(getTranformation(), getRotation(isDirect3D), new Vector3f(1.0f, 1.0f, 1.0f)).invert();
+
+		Matrix4f scaleMatrix = Matrix4f.mul(getMatrix4f(isDirect3D), invertedRotationMatrix, null);
 //		System.out.println(scaleMatrix);
 				
 		return new Vector3f(scaleMatrix.m00, scaleMatrix.m11, scaleMatrix.m22);
 	}
 	
-	public static void setTransformation(Matrix4f matrix, EBXComplex linearTransformComplex, EBXWindow window, boolean writeByteArr){
+	public static void setTransformation(Matrix4f matrix, EBXComplex linearTransformComplex, EBXWindow window, boolean writeByteArr, boolean isDirect3D){
 		try {
 			if (linearTransformComplex.getComplexDescriptor().getName().equals("LinearTransform")){
-				/* m00, m10, m20, m30 *
-				 * m01, m11, m21, m31 *
-				 * m02, m12, m22, m32 *
-				 * m03, m13, m23, m33 *
-				 * 
-				 * 		|
-				 * 		|
-				 * 		|
-				 * 		V
-				 * 
-				 * rX, rY, rZ, tX *
-				 * uX, uY, uZ, tY *
-				 * fX, fY, fZ, tZ *
-				 * 0 , 0 , 0 , 1  */
-				
 				EBXComplex right = linearTransformComplex.getField(0).getValueAsComplex();
+				EBXComplex up = linearTransformComplex.getField(1).getValueAsComplex();
+				EBXComplex forward = linearTransformComplex.getField(2).getValueAsComplex();
+				EBXComplex transform = linearTransformComplex.getField(3).getValueAsComplex();
+				if (isDirect3D){
+					/* Direct3D *
+					 * m00, m10, m20, m30 *
+					 * m01, m11, m21, m31 *
+					 * m02, m12, m22, m32 *
+					 * m03, m13, m23, m33 *
+					 * 
+					 * 		|
+					 * 		|
+					 * 		|
+					 * 		V
+					 * 
+					 * rX, fX, uX, tX *
+					 * rY, fY, uY, tY *
+					 * rZ, fZ, uZ, tZ *
+					 * 0 , 0 , 0 , 1  */
+					
+					
+					right.getField(0).setValue(matrix.m00, FieldValueType.Float);//x
+					right.getField(1).setValue(matrix.m01, FieldValueType.Float);//y
+					right.getField(2).setValue(matrix.m02, FieldValueType.Float);//z
+					
+				
+					up.getField(0).setValue(matrix.m10, FieldValueType.Float);//x
+					up.getField(1).setValue(matrix.m11, FieldValueType.Float);//y
+					up.getField(2).setValue(matrix.m12, FieldValueType.Float);//z
+				
+				
+					forward.getField(0).setValue(matrix.m20, FieldValueType.Float);//x
+					forward.getField(1).setValue(matrix.m21, FieldValueType.Float);//y
+					forward.getField(2).setValue(matrix.m22, FieldValueType.Float);//z
+				
+				
+					transform.getField(0).setValue(matrix.m30, FieldValueType.Float);//x
+					transform.getField(1).setValue(matrix.m31, FieldValueType.Float);//y
+					transform.getField(2).setValue(matrix.m32, FieldValueType.Float);//z
+				}else{
+					/* OpenGL *
+					 * m00, m10, m20, m30 *
+					 * m01, m11, m21, m31 *
+					 * m02, m12, m22, m32 *
+					 * m03, m13, m23, m33 *
+					 * 
+					 * 		|
+					 * 		|
+					 * 		|
+					 * 		V
+					 * 
+					 * rX, rY, rZ, tX *
+					 * uX, uY, uZ, tY *
+					 * fX, fY, fZ, tZ *
+					 * 0 , 0 , 0 , 1  */
+					
 					right.getField(0).setValue(matrix.m00, FieldValueType.Float);//x
 					right.getField(1).setValue(matrix.m10, FieldValueType.Float);//y
 					right.getField(2).setValue(matrix.m20, FieldValueType.Float);//z
 					
-				EBXComplex up = linearTransformComplex.getField(1).getValueAsComplex();
 					up.getField(0).setValue(matrix.m01, FieldValueType.Float);//x
 					up.getField(1).setValue(matrix.m11, FieldValueType.Float);//y
 					up.getField(2).setValue(matrix.m21, FieldValueType.Float);//z
 				
-				EBXComplex forward = linearTransformComplex.getField(2).getValueAsComplex();
 					forward.getField(0).setValue(matrix.m02, FieldValueType.Float);//x
 					forward.getField(1).setValue(matrix.m12, FieldValueType.Float);//y
 					forward.getField(2).setValue(matrix.m22, FieldValueType.Float);//z
 				
-				EBXComplex transform = linearTransformComplex.getField(3).getValueAsComplex();
 					transform.getField(0).setValue(matrix.m30, FieldValueType.Float);//x
 					transform.getField(1).setValue(matrix.m31, FieldValueType.Float);//y
 					transform.getField(2).setValue(matrix.m32, FieldValueType.Float);//z
+				}
 					
 				if (window!=null){
 					window.refresh();

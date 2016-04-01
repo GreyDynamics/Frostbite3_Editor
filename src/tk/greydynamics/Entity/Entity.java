@@ -13,6 +13,7 @@ import tk.greydynamics.Game.Core;
 import tk.greydynamics.Maths.Matrices;
 import tk.greydynamics.Model.RawModel;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXLinearTransform;
+import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXBlueprintTransform;
 
 public abstract class Entity {
 	
@@ -33,7 +34,6 @@ public abstract class Entity {
 	private Boolean isVisible = true;
 
 	private Boolean highlighted = false;
-	private Vector3f heighlightedColor = new Vector3f(0.5f, 0.0f, 0.0f);
 	
 	private Vector3f pickerColors = null;
 
@@ -61,7 +61,7 @@ public abstract class Entity {
 		this.parent = parent;
 		this.rawModels = rawModels;
 		this.entityObject = entityObject;
-		recalculateRelMatrix();
+		recalculateRelMatrix(true);
 		initPickingColors(parentPickingColors);
 	}
 
@@ -75,58 +75,52 @@ public abstract class Entity {
 		this.minCoords = minCoords;
 		this.maxCoords = maxCoords;
 		this.entityObject = entityObject;
-		recalculateRelMatrix();
+		recalculateRelMatrix(true);
 		initPickingColors(parentPickingColors);
 	}
 
-	public void changePosition(float dx, float dy, float dz) {
+	public void changePosition(float dx, float dy, float dz, boolean initial) {
 		this.position.x += dx;
 		this.position.y += dy;
 		this.position.z += dz;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 	}
 
-	public void changePosition(Vector3f relPos) {
+	public void changePosition(Vector3f relPos, boolean initial) {
 		this.position.x += relPos.x;
 		this.position.y += relPos.y;
 		this.position.z += relPos.z;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 	}
 
-	public void changeRotation(float dx, float dy, float dz) {
+	public void changeRotation(float dx, float dy, float dz, boolean initial) {
 		this.rotation.x += dx;
 		this.rotation.y += dy;
 		this.rotation.z += dz;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 	}
 
-	public void changeScaling(float dx, float dy, float dz) {
+	public void changeScaling(float dx, float dy, float dz, boolean initial) {
 		this.scaling.x += dx;
 		this.scaling.y += dy;
 		this.scaling.z += dz;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 	}
 
 	public void changeVelocity(float relX, float relY, float relZ) {
 		this.velocity.x += relX;
 		this.velocity.y += relY;
 		this.velocity.z += relZ;
-		recalculateRelMatrix();
 	}
 
 	public void changeVelocity(Vector3f relVel) {
 		this.velocity.x += relVel.x;
 		this.velocity.y += relVel.y;
 		this.velocity.z += relVel.z;
-		recalculateRelMatrix();
 	}
 
 	public ArrayList<Entity> getChildrens() {
 		return childrens;
-	}
-
-	public Vector3f getHeighlightedColor() {
-		return heighlightedColor;
 	}
 
 	public Boolean getHighlighted() {
@@ -171,49 +165,46 @@ public abstract class Entity {
 		return showBoundingBox;
 	}
 
-	public Vector2f moveBackwards(float distance) {
+	public Vector2f moveBackwards(float distance, boolean initial) {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y)));
 		this.position.x -= vec.x;
 		this.position.z += vec.y;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 		return vec;
 	}
 
-	public Vector2f moveForward(float distance) {
+	public Vector2f moveForward(float distance, boolean initial) {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y)));
 		this.position.x += vec.x;
 		this.position.z -= vec.y;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 		return vec;
 	}
 
-	public Vector2f moveLeft(float distance) {
+	public Vector2f moveLeft(float distance, boolean initial) {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y - 90)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y - 90)));
 		this.position.x += vec.x;
 		this.position.z -= vec.y;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 		return vec;
 	}
 
-	public Vector2f moveRight(float distance) {
+	public Vector2f moveRight(float distance, boolean initial) {
 		Vector2f vec = new Vector2f(distance
 				* (float) Math.sin(Math.toRadians(rotation.y + 90)), distance
 				* (float) Math.cos(Math.toRadians(rotation.y + 90)));
 		this.position.x += vec.x;
 		this.position.z -= vec.y;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 		return vec;
 	}
 
-	public void setHeighlightedColor(Vector3f heighlightedColor) {
-		this.heighlightedColor = heighlightedColor;
-	}
 
 	public void setHighlighted(Boolean highlighted) {
 		this.highlighted = highlighted;
@@ -236,19 +227,19 @@ public abstract class Entity {
 		this.name = name;
 	}
 
-	public void setPosition(Vector3f position) {
+	public void setPosition(Vector3f position, boolean initial) {
 		this.position = position;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 	}
 
-	public void setRotation(Vector3f rotation) {
+	public void setRotation(Vector3f rotation, boolean initial) {
 		this.rotation = rotation;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 	}
 
-	public void setScaling(Vector3f scaling) {
+	public void setScaling(Vector3f scaling, boolean initial) {
 		this.scaling = scaling;
-		recalculateRelMatrix();
+		recalculateRelMatrix(initial);
 	}
 	
 	public void setShowBoundingBox(boolean showBoundingBox) {
@@ -322,25 +313,32 @@ public abstract class Entity {
 	public Matrix4f getRelMatrix() {
 		return relMatrix;
 	}
+	
+
+	public void setRelMatrix(Matrix4f relMatrix) {
+		this.relMatrix = relMatrix;
+	}
 
 	public void setRecalculateAbs(boolean recalculateAbs) {
 		this.recalculateAbs = recalculateAbs;
 	}
 	
-	public void recalculateRelMatrix(){
+	public void recalculateRelMatrix(boolean initial){
 		this.relMatrix =  Matrices.createTransformationMatrix(position,
 				rotation, scaling);
 		this.recalculateAbs = true;
 		
-		//Apply Transformation Data.
-	    if (this instanceof InstanceEntity){
-	        System.out.println("Applying Transformation to EBX: "+name);// "from "+layer.getName());
-	        InstanceEntity instanceEntity = (InstanceEntity) this;
-	        if (instanceEntity.getLinearTransformField()!=null){
-//	        	System.out.println("DEBUG Entity Picking: "+instanceEntity.getLinearTransformField().getValueAsComplex().getComplexDescriptor().getName());
-	        	EBXLinearTransform.setTransformation(this.getRelMatrix(), instanceEntity.getLinearTransformField().getValueAsComplex(), layer.getEBXWindow(), true/*tmp*/);
-	        }
-	    }
+		if (!initial){
+			//Apply Transformation Data to EBX
+		    if (this instanceof InstanceEntity){
+		        System.out.println("Applying Transformation to EBX: "+name);// "from "+layer.getName());
+		        InstanceEntity instanceEntity = (InstanceEntity) this;
+		        if (instanceEntity.getLinearTransformField()!=null){
+	//	        	System.out.println("DEBUG Entity Picking: "+instanceEntity.getLinearTransformField().getValueAsComplex().getComplexDescriptor().getName());
+		        	EBXLinearTransform.setTransformation(this.getRelMatrix(), instanceEntity.getLinearTransformField().getValueAsComplex(), layer.getEBXWindow(), true/*tmp*/, EBXBlueprintTransform.IsDIRECT3D);
+		        }
+		    }
+		}
 	}
 	
 	public void recalculateAbsMatrix(Matrix4f parentMtx){

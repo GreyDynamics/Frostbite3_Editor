@@ -16,12 +16,17 @@ import javax.imageio.ImageIO;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Vector2f;
 import org.newdawn.slick.opengl.ImageIOImageData;
 
+import tk.greydynamics.Entity.Entity;
+import tk.greydynamics.Entity.Entities.ObjectEntity;
+import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Event.EventHandler;
 import tk.greydynamics.JavaFX.JavaFXHandler;
 import tk.greydynamics.Mod.ModTools;
+import tk.greydynamics.Model.RawModel;
 import tk.greydynamics.Render.Render;
 import tk.greydynamics.Render.Gui.GuiTexture;
 import tk.greydynamics.Resource.FileHandler;
@@ -118,7 +123,7 @@ public class Core {
 		DISPLAY_WIDTH = 1280; DISPLAY_HEIGHT = 720;
 		DISPLAY_RATE = 60;
 		
-		zNear = 1f;
+		zNear = 0.001f;
 		zFar = 2500f;
 		FOV = 60f;
 		
@@ -181,6 +186,51 @@ public class Core {
 				game.getEntityHandler().getGizmoHandler().init(game.getModelHandler());
 				render = new Render(game);
 				inputHandler = new InputHandler();
+				
+				
+				EntityLayer debugLayer = new EntityLayer("debugLayer", null);
+				float[] pos = new float[]{
+						-1.000000f, -1.000000f, 1.000000f,
+						-1.000000f, 1.000000f, 1.000000f,
+						-1.000000f, -1.000000f, -1.000000f,
+						-1.000000f, 1.000000f, -1.000000f,
+						1.000000f, -1.000000f, 1.000000f,
+						1.000000f, 1.000000f, 1.000000f,
+						1.000000f, -1.000000f, -1.000000f,
+						1.000000f, 1.000000f, -1.000000f};
+				
+				float[] normal = new float[]{
+						-1.000000f, -1.000000f, 1.000000f, 0.0f,//working
+						-1.000000f, 1.000000f, 1.000000f, 0.0f,
+						-1.000000f, -1.000000f, -1.000000f, 0.0f,
+						-1.000000f, 1.000000f, -1.000000f, 0.0f,
+						1.000000f, -1.000000f, 1.000000f, 0.0f,
+						1.000000f, 1.000000f, 1.000000f, 0.0f,
+						1.000000f, -1.000000f, -1.000000f, 0.0f,
+						1.000000f, 1.000000f, -1.000000f, 0.0f};
+				
+				int[] in = new int[]{
+						4, 3, 1,
+						8, 7, 3,
+						6, 5, 7,
+						2, 1, 5, 
+						3, 7, 5, 
+						8, 4, 2, 
+						2, 4, 1, 
+						4, 8, 3, 
+						8, 6, 7, 
+						6, 2, 5, 
+						1, 3, 5, 
+						6, 8, 2};
+				for (int i=0; i<in.length; i++){
+					in[i] = in[i]-1;
+				}
+				RawModel[] rawModels = new RawModel[]{game.getModelHandler().addRawModel(GL11.GL_TRIANGLES, "debugModel", pos, new float[pos.length/3*2], normal, in)};
+				Entity debugEntity = new ObjectEntity(debugLayer, "debugEntity", null, null, rawModels, null, null);
+				debugLayer.getEntities().add(debugEntity);
+//				game.getEntityHandler().getLayers().add(debugLayer);
+				
+				
 				
 				//Debug - PickingFrameBufferImage
 				game.getGuis().add(new GuiTexture(render.getFrameBufferHandler().getPickingTexture(), new Vector2f(-0.5f, 0.5f), new Vector2f(0.5f, -0.3f)));

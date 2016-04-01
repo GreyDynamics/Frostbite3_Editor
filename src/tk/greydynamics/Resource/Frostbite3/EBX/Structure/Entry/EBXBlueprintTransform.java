@@ -13,6 +13,7 @@ public class EBXBlueprintTransform {
 	
 	private BlueprintTransformType type;
 	private ArrayList<EBXObjVec3> tranformations;
+	public static boolean IsDIRECT3D = true;
 	
 	public static enum BlueprintTransformType{
 		LinearTransform, 
@@ -67,7 +68,7 @@ public class EBXBlueprintTransform {
 	
 	public Vector3f getRotation(){
 		if (type==BlueprintTransformType.LinearTransform){
-			return Matrices.getRotationInEulerAngles(getEBXVector(Component.RIGHT).getVector(), getEBXVector(Component.UP).getVector(), getEBXVector(Component.FORWARD).getVector());
+			return Matrices.getRotationInEulerAngles(getEBXVector(Component.RIGHT).getVector(), getEBXVector(Component.UP).getVector(), getEBXVector(Component.FORWARD).getVector(), IsDIRECT3D);
 		}
 		//System.err.println("Can't get Rotation from "+type+" in EBXBlueprintTransform's method!");
 		return null;

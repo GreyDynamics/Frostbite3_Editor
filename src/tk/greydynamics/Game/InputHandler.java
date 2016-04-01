@@ -105,7 +105,7 @@ public class InputHandler {
 	    {
 	    	if (en!=null){
 	    		Vector2f relCoords = pe.moveLeft(speedMultipShift);
-	    		en.changePosition(new Vector3f(relCoords.x, 0, -relCoords.y));
+	    		en.changePosition(new Vector3f(relCoords.x, 0, -relCoords.y), false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT)&&
@@ -114,7 +114,7 @@ public class InputHandler {
 	    {
 	    	if (en!=null){
 	    		Vector2f relCoords = pe.moveRight(speedMultipShift);
-	    		en.changePosition(new Vector3f(relCoords.x, 0, -relCoords.y));
+	    		en.changePosition(new Vector3f(relCoords.x, 0, -relCoords.y), false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_UP)&&
@@ -123,7 +123,7 @@ public class InputHandler {
 	    {
 	    	if (en!=null){
 	    		Vector2f relCoords = pe.moveForward(speedMultipShift);
-	    		en.changePosition(new Vector3f(relCoords.x, 0, -relCoords.y));
+	    		en.changePosition(new Vector3f(relCoords.x, 0, -relCoords.y), false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)&&
@@ -132,7 +132,7 @@ public class InputHandler {
 	    {
 	    	if (en!=null){
 	    		Vector2f relCoords = pe.moveBackwards(speedMultipShift);
-	    		en.changePosition(new Vector3f(-relCoords.x, 0, relCoords.y));
+	    		en.changePosition(new Vector3f(-relCoords.x, 0, relCoords.y), false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_T)&&Keyboard.isKeyDown(Keyboard.KEY_UP))//Object Up
@@ -140,7 +140,7 @@ public class InputHandler {
 	    	if (en!=null){
 	    		Vector3f rel = new Vector3f(0f, speedMultipShift, 0f);
 	    		pe.changePosition(rel);
-	    		en.changePosition(rel);
+	    		en.changePosition(rel, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_T)&&Keyboard.isKeyDown(Keyboard.KEY_DOWN))//Object Down
@@ -148,7 +148,7 @@ public class InputHandler {
 	    	if (en!=null){
 	    		Vector3f rel = new Vector3f(0f, -speedMultipShift, 0f);
 	    		pe.changePosition(rel);
-	    		en.changePosition(rel);
+	    		en.changePosition(rel, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_R)){
@@ -162,45 +162,45 @@ public class InputHandler {
 	    if (Keyboard.isKeyDown(Keyboard.KEY_R)&&Keyboard.isKeyDown(Keyboard.KEY_DOWN))//Rotate Neg X
 	    {
 	    	if (en!=null){
-	    		en.changeRotation(-speedMultipShift*0.01f, 0f, 0f);
+	    		en.changeRotation(-speedMultipShift*0.01f, 0f, 0f, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_R)&&Keyboard.isKeyDown(Keyboard.KEY_UP))//Rotate Pos X
 	    {
 	    	if (en!=null){
-	    		en.changeRotation(speedMultipShift*0.01f, 0f, 0f);
+	    		en.changeRotation(speedMultipShift*0.01f, 0f, 0f, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_R)&&Keyboard.isKeyDown(Keyboard.KEY_LEFT))//Rotate Neg Z
 	    {
 	    	if (en!=null){
-	    		en.changeRotation(0f, 0f, -speedMultipShift*0.01f);
+	    		en.changeRotation(0f, 0f, -speedMultipShift*0.01f, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_R)&&Keyboard.isKeyDown(Keyboard.KEY_RIGHT))//Rotate Pos Z
 	    {
 	    	if (en!=null){
-	    		en.changeRotation(0f, 0f, speedMultipShift*0.01f);
+	    		en.changeRotation(0f, 0f, speedMultipShift*0.01f, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_T)&&Keyboard.isKeyDown(Keyboard.KEY_LEFT))//Scale Neg XYZ
 	    {
 	    	if (en!=null){
-	    		en.changeScaling(-speedMultipShift*0.01f, -speedMultipShift*0.01f, -speedMultipShift*0.01f);
+	    		en.changeScaling(-speedMultipShift*0.01f, -speedMultipShift*0.01f, -speedMultipShift*0.01f, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_T)&&Keyboard.isKeyDown(Keyboard.KEY_RIGHT))//Scale Pos XYZ
 	    {
 	    	if (en!=null){
-	    		en.changeScaling(speedMultipShift*0.01f, speedMultipShift*0.01f, speedMultipShift*0.01f);
+	    		en.changeScaling(speedMultipShift*0.01f, speedMultipShift*0.01f, speedMultipShift*0.01f, false);
 	    	}
 	    }
 	    
 	    if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD5))//Reset Object
 	    {
 	    	if (en!=null){
-	    		en.setScaling(new Vector3f(1f, 1f, 1f));
-	    		en.setRotation(new Vector3f());
+	    		en.setScaling(new Vector3f(1f, 1f, 1f), false);
+	    		en.setRotation(new Vector3f(), false);
 	    	}
 	    }
 	    
@@ -208,13 +208,13 @@ public class InputHandler {
 	    if (Keyboard.isKeyDown(Keyboard.KEY_Q))
 	    {
 	    	if (en!=null){
-	    		en.changeRotation(0f, -speedMultipShift*0.01f, 0f);
+	    		en.changeRotation(0f, -speedMultipShift*0.01f, 0f, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_E))
 	    {
 	    	if (en!=null){
-	    		en.changeRotation(0f, speedMultipShift*0.01f, 0f);
+	    		en.changeRotation(0f, speedMultipShift*0.01f, 0f, false);
 	    	}
 	    }
 	}

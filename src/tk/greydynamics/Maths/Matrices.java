@@ -52,7 +52,7 @@ public class Matrices {
 		return viewMatrix;
 	}
 	
-	public static Vector3f getRotationInEulerAngles(Vector3f right, Vector3f up, Vector3f forward){
+	public static Vector3f getRotationInEulerAngles(Vector3f right, Vector3f up, Vector3f forward, boolean isDirect3D){
 		//http://nghiaho.com/?page_id=846
 		//<-Checked working->
 		Vector3f angles = new Vector3f();
@@ -63,11 +63,11 @@ public class Matrices {
         return angles;
     }
 	
-	public static Vector3f getRotationInDegrees(Vector3f right, Vector3f up, Vector3f forward){
+	public static Vector3f getRotationInDegrees(Vector3f right, Vector3f up, Vector3f forward, boolean isDirect3D){
 		//http://nghiaho.com/?page_id=846
 		Vector3f degrees = new Vector3f();
         // calculate the euler angles
-        Vector3f euler = getRotationInEulerAngles(right, up, forward);
+        Vector3f euler = getRotationInEulerAngles(right, up, forward, isDirect3D);
         // calculate euler angles to degrees
         degrees.x = (float) ((euler.x * 180) / Math.PI);
         degrees.y = (float) ((euler.y * 180) / Math.PI);

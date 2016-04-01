@@ -37,7 +37,18 @@ public class Loader {
 		unbindVAO();
 		return new RawModel(name, vaoID, indices.length, drawMethod);
 	}
-	public RawModel loadVAO(String name, int drawMethod, float[] positions, int[] indices){//untested
+	
+	public RawModel loadVAO(String name, int drawMethod, float[] positions, float[] uvs, float[] normals, int[] indices){
+		int vaoID = createVAO();
+		bindIndiciesBuffer(indices);
+		storeDataAsAttr(0, 3, positions);
+		storeDataAsAttr(1, 2, uvs);
+		storeDataAsAttr(2, 4, normals);
+		unbindVAO();
+		return new RawModel(name, vaoID, indices.length, drawMethod);
+	}
+	
+	public RawModel loadVAO(String name, int drawMethod, float[] positions, int[] indices){
 		int vaoID = createVAO();
 		bindIndiciesBuffer(indices);
 		storeDataAsAttr(0, 3, positions);

@@ -223,7 +223,7 @@ public class Game {
 		TreeItem<TreeViewEntry> explorerTree = new TreeItem<TreeViewEntry>(new TreeViewEntry(Core.gamePath, null, null, EntryType.LIST));
 		
 		for (File file : patch){
-			buildExplorerTreeFile(file, explorerTree, Color.LIGHTBLUE, true);
+			buildExplorerTreeFile(file, explorerTree, Color.LIGHTGREEN, true);
 		}
 		
 		for (File file : data){
@@ -237,7 +237,7 @@ public class Game {
 			File patched = ResourceFinder.findXPackPatch(file.getAbsolutePath());
 			if (patched!=null){
 				if (!patched.exists()){
-					buildExplorerTreeFile(file, explorerTree, Color.LIGHTGREEN, true);
+					buildExplorerTreeFile(file, explorerTree, Color.LIGHTBLUE, true);
 				}
 			}
 			
@@ -249,17 +249,8 @@ public class Game {
 				child.setExpanded(true);
 			}
 		}
-		//Core.getJavaFXHandler().setTreeViewStructureLeft(explorerTree);
 		Core.getJavaFXHandler().getMainWindow().setPackageExplorer(explorerTree);
-		
-		//Core.getJavaFXHandler().setTreeViewStructureLeft1(null);
 		Core.getJavaFXHandler().getMainWindow().setPackageExplorer1(null, null);
-		
-		/*
-		Core.getJavaFXHandler().setTreeViewStructureRight(null);
-		Core.getJavaFXHandler().getMainWindow().updateRightRoot();
-		
-		*/
 	}
 	private boolean buildExplorerTreeFile(File file, TreeItem<TreeViewEntry> explorerTree, Color backgroundColor, boolean bundleTypeIcon){
 		String relPath = file.getAbsolutePath().replace("\\", "/").replace(".sb", "").replace(Core.gamePath+"/", "");      

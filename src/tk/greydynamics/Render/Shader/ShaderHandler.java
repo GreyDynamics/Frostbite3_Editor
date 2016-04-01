@@ -3,13 +3,15 @@ package tk.greydynamics.Render.Shader;
 import java.util.ArrayList;
 
 import tk.greydynamics.Render.Shader.Shaders.GizmoShader;
-import tk.greydynamics.Render.Shader.Shaders.StaticShader;
+import tk.greydynamics.Render.Shader.Shaders.ObjectShader;
+import tk.greydynamics.Render.Shader.Shaders.ObjectPickerShader;
 import tk.greydynamics.Render.Shader.Shaders.TerrainShader;
 
 public class ShaderHandler {
 	public ArrayList<ShaderProgram> shaderPrograms = null;
 	
-	private StaticShader staticShader = null;
+	private ObjectPickerShader objectPickerShader = null;
+	private ObjectShader objectShader = null;
 	private GuiShader guiShader = null;
 	private TerrainShader terrainShader = null;
 	private GizmoShader gizmoShader = null;
@@ -28,8 +30,8 @@ public class ShaderHandler {
 		return shaderPrograms;
 	}
 
-	public StaticShader getStaticShader() {
-		return staticShader;
+	public ObjectPickerShader getObjectPickerShader() {
+		return objectPickerShader;
 	}	
 	
 	public TerrainShader getTerrainShader() {
@@ -40,11 +42,18 @@ public class ShaderHandler {
 		return gizmoShader;
 	}
 
+	public ObjectShader getObjectShader() {
+		return objectShader;
+	}
+
 	public void init(){
 		this.shaderPrograms = new ArrayList<>();
 		
-		staticShader = new StaticShader();
-		shaderPrograms.add(staticShader);
+		objectPickerShader = new ObjectPickerShader();
+		shaderPrograms.add(objectPickerShader);
+		
+		objectShader = new ObjectShader();
+		shaderPrograms.add(objectShader);
 		
 		guiShader = new GuiShader();
 		shaderPrograms.add(guiShader);

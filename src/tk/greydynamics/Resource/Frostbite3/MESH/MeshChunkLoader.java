@@ -161,6 +161,9 @@ public class MeshChunkLoader {
 		}
 		minCoords = new float[] {10000f, 10000f, 10000f};
 		maxCoords = new float[] {-10000f, -10000f, -10000f};
+		
+		
+		
 		return true;
 		
 	}
@@ -214,14 +217,54 @@ public class MeshChunkLoader {
 	public float[] getUVCoords(int submesh) {
 		float[] coords = new float[Vertices_Count[submesh]*2];
 		for (int i1=0; i1<VB_Data_Offset[submesh].length;i1++){
-			if (VB_Data_Offset[submesh][i1]==1569){
+			if (VB_Data_Offset[submesh][i1]==1570){
 				for (int i2=0; i2<coords.length; i2++){
-					coords[i2] = readHalfFloat(ChunkBytes, (int) ((VB_Offset[submesh]+(VB_Sizes[submesh]*Math.floor(i2/2))) + ((i2%2)*0x02))+(VB_Data_Offset[submesh][i1+1]));
+					coords[i2] = readHalfFloat(ChunkBytes, (int) ((VB_Offset[submesh]+VB_Data_Offset[submesh][i1-1]+(VB_Sizes[submesh]*Math.floor(i2/2))) + ((i2%2)*0x02)));
 				}
 				return coords;
 			}
 		}
+		System.err.println("UVCoords for "+ObjectFullName+" not found :(");
 		return coords;
+	}
+	
+	public float[] getBiNormals(int submesh) {
+		float[] biNormals = new float[Vertices_Count[submesh]];
+		for (int i1=0; i1<VB_Data_Offset[submesh].length;i1++){
+			if (VB_Data_Offset[submesh][i1]==2054){
+				for (int i2=0; i2<biNormals.length; i2++){
+					biNormals[i2] = readHalfFloat(ChunkBytes, (int) ((VB_Offset[submesh]+VB_Data_Offset[submesh][i1-1]+(VB_Sizes[submesh]*i2)) + (i2*0x02)));
+				}
+				return biNormals;
+			}
+		}
+		return biNormals;
+	}
+	
+	public float[] getUVNormals(int submesh) {
+		float[] uvNormals = new float[Vertices_Count[submesh]*4];
+		for (int i1=0; i1<VB_Data_Offset[submesh].length;i1++){
+			if (VB_Data_Offset[submesh][i1]==1569){
+				for (int i2=0; i2<uvNormals.length; i2++){
+					uvNormals[i2] = readHalfFloat(ChunkBytes, (int) ((VB_Offset[submesh]+VB_Data_Offset[submesh][i1-1]+(VB_Sizes[submesh]*Math.floor(i2/4))) + ((i2%4)*0x02)));
+				}
+				return uvNormals;
+			}
+		}
+		return uvNormals;
+	}
+	
+	public float[] getTangents(int submesh) {
+		float[] tangents = new float[Vertices_Count[submesh]*4];
+		for (int i1=0; i1<VB_Data_Offset[submesh].length;i1++){
+			if (VB_Data_Offset[submesh][i1]==2055){
+				for (int i2=0; i2<tangents.length; i2++){
+					tangents[i2] = readHalfFloat(ChunkBytes, (int) ((VB_Offset[submesh]+VB_Data_Offset[submesh][i1-1]+(VB_Sizes[submesh]*Math.floor(i2/4))) + ((i2%4)*0x04)));
+				}
+				return tangents;
+			}
+		}
+		return tangents;
 	}
 	
 	//-----------------------------

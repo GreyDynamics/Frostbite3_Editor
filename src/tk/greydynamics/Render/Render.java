@@ -36,6 +36,7 @@ import tk.greydynamics.Entity.Entities.InstanceEntity;
 import tk.greydynamics.Entity.Entities.ObjectEntity;
 import tk.greydynamics.Entity.Entity.Type;
 import tk.greydynamics.Entity.Layer.EntityLayer;
+import tk.greydynamics.Entity.Picker.ObjectEntityPicker;
 import tk.greydynamics.Game.Core;
 import tk.greydynamics.Game.Game;
 import tk.greydynamics.Game.Point;
@@ -46,8 +47,10 @@ import tk.greydynamics.Player.PlayerEntity;
 import tk.greydynamics.Render.FrameBuffer.FrameBufferHandler;
 import tk.greydynamics.Render.GizmoHandler.GizmoType;
 import tk.greydynamics.Render.Gui.GuiRenderer;
+import tk.greydynamics.Render.Shader.ShaderProgram;
 import tk.greydynamics.Render.Shader.Shaders.GizmoShader;
-import tk.greydynamics.Render.Shader.Shaders.StaticShader;
+import tk.greydynamics.Render.Shader.Shaders.ObjectShader;
+import tk.greydynamics.Render.Shader.Shaders.ObjectPickerShader;
 import tk.greydynamics.Render.Shader.Shaders.TerrainShader;
 import tk.greydynamics.Terrain.Terrain;
 
@@ -200,6 +203,8 @@ public class Render {
 	}
 
 	public void update() {
+//		GL11.glPolygonMode( GL11.GL_FRONT_AND_BACK, GL11.GL_LINE );
+//		GL11.glPolygonMode( GL11.GL_FRONT_AND_BACK, GL11.GL_FILL );
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0.4f, 0.4f, 0.4f, 1.0f);
 		glLoadIdentity();
@@ -217,21 +222,27 @@ public class Render {
 				new Vector3f(camera.getPitch(), camera.getYaw(), 0.0f));
 
 		
-		StaticShader shader = game.getShaderHandler().getStaticShader();
-		shader.start();
-		shader.loadProjectionMatrix(projectionMatrix);
-		shader.loadViewMatrix(viewMatrix);
+		//Render Objects to Screen
+		ObjectShader objShader = game.getShaderHandler().getObjectShader();
+		objShader.start();
+		objShader.loadProjectionMatrix(projectionMatrix);
+		objShader.loadViewMatrix(viewMatrix);
+		objShader.loadLightPosition(game.getPlayerHandler().getPlayerEntity().getPos());
+		objShader.loadIsNormal(false);//Render Normals as Color ?
 				
-		renderCalls = 0;
-		RenderEntityLayers(game.getEntityHandler().getLayers(), identityMatrix, shader, false, false, false);
-		//System.out.println("RenderCalls: "+renderCalls);
+		RenderEntityLayers(game.getEntityHandler().getLayers(), identityMatrix, (ShaderProgram) objShader, false, false, false);
+		objShader.stop();
 		
 		
-		//Render to framebuffer
+		//Render Objects to framebuffer for picking
 		if (Core.currentTick%(Core.TICK_RATE/5)==0){
+			ObjectPickerShader objPickerShader = game.getShaderHandler().getObjectPickerShader();
+			objPickerShader.start();
+			objPickerShader.loadProjectionMatrix(projectionMatrix);
+			objPickerShader.loadViewMatrix(viewMatrix);
 			frameBufferHandler.bindPickingFrameBuffer();
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			RenderEntityLayers(game.getEntityHandler().getLayers(), identityMatrix, shader, true, false, false);
+			RenderEntityLayers(game.getEntityHandler().getLayers(), identityMatrix, (ShaderProgram) objPickerShader, true, false, false);
 			
 			if (!Mouse.isGrabbed()&&Mouse.isButtonDown(0)&&game.getEntityHandler().getGizmoHandler().getGizmoPicker().getEntityPICKED()==null){//
 				GL11.glReadPixels(Mouse.getX(), Mouse.getY(), 1, 1, GL11.GL_RGBA, GL11.GL_FLOAT, frameBufferHandler.getRGBAPickingBuffer());
@@ -250,8 +261,9 @@ public class Render {
 				}
 			}
 			frameBufferHandler.unbindCurrentFrameBuffer();
+			objPickerShader.stop();
 		}
-		shader.stop();
+		
 		
 		/*Terrains*/
 		RenderTerrains(game.getShaderHandler().getTerrainShader());
@@ -299,29 +311,29 @@ public class Render {
 							//TODO Move to own function! NOT HERE!
 							if (picked.getName().startsWith(GizmoType.GIZMO_MOVE.toString())){
 								if (picked.getName().equals(GizmoType.GIZMO_MOVE.toString()+"_X")){
-									entityPicked.changePosition(Mouse.getDX() * mouseSpeed, 0f, 0f);
+									entityPicked.changePosition(Mouse.getDX() * mouseSpeed, 0f, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_MOVE.toString()+"_Y")){
-									entityPicked.changePosition(0f, Mouse.getDY() * mouseSpeed, 0f);
+									entityPicked.changePosition(0f, Mouse.getDY() * mouseSpeed, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_MOVE.toString()+"_Z")){
-									entityPicked.changePosition(0f, 0f, Mouse.getDX() * mouseSpeed);
+									entityPicked.changePosition(0f, 0f, Mouse.getDX() * mouseSpeed, false);
 								}
 								System.out.println("[GIZMO] Change Position to "+entityPicked.getPosition());
 							}else if (picked.getName().startsWith(GizmoType.GIZMO_ROTATE.toString())){	
 								if (picked.getName().equals(GizmoType.GIZMO_ROTATE.toString()+"_X")){
-									entityPicked.changeRotation(Mouse.getDY() * mouseSpeed, 0f, 0f);
+									entityPicked.changeRotation(Mouse.getDY() * mouseSpeed, 0f, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_ROTATE.toString()+"_Y")){
-									entityPicked.changeRotation(0f, Mouse.getDX() * mouseSpeed, 0f);
+									entityPicked.changeRotation(0f, Mouse.getDX() * mouseSpeed, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_ROTATE.toString()+"_Z")){
-									entityPicked.changeRotation(0f, 0f, Mouse.getDY() * mouseSpeed);
+									entityPicked.changeRotation(0f, 0f, Mouse.getDY() * mouseSpeed, false);
 								} 
 								System.out.println("[GIZMO] Change Rotation to "+entityPicked.getRotation());
 							}else if (picked.getName().startsWith(GizmoType.GIZMO_SCALE.toString())){	
 								if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_X")){
-									entityPicked.changeScaling(Mouse.getDX() * mouseSpeed, 0f, 0f);
+									entityPicked.changeScaling(Mouse.getDX() * mouseSpeed, 0f, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_Y")){
-									entityPicked.changeScaling(0f, Mouse.getDY() * mouseSpeed, 0f);
+									entityPicked.changeScaling(0f, Mouse.getDY() * mouseSpeed, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_Z")){
-									entityPicked.changeScaling(0f, 0f, Mouse.getDX() * mouseSpeed);
+									entityPicked.changeScaling(0f, 0f, Mouse.getDX() * mouseSpeed, false);
 								}
 								System.out.println("[GIZMO] Change Scale to "+entityPicked.getScaling());
 							}
@@ -344,16 +356,16 @@ public class Render {
 		Display.sync(Core.DISPLAY_RATE);
 		//Display.setVSyncEnabled(true);
 	}
-	public void RenderEntityLayers(ArrayList<EntityLayer> layers, Matrix4f identityMatrix, StaticShader shader, boolean renderPickerColor, boolean renderBoxOnly, boolean isHighlighted){
+	public void RenderEntityLayers(ArrayList<EntityLayer> layers, Matrix4f identityMatrix, ShaderProgram shader, boolean isPickingShader, boolean renderBoxOnly, boolean isHighlighted){
 		try{
 			for (EntityLayer layer : layers){
-				RenderEntities(true, layer.getEntities(), identityMatrix, shader, false, renderPickerColor, renderBoxOnly, isHighlighted);
+				RenderEntities(true, layer.getEntities(), identityMatrix, shader, false, isPickingShader, renderBoxOnly, isHighlighted);
 			}
 		}catch(ConcurrentModificationException e){
 		}
 	}
 	
-	public void RenderEntity(boolean visible, Entity e, Matrix4f parentMtx, StaticShader shader, boolean recalcChilds, boolean renderPickerColor, boolean renderBoxOnly, boolean isHighlighted){
+	public void RenderEntity(boolean visible, Entity e, Matrix4f parentMtx, ShaderProgram shader, boolean recalcChilds, boolean isPickingShader, boolean renderBoxOnly, boolean isHighlighted){
 		e.pokeRawModels(Core.currentTick);
 			Matrix4f stackMtx = null;
 			if (e.isRecalculateAbs() || recalcChilds || e.getAbsMatrix()==null){
@@ -362,13 +374,19 @@ public class Render {
 				recalcChilds = true;
 			}
 			stackMtx = e.getAbsMatrix();
-			shader.loadTransformationMatrix(stackMtx);
-			if ((e.getHighlighted()||isHighlighted)&&!renderPickerColor) {
-				shader.loadHighlighted(true);
+			
+			if (isPickingShader){
+				((ObjectPickerShader) shader).loadTransformationMatrix(stackMtx);
+				((ObjectPickerShader) shader).loadPickerColor(e.getPickerColors());
 			}else{
-				shader.loadHighlighted(false);
+				((ObjectShader) shader).loadTransformationMatrix(stackMtx);
+				if ((e.getHighlighted()||isHighlighted)) {
+					((ObjectShader) shader).loadHighlighted(true);
+					((ObjectShader) shader).loadHighlightedColor(e.getPickerColors());
+				}else{
+					((ObjectShader) shader).loadHighlighted(false);
+				}
 			}
-			shader.loadHeighlightedColor(e.getHeighlightedColor());
 			
 			if (e.isShowBoundingBox()||renderBoxOnly) {
 				if (renderBoxOnly){
@@ -376,17 +394,6 @@ public class Render {
 				}else{
 					drawBoundingBoxLines(e.getMinCoords(), e.getMaxCoords());
 				}
-			}
-			if (renderPickerColor){
-				shader.loadPicker(true);
-			}else{
-				shader.loadPicker(false);
-			}
-			if (e.getPickerColors()!=null){
-				shader.loadPickerColor(e.getPickerColors());
-			}else{
-				shader.loadPickerColor(new Vector3f(1.0f, 1.0f, 1.0f));
-//				System.out.println("Entity without PickerColor!");
 			}
 			
 			RawModel[] rawModels = e.getRawModels();
@@ -407,7 +414,10 @@ public class Render {
 						glColor3f(0.25f, 0.25f, 0.25f);
 						GL30.glBindVertexArray(raw.getVaoID());
 						GL20.glEnableVertexAttribArray(0);
-						GL20.glEnableVertexAttribArray(1);
+						if (!isPickingShader){
+							GL20.glEnableVertexAttribArray(1);
+							GL20.glEnableVertexAttribArray(2);
+						}
 						GL13.glActiveTexture(GL13.GL_TEXTURE0);
 						if (diffuseTextures!=null&&(i<diffuseTextures.length)){
 							GL11.glBindTexture(GL11.GL_TEXTURE_2D, diffuseTextures[i]);
@@ -417,20 +427,22 @@ public class Render {
 						GL11.glDrawElements(raw.getDrawMethod(), raw.getVertexCount(),
 								GL11.GL_UNSIGNED_INT, 0);
 						GL20.glDisableVertexAttribArray(0);
-						GL20.glDisableVertexAttribArray(1);
+						if (!isPickingShader){
+							GL20.glDisableVertexAttribArray(1);
+							GL20.glDisableVertexAttribArray(2);
+						}
 						GL30.glBindVertexArray(0);
 					}
 				}
 			}
 			renderCalls++;
-			RenderEntities(e.getIsVisible()&&visible, e.getChildrens(), stackMtx, shader, recalcChilds, renderPickerColor, renderBoxOnly, (isHighlighted||e.getHighlighted()));
-			shader.loadHighlighted(false);
+			RenderEntities(e.getIsVisible()&&visible, e.getChildrens(), stackMtx, shader, recalcChilds, isPickingShader, renderBoxOnly, (isHighlighted||e.getHighlighted()));
 //		}
 	}
 	
-	public void RenderEntities(boolean visible, ArrayList<Entity> entities, Matrix4f parentMtx, StaticShader shader, boolean recalcChilds, boolean renderPickerColor, boolean renderBoxOnly, boolean isHighlighted){
+	public void RenderEntities(boolean visible, ArrayList<Entity> entities, Matrix4f parentMtx, ShaderProgram shader, boolean recalcChilds, boolean isPickingShader, boolean renderBoxOnly, boolean isHighlighted){
 		for (Entity e : entities) {
-			RenderEntity(visible, e, parentMtx, shader, recalcChilds, renderPickerColor, renderBoxOnly, isHighlighted);
+			RenderEntity(visible, e, parentMtx, shader, recalcChilds, isPickingShader, renderBoxOnly, isHighlighted);
 		}
 	}
 	

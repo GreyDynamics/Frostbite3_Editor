@@ -22,12 +22,11 @@ import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXHandler.FieldValueType;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXInstance;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXLinearTransform;
+import tk.greydynamics.Resource.Frostbite3.EBX.Structure.Entry.EBXBlueprintTransform;
 import tk.greydynamics.Resource.Frostbite3.Toc.ResourceLink;
 
 public class EntityLayerConverter {
-	
-	public static final int scaleMultiplier = 4;
-	
+		
 	public static EntityLayer getEntityLayer(EBXFile ebxFile, EBXWindow ebxWindow){
 		boolean loadOriginal = false;
 		
@@ -128,11 +127,12 @@ public class EntityLayerConverter {
 				EBXLinearTransform linearTransform = new EBXLinearTransform(field.getValueAsComplex());
 				InstanceEntity instance = (InstanceEntity) instanceEntity;
 				instance.setLinearTransformField(field);
-//				instanceEntity.setPosition(VectorMath.multiply(linearTransform.getTranformation(), new Vector3f(scaleMultiplier, scaleMultiplier, scaleMultiplier), null));
-				instanceEntity.setPosition(linearTransform.getTranformation());
-				instanceEntity.setRotation(linearTransform.getRotation());
-				//instanceEntity.setScaling(linearTransform.getScaling());
-				//TODO scaling!
+				instanceEntity.setPosition(linearTransform.getTranformation(), true);
+				instanceEntity.setRotation(linearTransform.getRotation(EBXBlueprintTransform.IsDIRECT3D), true);
+				instanceEntity.setScaling(linearTransform.getScaling(EBXBlueprintTransform.IsDIRECT3D), true);
+				
+				//Temporary solution until scaling is fixed.
+				instanceEntity.setRelMatrix(linearTransform.getMatrix4f(EBXBlueprintTransform.IsDIRECT3D));
 			}else if (field.getFieldDescritor().getName().equals("Materials")){ 
 				System.out.println("MATERIAL!"); 
 			}else{
@@ -185,7 +185,26 @@ public class EntityLayerConverter {
 		if (meshEntity!=null){
 			en.getChildrens().add(meshEntity);
 		}
-		EBXFile targetFile = Core.getGame().getResourceHandler().getEBXHandler().getEBXFileByGUID(externalGUID.getFileGUID(), true, loadOriginal);
+		EBXFile targetFile = null;
+		try{
+			if (Core.getGame().getCurrentBundle().getType()==BundleType.CAS){
+				ResourceLink link = Core.getGame().getResourceHandler().getResourceLinkByEBXGUID(externalGUID.getFileGUID());
+				if (link!=null){
+					if (!link.getName().contains("fx/")&&!link.getName().contains("fx_")&&!link.getName().contains("sound/")){
+						targetFile = Core.getGame().getResourceHandler().getEBXHandler().getEBXFileByGUID(externalGUID.getFileGUID(), true, loadOriginal);
+					}else{
+						System.out.println("Skipping FX/Sounds in EntityLayerConverter: "+link.getName());
+					}
+				}
+			}else{
+				System.err.println("TODO: Skipping FX in EntityLayerConverter not supported for NONCAS");
+				targetFile = Core.getGame().getResourceHandler().getEBXHandler().getEBXFileByGUID(externalGUID.getFileGUID(), true, loadOriginal);
+			}
+		}catch (Exception e){
+			System.err.println("EntityLayerConverter couldn't load the EBX File: ");
+			e.printStackTrace();
+			targetFile = null;
+		}
 		if (targetFile!=null){
 			boolean found = false;
 			for (EBXInstance instance : targetFile.getInstances()){

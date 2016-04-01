@@ -149,16 +149,17 @@ public class EntityHandler {
 //	}
 	
 	
-	public Entity createEntity(EntityLayer layer, Vector3f pickerColors, byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){
-		try{
-			
-			
-			MeshChunkLoader msl = resourceHandler.getMeshChunkLoader();
-			msl.loadFile(mesh, Core.getGame().getCurrentBundle());
+	public Entity createEntity(EntityLayer layer, Vector3f pickerColors, byte[] mesh, Type type, Object entityData, EBXExternalGUID meshInstanceGUID, Entity parent, String loaderErrorDesc){		
+		
+		MeshChunkLoader msl = resourceHandler.getMeshChunkLoader();
+		boolean loaded = msl.loadFile(mesh, Core.getGame().getCurrentBundle());
+		if (loaded){
 			RawModel[] rawModels = new RawModel[msl.getSubMeshCount()];
 			//ArrayList<String> materials = resourceHandler.getMeshVariationDatabaseHandler().getMaterials(msl.getName(), 0); //VARIATION ID ??!
 			for (int submesh=0; submesh<msl.getSubMeshCount();submesh++){
-				RawModel model = modelHandler.addRawModel(GL11.GL_TRIANGLES, msl.getName()+submesh, msl.getVertexPositions(submesh), msl.getUVCoords(submesh), msl.getIndices(submesh));
+//				float[] normals = VectorMath.triangulateVertexNormals(msl.getVertexPositions(submesh),  msl.getIndices(submesh));
+				
+				RawModel model = modelHandler.addRawModel(GL11.GL_TRIANGLES, msl.getName()+submesh, msl.getVertexPositions(submesh), msl.getUVCoords(submesh), msl.getUVNormals(submesh), msl.getIndices(submesh));
 				
 				int textureID = modelHandler.getLoader().getNotFoundID();
 				/*if (materials!=null){
@@ -195,11 +196,10 @@ public class EntityHandler {
 			en.setMaxCoords(new Vector3f(maxCoords[0], maxCoords[1], maxCoords[2]));
 			en.setMinCoords(new Vector3f(minCoords[0], minCoords[1], minCoords[2]));
 			return en;
-		}catch(Exception e){
-			e.printStackTrace();
-			System.err.println("Could not create entitiy: "+loaderErrorDesc); 
-			return null;
+		}else{
+			System.err.println("Entity not created from Mesh.");
 		}
+		return null;
 	}
 	
 	public void updateLayer(EntityLayer layer, EBXStructureFile meshVariationDatabase){
