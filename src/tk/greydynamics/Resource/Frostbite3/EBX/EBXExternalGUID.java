@@ -7,7 +7,7 @@ import tk.greydynamics.Resource.Frostbite3.EBX.Structure.EBXStructureEntry;
 public class EBXExternalGUID {
 	private String fileGUID = null;
 	private String instanceGUID = null;
-	
+		
 	public EBXExternalGUID(String fileGUID, String instanceGUID) {
 		this.fileGUID = fileGUID;
 		this.instanceGUID = instanceGUID;
@@ -45,8 +45,17 @@ public class EBXExternalGUID {
 		this.instanceGUID = instanceGUID;
 	}	
 	
-	public String getBothGUIDs(){
+	/**
+	 * @return "fileGUID/instanceGUID" with a forward slash (without spaces).
+	 */
+	public String getBothGUIDsWithSlash(){
 		return fileGUID+"/"+instanceGUID;
+	}
+	/**
+	 * @return "fileGUID instanceGUID" with a space.
+	 */
+	public String getBothGUIDsWithSpace(){
+		return fileGUID+" "+instanceGUID;
 	}
 	
 	public EBXStructureEntry follow(boolean tryLoad, boolean loadOriginal){

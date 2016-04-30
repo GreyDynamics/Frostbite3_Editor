@@ -1,0 +1,31 @@
+PropertyConnections::array
+000021f4                            member(0)::PropertyConnection
+000021f4                                Source 42fc31b5631da841a54372b0900342c1
+000021f8                                Target 00000010
+000021fc                                SourceFieldId 193453899
+00002200                                TargetFieldId 5685821
+00002204                                ShouldNetworkValue False
+Checks only on request for positive, triggers following events.
+The source is the ------output------ from the source instance & the target is the input from the target instance.
+
+
+LinkConnections::array
+000022c4                            member(0)::LinkConnection
+000022c4                                Source 00000000
+000022c8                                Target 00000006
+000022cc                                SourceFieldId 838548383
+000022d0                                TargetFieldId 0
+Connects static, final data to other nodes.
+The source is the ----input----- from the source instance & the target is the output from the target instance
+
+EventConnections::array
+000022d8                        member(0)::EventConnection
+000022d8                            Source 35ef74dd089e6c4ead8fe98b12e9cfea
+000022dc                            Target 0000000b
+000022e0                            SourceEvent::EventSpec
+000022e0                                Id -1447021378
+000022e4                            TargetEvent::EventSpec
+000022e4                                Id 446714363
+000022e8                            TargetType EventConnectionTargetType_Server
+Checks continuously for positive, triggers following events.
+The source is the -----output---- from the source instance & the target is the input from the target instance.

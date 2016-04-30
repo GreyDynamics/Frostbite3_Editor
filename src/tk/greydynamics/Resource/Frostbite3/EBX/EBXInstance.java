@@ -3,9 +3,11 @@ package tk.greydynamics.Resource.Frostbite3.EBX;
 import java.util.UUID;
 
 public class EBXInstance {
+	EBXFile parentFile;
 	String guid;
 	EBXComplex complex;
-	public EBXInstance(String guid, EBXComplex complex) {
+	public EBXInstance(EBXFile parentFile, String guid, EBXComplex complex) {
+		this.parentFile = parentFile;
 		this.guid = guid;
 		this.complex = complex;
 	}
@@ -16,8 +18,14 @@ public class EBXInstance {
 		return complex;
 	}
 	
+	public void setParentFile(EBXFile parentFile) {
+		this.parentFile = parentFile;
+	}
+	public EBXFile getParentFile() {
+		return parentFile;
+	}
 	public static EBXInstance clone(EBXInstance instance){
-		return new EBXInstance(instance.getGuid(), EBXComplex.clone(instance.getComplex()));
+		return new EBXInstance(instance.getParentFile(), instance.getGuid(), EBXComplex.clone(instance.getComplex()));
 	}
 	
 	public String assignRandomGUID(){

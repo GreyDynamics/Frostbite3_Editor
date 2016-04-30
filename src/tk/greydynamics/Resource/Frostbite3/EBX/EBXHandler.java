@@ -54,6 +54,9 @@ public class EBXHandler {
 		try{
 			if (loader.loadEBX(data)){
 				EBXFile newFile = new EBXFile(loader.getTrueFilename(), loader.getInstances(), loader.getFileGUID(), loader.getByteOrder(), loader.getExternalGUIDs());
+				for (EBXInstance instance: newFile.getInstances()){
+					instance.setParentFile(newFile);
+				}
 				EBXExternalFileReference efr = new EBXExternalFileReference(loader.getFileGUID(), loader.getTrueFilename());
 				ebxFiles.put(efr, newFile);
 				return newFile;
@@ -241,6 +244,70 @@ public class EBXHandler {
 		}
 		return null;
 	}
+	
+	public static ArrayList<EBXField> getEBXField(EBXInstance primaryInstance, ArrayList<EBXField> targetList, String filterName, FieldValueType filterType){
+		if (targetList==null){
+			targetList = new ArrayList<>();
+		}
+		return getEBXField(primaryInstance.getComplex(), targetList, filterName, filterType);
+	}
+	
+	public static ArrayList<EBXField>  getEBXField(EBXComplex complex, ArrayList<EBXField> targetList, String filterName, FieldValueType filterType){
+		for (EBXField field : complex.getFields()){
+			if (field.getFieldDescritor().getName().equalsIgnoreCase(filterName)){
+				if (filterType==null){
+					targetList.add(field);
+				}else if (filterType==field.getType()){
+					targetList.add(field);
+				}
+			}else{
+				if (field.getValue() instanceof EBXComplex){
+					getEBXField(field.getValueAsComplex(), targetList, filterName, filterType);
+				}
+			}
+		}
+		return targetList;
+	}
+	public static EBXField getEBXField(EBXInstance primaryInstance, int fieldID){
+		return getEBXField(primaryInstance.getComplex(), fieldID);
+	}
+	
+	public static EBXField getEBXField(EBXComplex complex, int fieldID){
+		for (EBXField field : complex.getFields()){
+			if (field.getFieldID()==fieldID){
+				return field;
+			}else{
+				if (field.getValue() instanceof EBXComplex){
+					getEBXField(field.getValueAsComplex(), fieldID);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static EBXInstance getEBXInstance(EBXFile ebxFile, String instanceGUID){
+		for (EBXInstance instance : ebxFile.getInstances()){
+			if (instance.getGuid().equalsIgnoreCase(instanceGUID)){
+				return instance;
+			}
+		}
+		return null;
+	}
+	
+	public EBXInstance getEBXInstance(EBXExternalGUID externalGUID, boolean tryLoad, boolean loadOriginal){
+		EBXFile ebxFile = getEBXFileByGUID(externalGUID.getFileGUID(), tryLoad, loadOriginal);
+		if (ebxFile!=null){
+			for (EBXInstance instance : ebxFile.getInstances()){
+				if (instance.getGuid().equalsIgnoreCase(externalGUID.getInstanceGUID())){
+					return instance;
+				}
+			}
+			System.err.println("GetEBXInstance(ExternalGUID) was unable to find the requested instance inside the ebx file.");
+		}
+		System.err.println("GetEBXInstance(ExternalGUID) was unable to load the target ebx file.");
+		return null; 
+	}
+	
 	
 	/*GETTER AND SETTER*/
 

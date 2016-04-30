@@ -329,13 +329,13 @@ public class Render {
 								System.out.println("[GIZMO] Change Rotation to "+entityPicked.getRotation());
 							}else if (picked.getName().startsWith(GizmoType.GIZMO_SCALE.toString())){	
 								if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_X")){
-									entityPicked.changeScaling(Mouse.getDX() * mouseSpeed, 0f, 0f, false);
+									entityPicked.changeScaleing(Mouse.getDX() * mouseSpeed, 0f, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_Y")){
-									entityPicked.changeScaling(0f, Mouse.getDY() * mouseSpeed, 0f, false);
+									entityPicked.changeScaleing(0f, Mouse.getDY() * mouseSpeed, 0f, false);
 								}else if (picked.getName().equals(GizmoType.GIZMO_SCALE.toString()+"_Z")){
-									entityPicked.changeScaling(0f, 0f, Mouse.getDX() * mouseSpeed, false);
+									entityPicked.changeScaleing(0f, 0f, Mouse.getDX() * mouseSpeed, false);
 								}
-								System.out.println("[GIZMO] Change Scale to "+entityPicked.getScaling());
+								System.out.println("[GIZMO] Change Scale to "+entityPicked.getScaleing());
 							}
 						}
 					}

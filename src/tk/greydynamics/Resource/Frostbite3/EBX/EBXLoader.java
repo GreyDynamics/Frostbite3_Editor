@@ -131,11 +131,13 @@ public class EBXLoader {
 		seeker.setOffset(startKeyOffset+header.getLenName());
 		this.fieldDescriptors = new EBXFieldDescriptor[header.getNumField()];
 		for (int i=0;i<fieldDescriptors.length;i++){
-			fieldDescriptors[i] = new EBXFieldDescriptor(keywordDict.get(FileHandler.readInt(ebxFileBytes, seeker)),
+			int nameHash = FileHandler.readInt(ebxFileBytes, seeker);
+			fieldDescriptors[i] = new EBXFieldDescriptor(keywordDict.get(nameHash),
 					FileHandler.readShort(ebxFileBytes, seeker, order),
 					FileHandler.readShort(ebxFileBytes, seeker, order),
 					FileHandler.readInt(ebxFileBytes, seeker, order),
 					FileHandler.readInt(ebxFileBytes, seeker, order));
+			fieldDescriptors[i].setNameHash(nameHash);
 //			if (fieldDescriptors[i].getName().equalsIgnoreCase("right")){
 //				System.out.println("EBX-Padding!");
 //			}
@@ -206,7 +208,7 @@ public class EBXLoader {
 					//nonGUIDindex++;
 				}
 				internalGUIDs.add(tempGUID);
-				instances.add(new EBXInstance(tempGUID, readComplex(ir.getComplexIndex(), true, false)));
+				instances.add(new EBXInstance(null, tempGUID, readComplex(ir.getComplexIndex(), true, false)));
 				isPrimaryInstance = false;
 				if (seeker.hasError()){
 					return false;
@@ -267,6 +269,7 @@ public class EBXLoader {
 		EBXFieldDescriptor fieldDesc = fieldDescriptors[fieldIndex];
 		EBXField field = new EBXField(fieldDesc, seeker.getOffset());
 		field.indexDEBUG = fieldIndex;
+		field.setFieldID(fieldDesc.getNameHash()+0);//TODO FieldID!!
 		fields.add(field);
 				
 		/*<DECODE>*/
@@ -282,7 +285,7 @@ public class EBXLoader {
 			seeker.setOffset(arraySectionstart+arrayRepeater.offset);
 			EBXComplex arrayComplex = new EBXComplex(arrayComplexDesc);
 			EBXField[] fields = null;
-			EBXComplexDescriptor test = complexDescriptors[arrayRepeater.getComplexIndex()];
+//			EBXComplexDescriptor test = complexDescriptors[arrayRepeater.getComplexIndex()];
 			if (arrayRepeater.getRepetitions()>0){//Guids,Strings,Integer... with payload
 				fields = new EBXField[arrayRepeater.getRepetitions()];
 				for (int i=0; i<fields.length;i++){

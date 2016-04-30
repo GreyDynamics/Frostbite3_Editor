@@ -9,6 +9,7 @@ public class EBXFieldDescriptor{
 	
 	//additional
 	int size;
+	int nameHash;
 	public EBXFieldDescriptor(String name, short type, short ref, int offset,
 			int secondaryOffset) {
 		this.name = name;
@@ -21,6 +22,7 @@ public class EBXFieldDescriptor{
 //			this.offset -= 0x08;
 //		}
 		this.size = 0;
+		this.nameHash = -1;
 	}
 	
 	/**
@@ -67,6 +69,13 @@ public class EBXFieldDescriptor{
 	public void setSecondaryOffset(int secondaryOffset) {
 		this.secondaryOffset = secondaryOffset;
 	}
+	
+	public int getNameHash() {
+		return nameHash;
+	}
+	public void setNameHash(int nameHash) {
+		this.nameHash = nameHash;
+	}
 
 	public static EBXFieldDescriptor clone(EBXFieldDescriptor fieldDescritor) {
 		EBXFieldDescriptor newFieldDescriptor = new EBXFieldDescriptor(
@@ -77,6 +86,7 @@ public class EBXFieldDescriptor{
 				Integer.valueOf(fieldDescritor.getSecondaryOffset())
 			);
 		newFieldDescriptor.setSize(Integer.valueOf(fieldDescritor.getSize()));
+		newFieldDescriptor.setNameHash(Integer.valueOf(fieldDescritor.getNameHash()));
 		return newFieldDescriptor;
 	}
 }

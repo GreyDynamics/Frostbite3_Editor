@@ -70,17 +70,17 @@ public class GizmoHandler {
 		Entity rotateEntity = new GizmoEntity(GizmoType.GIZMO_ROTATE.toString(), gizmoEntity, null, null, 1.0f);
 		
 		Entity sphere = new GizmoEntity(GizmoType.GIZMO_ROTATE.toString()+"_Sphere", rotateEntity, new RawModel[] {sphereRawModel}, null, 0.2f);
-		sphere.setScaling(new Vector3f(0.9f, 0.9f, 0.9f), true);
+		sphere.setScaleing(new Vector3f(0.9f, 0.9f, 0.9f), true);
 		rotateEntity.getChildrens().add(sphere);
 		
 		Entity rotateX = new GizmoEntity(GizmoType.GIZMO_ROTATE.toString()+"_X", rotateEntity, new RawModel[] {rotateRawModel}, null, 1.0f);
 		rotateX.setRotation(new Vector3f(0.0f, (float) Math.toRadians(90.0f), 0.0f), true);
-			rotateX.setScaling(new Vector3f(1.02f, 1.02f, 1.02f), true);
+			rotateX.setScaleing(new Vector3f(1.02f, 1.02f, 1.02f), true);
 			rotateEntity.getChildrens().add(rotateX);
 			
 		Entity rotateY = new GizmoEntity(GizmoType.GIZMO_ROTATE.toString()+"_Y", rotateEntity, new RawModel[] {rotateRawModel}, null, 1.0f);
 			rotateY.setRotation(new Vector3f((float) Math.toRadians(90.0f), 0.0f, 0.0f), true);
-			rotateY.setScaling(new Vector3f(1.01f, 1.01f, 1.01f), true);
+			rotateY.setScaleing(new Vector3f(1.01f, 1.01f, 1.01f), true);
 			rotateEntity.getChildrens().add(rotateY);
 		
 		Entity rotateZ = new GizmoEntity(GizmoType.GIZMO_ROTATE.toString()+"_Z", rotateEntity, new RawModel[] {rotateRawModel}, null, 1.0f);

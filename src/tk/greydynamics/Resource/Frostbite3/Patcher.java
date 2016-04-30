@@ -8,6 +8,7 @@ import org.lwjgl.util.vector.Vector2f;
 import tk.greydynamics.Maths.Bitwise;
 import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.FileSeeker;
+import tk.greydynamics.Resource.Frostbite3.Cas.Data.BlockHeader;
 import tk.greydynamics.Resource.Frostbite3.Cas.Data.CompressionUtils;
 
 public class Patcher {
@@ -191,11 +192,11 @@ public class Patcher {
 //				System.out.println("Entry: "+i+" @ "+deltaSeeker.getOffset());
 				/*take a look into block logic to obtain the compressed size*/
 				deltaSeeker.seek(6);//4 bytes decompressed size, 2 bytes type
-				compressedDelta = new byte[FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)+8/*compressed size is without header, so add decompsize, type and compressedsize to it!*/];
+				compressedDelta = new byte[FileHandler.readShort(delta, deltaSeeker, ByteOrder.BIG_ENDIAN)+BlockHeader.BlockHeader_Size/*compressed size is without header, so add decompsize, type and compressedsize to it!*/];
 				if (deltaSeeker.hasError()){return null;}
 				
 				/*go back the beginning of the block logic and fill up the byte array*/
-				deltaSeeker.seek(-8);
+				deltaSeeker.seek(-BlockHeader.BlockHeader_Size);
 				for (int ix=0; ix<compressedDelta.length; ix++){
 					compressedDelta[ix] = FileHandler.readByte(delta, deltaSeeker);
 				}

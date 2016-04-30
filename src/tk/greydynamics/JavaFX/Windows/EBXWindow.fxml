@@ -30,6 +30,11 @@
                   <MenuItem mnemonicParsing="false" onAction="#createMeshVariationDatabase" text="Create MeshVariationDatabase" />
                </items>
             </Menu>
+            <Menu mnemonicParsing="false" text="Event">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#openEventGraph" text="EventGraph" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
 <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0">

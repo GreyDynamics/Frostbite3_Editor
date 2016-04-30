@@ -49,8 +49,8 @@ public class CasDataReader { //casPath == folderPath
 				System.err.println("Base or Delta contains null data.");
 				return null;
 			}
-			FileHandler.writeFile("output/debug/patcher_base", base);
-			FileHandler.writeFile("output/debug/patcher_delta", delta);
+//			FileHandler.writeFile("output/debug/patcher_base", base);
+//			FileHandler.writeFile("output/debug/patcher_delta", delta);
 			
 			byte[] data = Patcher.getPatchedCASData(base, delta);
 //			FileHandler.writeFile("output/debug/patcher_data", data);

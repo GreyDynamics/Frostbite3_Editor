@@ -3,6 +3,7 @@ package tk.greydynamics.Game;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
@@ -10,6 +11,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
@@ -81,18 +83,7 @@ public class Core {
 	
 	public static Random random = new Random();
 	
-	public static void main(String[] args){
-		
-//		Vector3f up = 		new Vector3f(1.0f, 0.0f, 0.0f);
-//		Vector3f forward =  new Vector3f(0.0f, -1.0f, 0.0f);
-//		Vector3f right = 	new Vector3f(0.0f, 0.0f, 1.0f);
-//		
-//		System.out.println("Scale X: "+up.length());
-//		System.out.println("Scale Y: "+forward.length());
-//		System.out.println("Scale Z: "+right.length());
-//		System.exit(0);		
-		
-		
+	public static void main(String[] args){			
 		String argLine = ""; 
 		for (String s : args){
 			argLine+=s+" "; 
@@ -128,19 +119,29 @@ public class Core {
 		FOV = 60f;
 		
 		jfxHandler = new JavaFXHandler();
+		license();
+		
 		eventHandler = new EventHandler();
 		game = new Game();
+		
 		if (buildVersion.contains("NEW VERSION")){ 
 			jfxHandler.getDialogBuilder().showInfo("Info", 
 					"Make sure to run the latest version!\n"+ 
 						"http://greydynamics.github.io/Frostbite3_Editor/"); 
 		}
-		jfxHandler.getDialogBuilder().showWarning("WARNING", 
-				"This project is in development!\n" 
-				+ "\nA lot of functions are missing or bugged.\n" 
-				+ "There is no support given at this time!\n\n" 
-				+ "PS: This tool can cause the killing of your kittens.\n", null); 
+		
+		jfxHandler.getDialogBuilder().showAsk("Do you accept the license terms?", "Do you accept the license terms?\n\n"
+				+ "If you don't agree, the application will close automaticly.", null, new Runnable() {
+					@Override
+				public void run() {
+					System.exit(133992);
+				}
+		});
 		modTools = new ModTools();
+		
+		
+//		jfxHandler.getMainWindow().createEventGraphWindow(Core.getGame().getResourceHandler().getEBXHandler().loadFile(FileHandler.readFile("__DOCUMENTATION__/eventgraph/pf_pipe_box_04.ebx")), true, true, false);
+		
 		
 		//jfxHandler.getMainWindow().createImagePreviewWindow(null, null, new ResourceLink(), "test");
 				
@@ -288,6 +289,22 @@ public class Core {
 				 + "Have a good one, Bye!"); 
 
 		System.exit(0);
+	}
+	private static void license() {
+		Scanner in = new Scanner(System.in);
+		if (!new File("LICENSE").exists()){
+			System.err.println("No License file exists!");
+			System.out.println("\n\nPress Enter to exit application.");
+			System.exit(404);
+		}
+//		ArrayList<String> licenseLines = FileHandler.readTextFile("LICENSE");
+		String command = "notepad LICENSE";
+		try {
+			Process child = Runtime.getRuntime().exec(command);
+			child.waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	public static void runOnMainThread(Runnable run){
 		if (isExecutingRunnables){

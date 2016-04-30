@@ -46,6 +46,7 @@ public class MainWindow extends Application{
 	private ArrayList<EBXWindow> ebxWindows;
 	private ArrayList<EBXComponentWindow> ebxComponentWindows;
 	private ArrayList<ImagePreviewWindow> imagePreviewWindows;
+	private ArrayList<EventGraphWindow> eventGraphWindows;
 	private ModLoaderWindow modLoaderWindow = null;
 	private ToolsWindow toolsWindow;
 
@@ -70,6 +71,7 @@ public class MainWindow extends Application{
 		ebxWindows = new ArrayList<>();
 		ebxComponentWindows = new ArrayList<>();
 		imagePreviewWindows = new ArrayList<>();
+		eventGraphWindows = new ArrayList<>();
 		modLoaderWindow = new ModLoaderWindow();
 		toolsWindow = new ToolsWindow();
 		Core.getJavaFXHandler().setMainWindow(this);
@@ -158,9 +160,58 @@ public class MainWindow extends Application{
 		return true;
 	}
 	public void destroyEBXComponentWindows(){
-		for (EBXComponentWindow window : ebxComponentWindows){
-			destroyEBXComponentWindow(window.getStage());
+		for (EBXComponentWindow ebxComponentWindow : ebxComponentWindows){
+			destroyEBXComponentWindow(ebxComponentWindow.getStage());
 		}
+	}
+	
+	public void destroyEventGraphWindows(){
+		for (EventGraphWindow eventGraphWindow : eventGraphWindows){
+			destroyEventGraphWindow(eventGraphWindow.getStage());
+		}
+	}
+	
+	public boolean createEventGraphWindow(EBXFile ebxFile, boolean isOriginal, boolean tryLoad, boolean loadOriginal){
+		try{
+			Platform.runLater(new Runnable() {
+				public void run() {
+					EventGraphWindow window = new EventGraphWindow(ebxFile, isOriginal, tryLoad, loadOriginal);
+					if (window.isSurvivable()){
+						eventGraphWindows.add(window);
+					}else{
+						if (window.getStage()!=null){
+							window.getStage().close();
+						}
+					}
+				}
+			});
+		}catch(Exception e){
+			e.printStackTrace();
+			System.err.println("EventGraphWindow creation failed!");
+			return false;
+		}
+		return true;
+	}
+	public boolean destroyEventGraphWindow(Stage stage){
+		try{Platform.runLater(new Runnable() {
+			
+			@Override
+			public void run() {
+				for (EventGraphWindow window : eventGraphWindows){
+					if (window.getStage()==stage){
+						stage.close();
+						eventGraphWindows.remove(window);
+						break;
+					}
+				}
+			}
+		});
+		}catch(Exception e){
+			e.printStackTrace();
+			System.err.println("EventGraphWindow could not get destroyed!");
+			return false;
+		}
+		return true;
 	}
 	
 	public boolean createImagePreviewWindow(File file, File ddsFile, Object object, String title){
@@ -402,6 +453,11 @@ public class MainWindow extends Application{
 	public ToolsWindow getToolsWindow() {
 		return toolsWindow;
 	}
+
+	public ArrayList<EventGraphWindow> getEventGraphWindows() {
+		return eventGraphWindows;
+	}
+	
 	
 	
 	

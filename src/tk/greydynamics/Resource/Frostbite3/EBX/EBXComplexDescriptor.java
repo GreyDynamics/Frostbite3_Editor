@@ -8,9 +8,13 @@ public class EBXComplexDescriptor{
 	short type;
 	short size;
 	short secondarySize;
+	
+	//additinal
+	int nameHash;
 	public EBXComplexDescriptor(String name){
 		this.name = name;
 		this.size = 0;
+		this.nameHash = -1;
 	}
 	
 	public EBXComplexDescriptor(String name, int fieldStartIndex, char numField,
@@ -22,7 +26,18 @@ public class EBXComplexDescriptor{
 		this.type = type;
 		this.size = size;
 		this.secondarySize = secondarySize;
+		
+		this.nameHash = -1;
 	}
+	
+	public int getNameHash() {
+		return nameHash;
+	}
+
+	public void setNameHash(int nameHash) {
+		this.nameHash = nameHash;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -75,6 +90,7 @@ public class EBXComplexDescriptor{
 				Short.valueOf(complexDescriptor.getSize()),
 				Short.valueOf(complexDescriptor.getSecondarySize())
 			);;
+		newComplex.setNameHash(Integer.valueOf(complexDescriptor.getNameHash()));
 		return newComplex;
 	}
 }

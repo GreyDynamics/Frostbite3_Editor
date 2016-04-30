@@ -28,7 +28,7 @@ public abstract class Entity {
 
 	private Vector3f position = new Vector3f(0.0f, 0.0f, 0.0f);
 	private Vector3f rotation = new Vector3f(0.0f, 0.0f, 0.0f);// stores value as radians (Math.toRadians(degrees));
-	private Vector3f scaling = new Vector3f(1.0f, 1.0f, 1.0f);
+	private Vector3f scaleing = new Vector3f(1.0f, 1.0f, 1.0f);
 	private Vector3f velocity = new Vector3f(0.0f, 0.0f, 0.0f);
 
 	private Boolean isVisible = true;
@@ -100,10 +100,10 @@ public abstract class Entity {
 		recalculateRelMatrix(initial);
 	}
 
-	public void changeScaling(float dx, float dy, float dz, boolean initial) {
-		this.scaling.x += dx;
-		this.scaling.y += dy;
-		this.scaling.z += dz;
+	public void changeScaleing(float dx, float dy, float dz, boolean initial) {
+		this.scaleing.x += dx;
+		this.scaleing.y += dy;
+		this.scaleing.z += dz;
 		recalculateRelMatrix(initial);
 	}
 
@@ -151,8 +151,8 @@ public abstract class Entity {
 		return rotation;
 	}
 
-	public Vector3f getScaling() {
-		return scaling;
+	public Vector3f getScaleing() {
+		return scaleing;
 	}
 
 
@@ -237,8 +237,8 @@ public abstract class Entity {
 		recalculateRelMatrix(initial);
 	}
 
-	public void setScaling(Vector3f scaling, boolean initial) {
-		this.scaling = scaling;
+	public void setScaleing(Vector3f scaleing, boolean initial) {
+		this.scaleing = scaleing;
 		recalculateRelMatrix(initial);
 	}
 	
@@ -325,7 +325,7 @@ public abstract class Entity {
 	
 	public void recalculateRelMatrix(boolean initial){
 		this.relMatrix =  Matrices.createTransformationMatrix(position,
-				rotation, scaling);
+				rotation, scaleing);
 		this.recalculateAbs = true;
 		
 		if (!initial){

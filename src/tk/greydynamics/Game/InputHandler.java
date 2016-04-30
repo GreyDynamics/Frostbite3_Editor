@@ -186,20 +186,20 @@ public class InputHandler {
 	    if (Keyboard.isKeyDown(Keyboard.KEY_T)&&Keyboard.isKeyDown(Keyboard.KEY_LEFT))//Scale Neg XYZ
 	    {
 	    	if (en!=null){
-	    		en.changeScaling(-speedMultipShift*0.01f, -speedMultipShift*0.01f, -speedMultipShift*0.01f, false);
+	    		en.changeScaleing(-speedMultipShift*0.01f, -speedMultipShift*0.01f, -speedMultipShift*0.01f, false);
 	    	}
 	    }
 	    if (Keyboard.isKeyDown(Keyboard.KEY_T)&&Keyboard.isKeyDown(Keyboard.KEY_RIGHT))//Scale Pos XYZ
 	    {
 	    	if (en!=null){
-	    		en.changeScaling(speedMultipShift*0.01f, speedMultipShift*0.01f, speedMultipShift*0.01f, false);
+	    		en.changeScaleing(speedMultipShift*0.01f, speedMultipShift*0.01f, speedMultipShift*0.01f, false);
 	    	}
 	    }
 	    
 	    if (Keyboard.isKeyDown(Keyboard.KEY_NUMPAD5))//Reset Object
 	    {
 	    	if (en!=null){
-	    		en.setScaling(new Vector3f(1f, 1f, 1f), false);
+	    		en.setScaleing(new Vector3f(1f, 1f, 1f), false);
 	    		en.setRotation(new Vector3f(), false);
 	    	}
 	    }

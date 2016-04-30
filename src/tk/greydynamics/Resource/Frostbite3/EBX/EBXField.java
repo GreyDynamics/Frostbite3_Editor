@@ -9,11 +9,14 @@ public class EBXField{
 	private Object value;
 	private FieldValueType type;
 	
+	//additinal
 	public int indexDEBUG = 0;
+	private int fieldID;
 	
 	public EBXField(EBXFieldDescriptor fieldDescritor, int offset) {
 		this.fieldDescritor = fieldDescritor;
 		this.offset = offset;
+		this.fieldID = -1;
 	}
 	public EBXFieldDescriptor getFieldDescritor() {
 		return fieldDescritor;
@@ -43,6 +46,12 @@ public class EBXField{
 		this.type = type;
 	}
 	
+	public int getFieldID() {
+		return fieldID;
+	}
+	public void setFieldID(int fieldID) {
+		this.fieldID = fieldID;
+	}
 	public EBXComplex getValueAsComplex(){
 		return (EBXComplex) value;
 	}
@@ -113,6 +122,7 @@ public class EBXField{
 			}
 		}
 		newEBXField.setValue(newValue, FieldValueType.valueOf(ebxField.getType().toString()));
+		newEBXField.setFieldID(Integer.valueOf(ebxField.getFieldID()));
 		return newEBXField;
 	}	
 }

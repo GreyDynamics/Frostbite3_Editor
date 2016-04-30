@@ -41,6 +41,9 @@ public class EBXWindowController {
 			}
 		});
 	}
+	public void openEventGraph(){
+		Core.getJavaFXHandler().getMainWindow().createEventGraphWindow(window.getEBXFile(), window.isOriginalFile(), true, false);
+	}
 	
 	public void createMeshVariationDatabase(){
 		/*Core.runOnMainThread(new Runnable() {

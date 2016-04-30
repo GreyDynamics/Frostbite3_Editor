@@ -129,7 +129,7 @@ public class EntityLayerConverter {
 				instance.setLinearTransformField(field);
 				instanceEntity.setPosition(linearTransform.getTranformation(), true);
 				instanceEntity.setRotation(linearTransform.getRotation(EBXBlueprintTransform.IsDIRECT3D), true);
-				instanceEntity.setScaling(linearTransform.getScaling(EBXBlueprintTransform.IsDIRECT3D), true);
+				instanceEntity.setScaleing(linearTransform.getScaling(EBXBlueprintTransform.IsDIRECT3D), true);
 				
 				//Temporary solution until scaling is fixed.
 				instanceEntity.setRelMatrix(linearTransform.getMatrix4f(EBXBlueprintTransform.IsDIRECT3D));
@@ -180,7 +180,7 @@ public class EntityLayerConverter {
 		if (isMaster){
 			pickingColors = Entity.randomizedPickerColors();
 		}
-		Entity en = new ObjectEntity(layer, externalGUID.getBothGUIDs(), externalGUID, parentEntity, null, null, pickingColors);
+		Entity en = new ObjectEntity(layer, externalGUID.getBothGUIDsWithSlash(), externalGUID, parentEntity, null, null, pickingColors);
 		Entity meshEntity = getEntity(layer, false, pickingColors, externalGUID, en, Type.Object, externalGUID);
 		if (meshEntity!=null){
 			en.getChildrens().add(meshEntity);

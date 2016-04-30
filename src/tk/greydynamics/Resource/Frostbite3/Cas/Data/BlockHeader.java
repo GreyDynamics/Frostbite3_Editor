@@ -10,15 +10,17 @@ public class BlockHeader {
 	private short compressionType = -1;
 	private int compressedSize = -1;
 	
-	public static short BlockType_Compressed_LZ4 = 0x0970;//Custom Compressed using a LZ4 Algorithmen, part of the LZ77 Family!
+	public static short BlockType_Compressed_LZ4 = 0x0970;//Custom Compressed using a LZ4 algorithm, part of the LZ77 Family!
 	public static short BlockType_UnCompressed = 0x0070;
 	public static short BlockType_UnCompressed2 = 0x0071;
 	public static short BlockType_EmtryPayload = 0x0;
 	public static short BlockType_Compressed_DAI = 0x0270;//Dragon Age Inquisition
 	
+	public static short BlockHeader_Size = 8;
+	
 	public static BlockHeader readHeader(byte[] encodedEntry, FileSeeker seeker){
 		if (encodedEntry!=null&&seeker!=null){
-			if (seeker.getOffset()+12<=encodedEntry.length){
+			if (seeker.getOffset()+BlockHeader_Size<=encodedEntry.length){
 				return new BlockHeader(
 					FileHandler.readInt(encodedEntry, seeker, ByteOrder.BIG_ENDIAN), //decompressedSize
 					FileHandler.readShort(encodedEntry, seeker, ByteOrder.BIG_ENDIAN), //compressionType

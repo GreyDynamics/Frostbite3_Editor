@@ -52,9 +52,8 @@ public class CompressionUtils {
 			return FileHandler.readByte(encodedEntry, seeker, header.getCompressedSize());
 		}else if (header.getCompressionType() == BlockHeader.BlockType_EmtryPayload){ // 0x0000 - emty payload
 			//seeker.setOffset(seeker.getOffset()-2); //NULL compressionSize
-			System.err.println("CompressionUtils needs some help. 0x0000 emty payload"); //TODO
-			//return FileHandler.readByte(encodedEntry, seeker, compressedSize);
-			return null;
+			System.out.println("CompressionUtils found BlockType_EmtryPayload.");
+			return new byte[]{};
 		}else if (header.getCompressionType() == BlockHeader.BlockType_Compressed_DAI){
 			System.err.println("'Dragon Age Inquisition' is not supported yet. Please be patient! \n If you know the Compression type of it, let me know via twittah ;)");
 			return null;
@@ -83,6 +82,8 @@ public class CompressionUtils {
 //				}
 				seeker.seek(header.getDecompressedSize());//seek to next block.
 				return header.getDecompressedSize();
+			}else if (header.getCompressionType()==BlockHeader.BlockType_EmtryPayload){
+				//Nothing to seek, payload has a size of 0.				
 			}else{
 				System.err.println("Can't Seek DataBlock, unknown Format: "+header.getCompressionType()+"!");
 			}
