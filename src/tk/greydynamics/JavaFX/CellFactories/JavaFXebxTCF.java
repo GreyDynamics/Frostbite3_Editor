@@ -421,22 +421,28 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 						if (ebxField.getType()==FieldValueType.ArrayComplex){
 							if (ebxField.getValue() instanceof EBXArrayRepeater){
 								//Emty array
-								setText(ebxField.getFieldDescritor().getName()+"::array (emty)"+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" )");
+//								setText(ebxField.getFieldDescritor().getName()+"::array (emty)"+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" )");
+								setText(ebxField.getFieldDescritor().getName()+"::array (emty)"+" ( DEBUG: "+(EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())&0xffffffffL)+" )");
 							}else{
-								setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" )");
+								setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+(EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())&0xffffffffL)+" )");
+//								setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" )");
 							}
 						}else if (ebxField.getType()==FieldValueType.Complex){
-							setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" - "+EBXHandler.hasher(ebxField.getValueAsComplex().getComplexDescriptor().getName().getBytes())+" )");
+							setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+(EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())&0xffffffffL)+" - "+(EBXHandler.hasher(ebxField.getValueAsComplex().getComplexDescriptor().getName().getBytes())&0xffffffffL)+" )");
+//							setText(ebxField.getFieldDescritor().getName()+"::"+ebxField.getValueAsComplex().getComplexDescriptor().getName()+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" - "+EBXHandler.hasher(ebxField.getValueAsComplex().getComplexDescriptor().getName().getBytes())+" )");
 						}else{
 							String fieldValue = convertToString(ebxField.getValue(), ebxField.getType());
 
-							setText(ebxField.getFieldDescritor().getName()+": "+fieldValue+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" )");
+//							setText(ebxField.getFieldDescritor().getName()+": "+fieldValue+" ( DEBUG: "+EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())+" )");
+							setText(ebxField.getFieldDescritor().getName()+": "+fieldValue+" ( DEBUG: "+(EBXHandler.hasher(ebxField.getFieldDescritor().getName().getBytes())&0xffffffffL)+" )");
 						}
 					}else if (item instanceof EBXComplex){
 						setText("complex");
 					}else if (item instanceof EBXInstance){
 						EBXInstance ebxInstance = (EBXInstance) item;
-						setText(ebxInstance.getComplex().getComplexDescriptor().getName()+" "+ebxInstance.getGuid()+" (DEBUG: "+EBXHandler.hasher(ebxInstance.getComplex().getComplexDescriptor().getName().getBytes()));
+						setText(ebxInstance.getComplex().getComplexDescriptor().getName()+" "+ebxInstance.getGuid()+" (DEBUG: "+(EBXHandler.hasher(ebxInstance.getComplex().getComplexDescriptor().getName().getBytes())&0xffffffffL));
+//						setText(ebxInstance.getComplex().getComplexDescriptor().getName()+" "+ebxInstance.getGuid()+" (DEBUG: "+EBXHandler.hasher(ebxInstance.getComplex().getComplexDescriptor().getName().getBytes()));
+						
 						setGraphic(new ImageView(JavaFXHandler.ICON_LIST));
 					}else{
 						//ERROR

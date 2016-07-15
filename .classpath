@@ -9,6 +9,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/jar/slick-util.jar" sourcepath="lib/jar/slick-util-src.zip"/>
+	<classpathentry kind="lib" path="lib/jar/jna-4.2.1.jar"/>
+	<classpathentry kind="lib" path="lib/jar/jna-platform-4.2.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="FrostBite3_Editor/lib/native/windows"/>

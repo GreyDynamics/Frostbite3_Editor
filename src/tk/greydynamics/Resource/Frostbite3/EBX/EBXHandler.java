@@ -278,7 +278,10 @@ public class EBXHandler {
 				return field;
 			}else{
 				if (field.getValue() instanceof EBXComplex){
-					getEBXField(field.getValueAsComplex(), fieldID);
+					EBXField field2 = getEBXField(field.getValueAsComplex(), fieldID);
+					if (field2!=null){
+						return field2;
+					}
 				}
 			}
 		}
