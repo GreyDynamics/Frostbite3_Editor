@@ -1,9 +1,15 @@
 package tk.greydynamics.JavaFX.Controller;
 
+import java.io.File;
+
+import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import tk.greydynamics.Entity.Layer.EntityLayer;
 import tk.greydynamics.Game.Core;
@@ -15,12 +21,21 @@ import tk.greydynamics.Resource.FileHandler;
 import tk.greydynamics.Resource.ResourceHandler.LinkBundleType;
 import tk.greydynamics.Resource.ResourceHandler.ResourceType;
 import tk.greydynamics.Resource.Frostbite3.EBX.EBXFile;
+import tk.greydynamics.Resource.Frostbite3.EBX.EBXHeader;
 
 public class EBXWindowController {
 	@FXML
 	private TreeView<Object> ebxExplorer;
 	@FXML
 	private MenuItem saveEBXMenuItem;
+	@FXML
+	private MenuItem compileEBXMenuItem;
+	@FXML
+	private MenuItem openEBXFile;
+	@FXML
+	private Menu layerMenu;
+	@FXML
+	private Menu eventMenu;
 	
 	private EBXWindow window;
 	private Stage stage;
@@ -74,7 +89,23 @@ public class EBXWindowController {
 	}
 	
 	public void close(){
-		Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+		if (Core.singleEBXTool){
+			Core.keepAlive = false;
+		}else{
+			if (window.getEntityLayer()==null){
+				Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+			}else{
+				Core.getJavaFXHandler().getDialogBuilder().showAsk("DO YOU REALLY WANT TO CONTINUE?",
+						"This EBX Window is linked to an EntityLayer,\n"+
+						"that will destroy itself when this window closes.\n\n"+
+						"DO YOU REALLY WANT TO CONTINUE?"
+						, new Runnable() {
+					public void run() {
+						Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
+					}
+				}, null);
+			}
+		}
 	}
 	public boolean compileEBX(){
 		System.err.println("(EXPERIMENTAL)");
@@ -105,6 +136,43 @@ public class EBXWindowController {
 					return saveData(resLinkName, ebxBytes, false);
 				}
 			}
+		}
+		return false;
+	}
+	public boolean openEBXFileAction(){
+		return selectEBXFile();
+	}
+	public boolean selectEBXFile(){
+		saveEBXMenuItem.setDisable(true);
+		try{
+			final FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select an EBX File!");
+			final File selectedFile = fileChooser.showOpenDialog(new Stage());
+			if (selectedFile != null) {
+				String path = FileHandler.normalizePath(selectedFile.getAbsolutePath());
+				System.out.println("Selected '"+path+"'");
+				byte[] ebxBytes = FileHandler.readFile(path);
+				if (ebxBytes!=null && ebxBytes.length>EBXHeader.SIZE){
+					EBXFile ebxFile = Core.getGame().getResourceHandler().getEBXHandler().loadFile(ebxBytes);
+					if (ebxFile==null){
+						System.err.println("ERROR: PARSING EXTERNAL EBX FILE FAILED. DATA CORRUPTED!");
+					}else{
+						System.out.println("LOADING EBX!");
+						window.setName(path);
+						setOriginalBytes(ebxBytes);
+						window.setEbxFile(ebxFile);
+						window.setCellFactory(ebxFile, true);
+						update(ebxFile);
+						saveEBXMenuItem.setDisable(false);
+						return true;
+					}
+				}else{
+					System.err.println("ERROR: EXTERNAL EBX FILE NOT VALID OR PERMISSION DENIED!");
+				}
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+			return selectEBXFile();
 		}
 		return false;
 	}
@@ -150,6 +218,13 @@ public class EBXWindowController {
 						saveData(resLinkName, originalBytes, false/*debug*/);
 					}
 				}
+			}else if (Core.singleEBXTool){
+				String filePath = window.getName();
+				if (window.getEBXFile()!=null){
+					if (originalBytes!=null){
+						FileHandler.writeFile(filePath, originalBytes);
+					}
+				}
 			}
 		}else{
 			System.err.println("No data to save :(");
@@ -190,6 +265,18 @@ public class EBXWindowController {
 
 	public MenuItem getSaveEBXMenuItem() {
 		return saveEBXMenuItem;
+	}
+	public MenuItem getCompileEBXMenuItem() {
+		return compileEBXMenuItem;
+	}
+	public MenuItem getOpenEBXFile() {
+		return openEBXFile;
+	}
+	public Menu getLayerMenu() {
+		return layerMenu;
+	}
+	public Menu getEventMenu() {
+		return eventMenu;
 	}
 	
 	

@@ -75,8 +75,7 @@ public class Game {
 		entityHandler = new EntityHandler(modelHandler, resourceHandler);
 		
 		guis = new ArrayList<>();
-		
-		if (!Core.isDEBUG){
+		if (!Core.isDEBUG && !Core.noGame){
 			System.out.println("Please select a game root directory like this one: 'C:/Program Files (x86)/Origin Games/Battlefield 4'!"); 
 			Core.getJavaFXHandler().getMainWindow().selectGamePath();
 		}else{
@@ -90,7 +89,7 @@ public class Game {
 			END OF TEST*/
 		}
 		
-		while (Core.keepAlive){
+		while (Core.keepAlive && !Core.noGame){
 			//wait
 			System.out.print(""); 
 			try {
@@ -103,30 +102,32 @@ public class Game {
 			}
 		}
 		resourceHandler.createEBXComponentHandler(Core.gameName);
-		checkGameVersion();
-		Core.getJavaFXHandler().getMainWindow().getModLoaderWindow().getController().setGamepath(FileHandler.normalizePath(Core.gamePath));
-		Core.getJavaFXHandler().getMainWindow().toggleModLoaderVisibility();
-		File cascat = new File(Core.gamePath+Core.PATH_DATA+"cas.cat"); 
-//		if (!cascat.exists()){
-//			//System.err.println("Invalid gamepath selected.");
-//			Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Invalid gamepath selected.", null);
-//			Core.keepAlive(false);
-//		}else{
-			System.out.println("Building up FrostBite Editor!"); 
-			buildEditor();
-			
-			if (Core.isDEBUG){//EBX-DEBUG
-				Core.getJavaFXHandler().getMainWindow().toggleModLoaderVisibility();
-				currentMod = null;
-				//ebxFileGUIDs = new HashMap<>();
-				//ebxFileGUIDs.put("EA830D5EFFB3EE489D44963370D466B1", "test/test1/test2");
-				/*byte[] bytes = FileHandler.readFile("__DOCUMENTATION__/ebx/sample_ebx/layer0_default.ebx");
-				byte[] bytes = FileHandler.readFile("mods/SampleMod/resources/levels/mp/mp_playground/content/layer2_buildings.bak--IGNORE");
-				EBXFile ebxFile = resourceHandler.getEBXHandler().loadFile(bytes);
-				TreeItem<TreeViewEntry> treeView = TreeViewConverter.getTreeView(ebxFile);
-				Core.getJavaFXHandler().setTreeViewStructureRight(treeView);
-				Core.getJavaFXHandler().getMainWindow().updateRightRoot();*/
-//			}
+		if (!Core.noGame){
+			checkGameVersion();
+			Core.getJavaFXHandler().getMainWindow().getModLoaderWindow().getController().setGamepath(FileHandler.normalizePath(Core.gamePath));
+			Core.getJavaFXHandler().getMainWindow().toggleModLoaderVisibility();
+			File cascat = new File(Core.gamePath+Core.PATH_DATA+"cas.cat"); 
+//			if (!cascat.exists()){
+//				//System.err.println("Invalid gamepath selected.");
+//				Core.getJavaFXHandler().getDialogBuilder().showError("ERROR", "Invalid gamepath selected.", null);
+//				Core.keepAlive(false);
+//			}else{
+				System.out.println("Building up FrostBite Editor!"); 
+				buildEditor();
+				
+				if (Core.isDEBUG){//EBX-DEBUG
+					Core.getJavaFXHandler().getMainWindow().toggleModLoaderVisibility();
+					currentMod = null;
+					//ebxFileGUIDs = new HashMap<>();
+					//ebxFileGUIDs.put("EA830D5EFFB3EE489D44963370D466B1", "test/test1/test2");
+					/*byte[] bytes = FileHandler.readFile("__DOCUMENTATION__/ebx/sample_ebx/layer0_default.ebx");
+					byte[] bytes = FileHandler.readFile("mods/SampleMod/resources/levels/mp/mp_playground/content/layer2_buildings.bak--IGNORE");
+					EBXFile ebxFile = resourceHandler.getEBXHandler().loadFile(bytes);
+					TreeItem<TreeViewEntry> treeView = TreeViewConverter.getTreeView(ebxFile);
+					Core.getJavaFXHandler().setTreeViewStructureRight(treeView);
+					Core.getJavaFXHandler().getMainWindow().updateRightRoot();*/
+//				}
+			}
 		}
 	}
 	

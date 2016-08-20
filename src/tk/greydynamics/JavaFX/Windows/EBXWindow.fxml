@@ -14,8 +14,9 @@
         <menus>
           <Menu mnemonicParsing="false" text="EBX">
             <items>
-              <MenuItem fx:id="saveEBXMenuItem" mnemonicParsing="false" onAction="#saveEBX" text="Save (Float, Int, UInt, Short, UShort, Byte, Bool) to current Mod" />
-                  <MenuItem mnemonicParsing="false" onAction="#compileEBX" text="Compile EBX and save to Mod (EXPERIMENTAL, mostly fails!)" />
+                  <MenuItem fx:id="openEBXFile" mnemonicParsing="false" onAction="#openEBXFileAction" text="Open External File" />
+              <MenuItem fx:id="saveEBXMenuItem" mnemonicParsing="false" onAction="#saveEBX" text="Save (Float, Int, UInt, Short, UShort, Byte, Bool)" />
+                  <MenuItem fx:id="compileEBXMenuItem" mnemonicParsing="false" onAction="#compileEBX" text="Compile EBX and save to Mod (EXPERIMENTAL, mostly fails!)" />
                   <MenuItem mnemonicParsing="false" onAction="#close" text="Close" />
             </items>
           </Menu>
@@ -24,13 +25,13 @@
               <MenuItem mnemonicParsing="false" text="Delete" />
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" text="Layer">
+            <Menu fx:id="layerMenu" mnemonicParsing="false" text="Layer">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#createLayer" text="Create Layer" />
                   <MenuItem mnemonicParsing="false" onAction="#createMeshVariationDatabase" text="Create MeshVariationDatabase" />
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Event">
+            <Menu fx:id="eventMenu" mnemonicParsing="false" text="Event">
               <items>
                 <MenuItem mnemonicParsing="false" onAction="#openEventGraph" text="EventGraph" />
               </items>

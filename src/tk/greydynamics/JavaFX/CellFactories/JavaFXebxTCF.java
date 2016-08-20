@@ -60,14 +60,16 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 								if (getTreeItem().getParent().getValue() instanceof EBXField){
 									EBXField parentField = (EBXField) getTreeItem().getParent().getValue();
 									if (parentField.getType()==FieldValueType.ArrayComplex){
-										contextMenu.getItems().add(duplicate);
+										if (!Core.singleEBXTool)
+											contextMenu.getItems().add(duplicate);
 									}
 								}
 							}
 							
 							
 							if (ebxField.getType()==FieldValueType.ExternalGuid||ebxField.getType()==FieldValueType.Guid){
-								contextMenu.getItems().add(follow);
+								if (!Core.singleEBXTool)
+									contextMenu.getItems().add(follow);
 							}
 							if (ebxField.getType()==FieldValueType.Complex){								
 								//REPLACE
@@ -89,7 +91,7 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 									break;
 								}
 							}
-							if (instanceIndex<instances.size()-1&&instanceIndex!=-1){
+							if (instanceIndex<instances.size()-1&&instanceIndex!=-1&&!Core.singleEBXTool){
 								contextMenu.getItems().add(duplicate);
 							}
 						}

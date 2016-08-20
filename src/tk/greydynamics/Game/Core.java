@@ -65,6 +65,9 @@ public class Core {
 	public static String currentDir;
 	public static String gameVersion;
 	
+	public static boolean noGame = false;
+	public static boolean singleEBXTool = false;
+	
 	/*You w00t mate ?*/
 	public static String buildVersion;
 		
@@ -90,6 +93,13 @@ public class Core {
 		}
 		if (argLine.equals("")){ 
 			argLine = "[No-Arguments]"; 
+		}else if (args.length==1){
+			if (args[0].equals("EBX")){
+				singleEBXTool = true;
+			}
+			if (args[0].equals("NOGAME") || singleEBXTool){
+				noGame = true;
+			}
 		}
 		System.out.println("Starting with Arguments: "+argLine); 
 				
@@ -129,15 +139,19 @@ public class Core {
 					"Make sure to run the latest version!\n"+ 
 						"http://greydynamics.github.io/Frostbite3_Editor/"); 
 		}
+		if (!noGame){
+			jfxHandler.getDialogBuilder().showAsk("Do you accept the license terms?", "Do you accept the license terms?\n\n"
+					+ "If you don't agree, the application will close automaticly.", null, new Runnable() {
+						@Override
+					public void run() {
+						System.exit(133992);
+					}
+			});
+			modTools = new ModTools();
+		}else if (singleEBXTool){
+			jfxHandler.getMainWindow().createEBXWindow(null, null, "test", true);
+		}
 		
-		jfxHandler.getDialogBuilder().showAsk("Do you accept the license terms?", "Do you accept the license terms?\n\n"
-				+ "If you don't agree, the application will close automaticly.", null, new Runnable() {
-					@Override
-				public void run() {
-					System.exit(133992);
-				}
-		});
-		modTools = new ModTools();
 		
 		
 //		jfxHandler.getMainWindow().createEventGraphWindow(Core.getGame().getResourceHandler().getEBXHandler().loadFile(FileHandler.readFile("__DOCUMENTATION__/eventgraph/pf_pipe_box_04.ebx")), true, true, false);
@@ -166,7 +180,7 @@ public class Core {
 				
 				try {
 		            Display.setDisplayMode(new DisplayMode(DISPLAY_WIDTH, DISPLAY_HEIGHT));
-		            Display.setTitle("MapEditor / Template Viewer! (PLS IGNORE TERRAIN.."); 
+		            Display.setTitle("MapEditor / Template Viewer! (PLS IGNORE TERRAIN..)"); 
 		            Display.setResizable(true);
 		            Display.create();
 		            Display.setIcon(new ByteBuffer[] {

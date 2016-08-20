@@ -50,7 +50,9 @@ public class EBXWindow {
 	    scene = new Scene(parent, 475, 700);
 	    stage = new Stage();
 	    stage.setScene(scene);
-	    if (ebxFile==null){
+	    if (Core.singleEBXTool){
+	    	stage.setTitle("EXTERNAL EBX Modification Toolkit");
+	    }else if (ebxFile==null){
 	    	stage.setTitle("ERROR.");
 	    }else{
 	    	stage.setTitle(resLinkName);
@@ -65,19 +67,7 @@ public class EBXWindow {
 	    stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 			@Override
 			public void handle(WindowEvent e) {
-				if (entityLayer==null){
-					Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
-				}else{
-					Core.getJavaFXHandler().getDialogBuilder().showAsk("DO YOU REALLY WANT TO CONTINUE?",
-							"This EBX Window is linked to an EntityLayer,\n"+
-							"that will destroy itself when this window closes.\n\n"+
-							"DO YOU REALLY WANT TO CONTINUE?"
-							, new Runnable() {
-						public void run() {
-							Core.getJavaFXHandler().getMainWindow().destroyEBXWindow(stage);
-						}
-					}, null);
-				}
+				controller.close();
 				e.consume();
 			}
 		});
@@ -87,18 +77,26 @@ public class EBXWindow {
 	    controller.getEBXExplorer().setPrefWidth(Display.getDesktopDisplayMode().getWidth());
 	    controller.getEBXExplorer().setPrefHeight(Display.getDesktopDisplayMode().getHeight());
 	    
-	    controller.getEBXExplorer().setCellFactory(new Callback<TreeView<Object>,TreeCell<Object>>(){
-	        @Override
-	        public TreeCell<Object> call(TreeView<Object> p) {
-	            return new JavaFXebxTCF(controller, ebxFile, isOriginal);
-	        }
-	    });
+	    setCellFactory(ebxFile, isOriginalFile);
 	    
 	    controller.update(ebxFile);
 	    controller.setOriginalBytes(originalBytes);
 	    if (originalBytes==null){
 	    	controller.getSaveEBXMenuItem().setDisable(true);
 	    }
+	    if (Core.singleEBXTool){
+	    	controller.getCompileEBXMenuItem().setVisible(false);
+	    	controller.getLayerMenu().setVisible(false);
+	    	controller.getEventMenu().setVisible(false);
+	    }
+	}
+	public void setCellFactory(EBXFile ebxFile, boolean isOriginalFile){
+		controller.getEBXExplorer().setCellFactory(new Callback<TreeView<Object>,TreeCell<Object>>(){
+	        @Override
+	        public TreeCell<Object> call(TreeView<Object> p) {
+	            return new JavaFXebxTCF(controller, ebxFile, isOriginalFile);
+	        }
+	    });
 	}
 	public void refresh(){
 		Platform.runLater(new Runnable() {
@@ -120,6 +118,9 @@ public class EBXWindow {
 		});
 	}
 
+	public void setEbxFile(EBXFile ebxFile) {
+		this.ebxFile = ebxFile;
+	}
 	public FXMLLoader getEbxWindowLoader() {
 		return ebxWindowLoader;
 	}
@@ -163,6 +164,7 @@ public class EBXWindow {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 	
 	
 }

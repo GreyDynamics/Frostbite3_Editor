@@ -1,6 +1,8 @@
 package tk.greydynamics.Resource.Frostbite3.EBX;
 
 public class EBXHeader{
+	public static int SIZE = 0x40;
+	
     public int absStringOffset;
     public int lenStringToEOF;
     public int numGUID;
