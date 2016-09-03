@@ -492,14 +492,16 @@ public class JavaFXebxTCF extends TreeCell<Object> {
 			case ExternalGuid:
 				EBXExternalGUID externalGUID = (EBXExternalGUID) value;
 				EBXHandler ebxHandler = Core.getGame().getResourceHandler().getEBXHandler();
-				if (ebxHandler.getEBXFiles()!=null){//DEBUG-
-					EBXFile file = ebxHandler.getEBXFileByGUID(externalGUID.getFileGUID(), false/*aka. don't try to load*/, false);
-					if (file!=null){//Table with EBXFile
-						return file.getTruePath()+" "+externalGUID.getInstanceGUID();
-					}else{//Table with ResourceLink's Name
-						ResourceLink resLink = Core.getGame().getResourceHandler().getResourceLinkByEBXGUID(externalGUID.getFileGUID());
-						if (resLink!=null){
-							return resLink.getName()+" "+externalGUID.getInstanceGUID();
+				if (!Core.singleEBXTool){
+					if (ebxHandler.getEBXFiles()!=null){//DEBUG-
+						EBXFile file = ebxHandler.getEBXFileByGUID(externalGUID.getFileGUID(), false/*aka. don't try to load*/, false);
+						if (file!=null){//Table with EBXFile
+							return file.getTruePath()+" "+externalGUID.getInstanceGUID();
+						}else{//Table with ResourceLink's Name
+							ResourceLink resLink = Core.getGame().getResourceHandler().getResourceLinkByEBXGUID(externalGUID.getFileGUID());
+							if (resLink!=null){
+								return resLink.getName()+" "+externalGUID.getInstanceGUID();
+							}
 						}
 					}
 				}
